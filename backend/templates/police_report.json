@@ -29,8 +29,17 @@
       "field_type": "text",
       "strategies": [
         {
-          "strategy": "global_regex",
+          "strategy": "nearby_text",
           "priority": 1,
+          "config": {
+            "anchor_pattern": "Location",
+            "direction": "right",
+            "max_distance": 200
+          }
+        },
+        {
+          "strategy": "global_regex",
+          "priority": 2,
           "config": {
             "patterns": ["Location[ \\t:]*(?P<value>.*?)(?:\\n|$)"],
             "flags": ["IGNORECASE"]
@@ -44,8 +53,17 @@
       "field_type": "text",
       "strategies": [
         {
-          "strategy": "global_regex",
+          "strategy": "spatial_label",
           "priority": 1,
+          "config": {
+            "labels": ["weather"],
+            "direction": "right",
+            "search_radius": 250
+          }
+        },
+        {
+          "strategy": "global_regex",
+          "priority": 2,
           "config": {
             "patterns": ["Weather[ \\t:]*(?P<value>[A-Za-z \\t\\(\\)]+)"],
             "flags": ["IGNORECASE"]
@@ -74,8 +92,17 @@
       "field_type": "text",
       "strategies": [
         {
-          "strategy": "global_regex",
+          "strategy": "spatial_label",
           "priority": 1,
+          "config": {
+            "labels": ["ems agency", "transported"],
+            "direction": "right",
+            "search_radius": 300
+          }
+        },
+        {
+          "strategy": "global_regex",
+          "priority": 2,
           "config": {
             "patterns": ["(?:EMS Agency|Transported)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"],
             "flags": ["IGNORECASE"]
@@ -87,10 +114,25 @@
       "field_id": "report_number",
       "display_name": "Report Number",
       "field_type": "text",
+      "validators": [
+        {
+          "type": "regex_match",
+          "pattern": "^[0-9]{5,10}$"
+        }
+      ],
       "strategies": [
         {
-          "strategy": "global_regex",
+          "strategy": "spatial_label",
           "priority": 1,
+          "config": {
+            "labels": ["CASE NUMBER"],
+            "direction": "right",
+            "search_radius": 150
+          }
+        },
+        {
+          "strategy": "global_regex",
+          "priority": 2,
           "config": {
             "patterns": ["CASE NUMBER[ \\t:]*(?P<value>[A-Za-z0-9\\-]+)"],
             "flags": ["IGNORECASE"]

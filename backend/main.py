@@ -44,7 +44,9 @@ async def extract_ia(file: UploadFile = File(...)):
     
     # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
     if canonical_doc:
-        orchestrator_record = run_orchestrator(canonical_doc, file.filename, "ia_report")
+        orchestrator_output = run_orchestrator(canonical_doc, file.filename, "ia_report")
+        orchestrator_record = orchestrator_output["record"]
+        result["review_flags"] = orchestrator_output["review_flags"]
         result["dynamic_fields"] = {}
         for key, val in orchestrator_record.items():
             if val is not None:
@@ -54,6 +56,7 @@ async def extract_ia(file: UploadFile = File(...)):
                     result[key] = val
     else:
         result["dynamic_fields"] = {}
+        result["review_flags"] = {}
     
     # Generate Bbox Map
     bbox_map = {}
@@ -88,7 +91,9 @@ async def extract_police(file: UploadFile = File(...)):
     
     # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
     if canonical_doc:
-        orchestrator_record = run_orchestrator(canonical_doc, file.filename, "police_report")
+        orchestrator_output = run_orchestrator(canonical_doc, file.filename, "police_report")
+        orchestrator_record = orchestrator_output["record"]
+        result["review_flags"] = orchestrator_output["review_flags"]
         result["dynamic_fields"] = {}
         for key, val in orchestrator_record.items():
             if val is not None:
@@ -98,6 +103,7 @@ async def extract_police(file: UploadFile = File(...)):
                     result[key] = val
     else:
         result["dynamic_fields"] = {}
+        result["review_flags"] = {}
     
     # Generate Bbox Map
     bbox_map = {}
@@ -136,7 +142,9 @@ async def extract_acord(file: UploadFile = File(...)):
     
     # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
     if canonical_doc:
-        orchestrator_record = run_orchestrator(canonical_doc, file.filename, "acord_report")
+        orchestrator_output = run_orchestrator(canonical_doc, file.filename, "acord_report")
+        orchestrator_record = orchestrator_output["record"]
+        result["review_flags"] = orchestrator_output["review_flags"]
         result["dynamic_fields"] = {}
         for key, val in orchestrator_record.items():
             if val is not None:
@@ -146,6 +154,7 @@ async def extract_acord(file: UploadFile = File(...)):
                     result[key] = val
     else:
         result["dynamic_fields"] = {}
+        result["review_flags"] = {}
         
     # Generate Bbox Map
     bbox_map = {}

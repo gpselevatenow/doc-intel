@@ -220,7 +220,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
               {Object.entries(data.dynamic_fields).map(([key, val], idx) => (
                 <div key={idx}>
                   <div className="field-label">{key}</div>
-                  <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" /></div>
+                  <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={data.review_flags?.[`dynamic_${key}`]} /></div>
                 </div>
               ))}
             </div>
@@ -337,23 +337,23 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         <div className="grid-2">
           <div>
             <div className="field-label">Date/Time</div>
-            <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" /></div>
+            <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={data.review_flags?.['date_time']} /></div>
           </div>
           <div>
             <div className="field-label">Location</div>
-            <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" /></div>
+            <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={data.review_flags?.['location']} /></div>
           </div>
           <div>
             <div className="field-label">Weather</div>
-            <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" /></div>
+            <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={data.review_flags?.['weather']} /></div>
           </div>
           <div>
             <div className="field-label">Accident Type</div>
-            <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" /></div>
+            <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={data.review_flags?.['accident_type']} /></div>
           </div>
           <div>
             <div className="field-label">EMS Agency</div>
-            <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" /></div>
+            <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={data.review_flags?.['ems_agency']} /></div>
           </div>
         </div>
       </div>
@@ -365,15 +365,15 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         <div className="grid-2">
           <div>
             <div className="field-label">Responding Agency</div>
-            <div className="field-value clickable-field" onClick={() => onFieldClick('agency')}>{data.agency}</div>
+            <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={data.review_flags?.['agency']} /></div>
           </div>
           <div>
             <div className="field-label">Investigating Officer</div>
-            <div className="field-value clickable-field" onClick={() => onFieldClick('officer')}>{data.officer}</div>
+            <div className="field-value"><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={data.review_flags?.['officer']} /></div>
           </div>
           <div>
             <div className="field-label">Report Number</div>
-            <div className="field-value clickable-field" onClick={() => onFieldClick('report_number')}>{data.report_number}</div>
+            <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={data.review_flags?.['report_number']} /></div>
           </div>
         </div>
       </div>
@@ -455,7 +455,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
             {Object.entries(data.dynamic_fields).map(([key, val], idx) => (
               <div key={idx}>
                 <div className="field-label">{key}</div>
-                <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" /></div>
+                <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={data.review_flags?.[`dynamic_${key}`]} /></div>
               </div>
             ))}
           </div>

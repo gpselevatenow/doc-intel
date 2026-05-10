@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2 } from 'lucide-react';
+import { Edit2, AlertTriangle } from 'lucide-react';
 
-const EditableField = ({ value, fieldName, docId }) => {
+const EditableField = ({ value, fieldName, docId, needsReview = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
   const [originalValue, setOriginalValue] = useState(value);
@@ -73,7 +73,9 @@ const EditableField = ({ value, fieldName, docId }) => {
       onMouseEnter={(e) => e.currentTarget.style.borderBottom = '1px dashed rgba(255,255,255,0.3)'}
       onMouseLeave={(e) => e.currentTarget.style.borderBottom = currentValue !== value ? '1px dashed var(--accent)' : '1px dashed transparent'}
     >
-      {currentValue} <Edit2 size={12} style={{ opacity: 0.3 }} />
+      {currentValue} 
+      {needsReview && <AlertTriangle size={14} color="var(--warning)" style={{ marginLeft: '4px' }} title="Low Confidence: Please review" />}
+      <Edit2 size={12} style={{ opacity: 0.3 }} />
     </span>
   );
 };

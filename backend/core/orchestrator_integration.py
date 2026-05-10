@@ -52,4 +52,14 @@ def run_orchestrator(canonical_doc: Document, doc_id: str, doc_type: str) -> dic
 
     # Run the engine
     result = extract(canonical_doc, template)
-    return result["record"]
+    
+    # Parse audit logs for review flags
+    review_flags = {}
+    for entry in result.get("audit", []):
+        if entry.get("needs_review"):
+            review_flags[entry["field_id"]] = True
+            
+    return {
+        "record": result["record"],
+        "review_flags": review_flags
+    }
