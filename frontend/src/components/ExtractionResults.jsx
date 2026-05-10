@@ -185,28 +185,28 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           <div className="grid-2">
             <div>
               <div className="field-label">Agency / Producer</div>
-              <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" /></div>
+              <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" needsReview={data.review_flags?.['agency']} /></div>
             </div>
             <div>
               <div className="field-label">Insurance Carrier</div>
-              <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" /></div>
+              <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" needsReview={data.review_flags?.['carrier']} /></div>
             </div>
             <div>
               <div className="field-label">Policy Number</div>
-              <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" /></div>
+              <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" needsReview={data.review_flags?.['policy_number']} /></div>
             </div>
             <div>
               <div className="field-label">Named Insured</div>
-              <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" /></div>
+              <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" needsReview={data.review_flags?.['named_insured']} /></div>
             </div>
             <div>
               <div className="field-label">Date of Loss</div>
-              <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" /></div>
+              <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" needsReview={data.review_flags?.['date_of_loss']} /></div>
             </div>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <div className="field-label">Description of Loss</div>
-            <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" /></div>
+            <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" needsReview={data.review_flags?.['description_of_loss']} /></div>
           </div>
         </div>
 
