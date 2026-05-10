@@ -259,31 +259,31 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           <div className="grid-2">
             <div>
               <div className="field-label">Cause of Loss</div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.cause_of_loss)}>{data.cause_of_loss}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('cause_of_loss')}>{data.cause_of_loss}</div>
             </div>
             <div>
               <div className="field-label">Settlement Estimate <Badge /></div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.settlement)}>{data.settlement}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('settlement')}>{data.settlement}</div>
             </div>
             <div>
               <div className="field-label">Coverage A</div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.coverage_a)}>{data.coverage_a}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_a')}>{data.coverage_a}</div>
             </div>
             <div>
               <div className="field-label">Coverage B</div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.coverage_b)}>{data.coverage_b}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_b')}>{data.coverage_b}</div>
             </div>
             <div>
               <div className="field-label">Coverage C</div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.coverage_c)}>{data.coverage_c}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_c')}>{data.coverage_c}</div>
             </div>
             <div>
               <div className="field-label">Coverage D</div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.coverage_d)}>{data.coverage_d}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_d')}>{data.coverage_d}</div>
             </div>
             <div>
               <div className="field-label">Subrogation Status</div>
-              <div className="field-value clickable-field" onClick={() => onFieldClick(data.subrogation)}>{data.subrogation}</div>
+              <div className="field-value clickable-field" onClick={() => onFieldClick('subrogation')}>{data.subrogation}</div>
             </div>
           </div>
         </div>
@@ -365,15 +365,15 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         <div className="grid-2">
           <div>
             <div className="field-label">Responding Agency</div>
-            <div className="field-value clickable-field" onClick={() => onFieldClick(data.agency)}>{data.agency}</div>
+            <div className="field-value clickable-field" onClick={() => onFieldClick('agency')}>{data.agency}</div>
           </div>
           <div>
             <div className="field-label">Investigating Officer</div>
-            <div className="field-value clickable-field" onClick={() => onFieldClick(data.officer)}>{data.officer}</div>
+            <div className="field-value clickable-field" onClick={() => onFieldClick('officer')}>{data.officer}</div>
           </div>
           <div>
             <div className="field-label">Report Number</div>
-            <div className="field-value clickable-field" onClick={() => onFieldClick(data.report_number)}>{data.report_number}</div>
+            <div className="field-value clickable-field" onClick={() => onFieldClick('report_number')}>{data.report_number}</div>
           </div>
         </div>
       </div>
@@ -388,14 +388,14 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           {data.vehicles.map((v, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
-                <div><strong>VIN:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.vin)}>{v.vin}</span> {v.vin !== "No VIN Found" && v.vin !== "Unknown" && <Badge />}</div>
-                <div><strong>Plate:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.plate)}>{v.plate}</span></div>
-                <div><strong>Make/Model/Year:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.make)}>{v.year} {v.make} {v.model}</span></div>
-                <div><strong>Color:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.color)}>{v.color}</span></div>
-                <div><strong>Damages:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.damages)}>{v.damages}</span></div>
-                <div><strong>Towed/Company:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.towed)}>{v.towed}</span> / <span className="clickable-field" onClick={() => onFieldClick(v.towing_company)}>{v.towing_company}</span></div>
-                <div><strong>Owner:</strong> <span className="clickable-field" onClick={() => onFieldClick(v.owner_name)}>{v.owner_name}</span></div>
-                <div><strong>Insurance (Policy):</strong> <span className="clickable-field" onClick={() => onFieldClick(v.insurance_company)}>{v.insurance_company}</span> (<span className="clickable-field" onClick={() => onFieldClick(v.policy_number)}>{v.policy_number}</span>)</div>
+                <div><strong>VIN:</strong> <span className="clickable-field" onClick={() => onFieldClick('vin')}>{v.vin}</span> {v.vin !== "No VIN Found" && v.vin !== "Unknown" && <Badge />}</div>
+                <div><strong>Plate:</strong> <span className="clickable-field" onClick={() => onFieldClick('plate')}>{v.plate}</span></div>
+                <div><strong>Make/Model/Year:</strong> <span className="clickable-field" onClick={() => onFieldClick('make')}>{v.year} {v.make} {v.model}</span></div>
+                <div><strong>Color:</strong> <span className="clickable-field" onClick={() => onFieldClick('color')}>{v.color}</span></div>
+                <div><strong>Damages:</strong> <span className="clickable-field" onClick={() => onFieldClick('damages')}>{v.damages}</span></div>
+                <div><strong>Towed/Company:</strong> <span className="clickable-field" onClick={() => onFieldClick('towed')}>{v.towed}</span> / <span className="clickable-field" onClick={() => onFieldClick('towing_company')}>{v.towing_company}</span></div>
+                <div><strong>Owner:</strong> <span className="clickable-field" onClick={() => onFieldClick('owner_name')}>{v.owner_name}</span></div>
+                <div><strong>Insurance (Policy):</strong> <span className="clickable-field" onClick={() => onFieldClick('insurance_company')}>{v.insurance_company}</span> (<span className="clickable-field" onClick={() => onFieldClick('policy_number')}>{v.policy_number}</span>)</div>
               </div>
             </div>
           ))}
@@ -406,13 +406,13 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           {data.parties && data.parties.length > 0 ? data.parties.map((p, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
-                <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.name)}>{p.name}</span></div>
-                <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.dob)}>{p.dob}</span></div>
-                <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.address)}>{p.address}</span></div>
-                <div><strong>License:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.license_number)}>{p.license_number}</span></div>
-                <div><strong>Condition/Injuries:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.condition)}>{p.condition}</span></div>
-                <div><strong>Transported To:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.transported_to)}>{p.transported_to}</span></div>
-                <div><strong>Citations:</strong> <span className="clickable-field" onClick={() => onFieldClick(p.citations)}>{p.citations}</span></div>
+                <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{p.name}</span></div>
+                <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{p.dob}</span></div>
+                <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{p.address}</span></div>
+                <div><strong>License:</strong> <span className="clickable-field" onClick={() => onFieldClick('license_number')}>{p.license_number}</span></div>
+                <div><strong>Condition/Injuries:</strong> <span className="clickable-field" onClick={() => onFieldClick('condition')}>{p.condition}</span></div>
+                <div><strong>Transported To:</strong> <span className="clickable-field" onClick={() => onFieldClick('transported_to')}>{p.transported_to}</span></div>
+                <div><strong>Citations:</strong> <span className="clickable-field" onClick={() => onFieldClick('citations')}>{p.citations}</span></div>
               </div>
             </div>
           )) : <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>No parties identified in document.</div>}
@@ -423,9 +423,9 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           {data.witnesses && data.witnesses.length > 0 ? data.witnesses.map((w, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
-                <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick(w.name)}>{w.name}</span></div>
-                <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick(w.dob)}>{w.dob}</span></div>
-                <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick(w.address)}>{w.address}</span></div>
+                <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{w.name}</span></div>
+                <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{w.dob}</span></div>
+                <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{w.address}</span></div>
               </div>
             </div>
           )) : <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>No witnesses identified in document.</div>}
@@ -439,7 +439,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           </h3>
           {data.state_codes.map((code, idx) => (
             <div key={idx} style={{ background: 'rgba(239, 68, 68, 0.1)', borderLeft: '4px solid var(--danger)', padding: '0.75rem', borderRadius: '4px', marginBottom: '0.5rem' }}>
-              <strong>Code <span className="clickable-field" onClick={() => onFieldClick(code.code)}>{code.code}</span>:</strong> {code.description}
+              <strong>Code <span className="clickable-field" onClick={() => onFieldClick('code')}>{code.code}</span>:</strong> {code.description}
             </div>
           ))}
         </div>

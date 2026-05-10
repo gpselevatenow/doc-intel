@@ -5,9 +5,8 @@ import DiscrepancyDashboard from './components/DiscrepancyDashboard';
 import BenchmarkingDashboard from './components/BenchmarkingDashboard';
 import logo from './assets/logo.jpg';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
-import { searchPlugin } from '@react-pdf-viewer/search';
 import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/search/lib/styles/index.css';
+import { bboxPlugin } from './components/BboxPlugin';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -33,34 +32,14 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const PDFViewer = ({ pdfUrl, searchText }) => {
-  // searchPlugin is technically a React Hook and must be called unconditionally at the top level
-  const searchPluginInstance = searchPlugin();
-  const { highlight } = searchPluginInstance;
-  const lastSearchText = useRef(null);
-
-  useEffect(() => {
-    // Only trigger highlight if the search text has actually changed.
-    // This strictly prevents the "Maximum update depth exceeded" infinite loop
-    // that occurs when the plugin's internal state updates trigger a re-render.
-    if (searchText && searchText !== lastSearchText.current && highlight) {
-      try {
-        highlight({
-          keyword: String(searchText),
-          matchCase: false,
-        });
-        lastSearchText.current = searchText;
-      } catch (err) {
-        console.error("Highlighting error:", err);
-      }
-    }
-  }, [searchText, highlight]);
+const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
+  const bboxPluginInstance = bboxPlugin({ bboxMap, selectedField });
 
   return (
     <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
         <div style={{ height: '100%', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#334155' }}>
-          <Viewer fileUrl={pdfUrl} plugins={[searchPluginInstance]} />
+          <Viewer fileUrl={pdfUrl} plugins={[bboxPluginInstance]} />
         </div>
       </Worker>
     </div>
@@ -74,7 +53,7 @@ function App() {
   const [selectedResultId, setSelectedResultId] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState({ current: 0, total: 0 });
-  const [pdfSearchText, setPdfSearchText] = useState("");
+  const [selectedField, setSelectedField] = useState(null);
   const [isCrossReferencing, setIsCrossReferencing] = useState(false);
 
   // --- Upload Handlers ---
@@ -335,7 +314,7 @@ function App() {
                 <div 
                   key={res.id} 
                   className={`doc-item ${selectedResultId === res.id ? 'active' : ''}`}
-                  onClick={() => { setSelectedResultId(res.id); setPdfSearchText(""); }}
+                  onClick={() => { setSelectedResultId(res.id); setSelectedField(null); }}
                 >
                   <div className="doc-item-title" title={res.name}>{res.name}</div>
                   <div className="doc-item-meta" style={{ marginBottom: '0.25rem' }}>
@@ -364,7 +343,11 @@ function App() {
             <>
               <div className="pane left-pane" style={{ overflow: 'hidden' }}>
                 <ErrorBoundary>
-                  <PDFViewer pdfUrl={selectedResult.pdfUrl} searchText={pdfSearchText} />
+                  <PDFViewer 
+                    pdfUrl={selectedResult.pdfUrl} 
+                    bboxMap={selectedResult.data.bbox_map || {}}
+                    selectedField={selectedField} 
+                  />
                 </ErrorBoundary>
               </div>
               <div className="pane right-pane">
@@ -373,7 +356,7 @@ function App() {
                     type={selectedResult.type} 
                     data={selectedResult.data} 
                     docId={selectedResult.name}
-                    onFieldClick={(text) => setPdfSearchText(text)}
+                    onFieldClick={(fieldId) => setSelectedField(fieldId)}
                   />
                 ) : (
                   <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger)' }}>

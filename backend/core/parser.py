@@ -1,16 +1,39 @@
 import os
 from docling.document_converter import DocumentConverter
+from backend.core.docling_service import load_canonical_document
 
 def parse_document(file_path: str):
     """
     Wrapper around Docling to parse uploaded PDFs into Markdown,
-    preserving table structures.
+    preserving table structures. Also returns a canonical Document for bbox tracking.
     """
     converter = DocumentConverter()
     result = converter.convert(file_path)
     markdown_text = result.document.export_to_markdown()
-    docling_doc = result.document
-    return markdown_text, docling_doc
+    
+    raw_dict = result.document.export_to_dict()
+    canonical_doc = load_canonical_document(raw_dict)
+    
+    return markdown_text, canonical_doc
+
+def find_bbox_for_text(canonical_doc, search_text: str):
+    """
+    Scans the canonical document blocks for a string and returns its exact
+    bounding box coordinates [left, top, right, bottom] and page number.
+    """
+    if not search_text or len(search_text) < 3:
+        return None
+
+    def norm(t): return str(t).lower().replace('\n', ' ').strip()
+    target = norm(search_text)
+
+    for block in canonical_doc.all_blocks():
+        if target in norm(block.text):
+            return {
+                "bbox": block.bbox,
+                "page": block.page
+            }
+    return None
 
 def flatten_markdown_tables(text: str) -> str:
     import re

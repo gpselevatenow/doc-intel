@@ -5,7 +5,7 @@ import shutil
 import time
 import sqlite3
 
-from core.parser import parse_document, flatten_markdown_tables
+from core.parser import parse_document, flatten_markdown_tables, find_bbox_for_text
 from modules.ia_summarizer import extract_ia_report
 from modules.police_extractor import extract_police_report
 from modules.acord_extractor import extract_acord_report
@@ -33,13 +33,23 @@ async def extract_ia(file: UploadFile = File(...)):
         
     try:
         # Use docling to parse
-        markdown_text, _ = parse_document(file_path)
+        markdown_text, canonical_doc = parse_document(file_path)
     except Exception as e:
         # Fallback if docling fails during demo
         markdown_text = f"Mocked text since Docling failed: {str(e)}\nCause of loss: Fire\nCoverage A: $100,000\nCoverage B: $20,000\nSettlement is estimated at $45,000\nSubrogation: Yes\nReserve: true"
+        canonical_doc = None
 
     markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_ia_report(markdown_text)
+    
+    # Generate Bbox Map
+    bbox_map = {}
+    if canonical_doc:
+        for key, val in result.items():
+            if isinstance(val, str) and key not in ["summary", "accuracy_reasons"]:
+                bbox_info = find_bbox_for_text(canonical_doc, val)
+                if bbox_info: bbox_map[key] = bbox_info
+    result["bbox_map"] = bbox_map
     
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -54,14 +64,28 @@ async def extract_police(file: UploadFile = File(...)):
         
     try:
         # Use docling to parse
-        markdown_text, _ = parse_document(file_path)
+        markdown_text, canonical_doc = parse_document(file_path)
     except Exception as e:
         # Fallback if docling fails during demo
         markdown_text = f"Mocked text since Docling failed. Code 9-2 involved. Vehicle VIN 1G1RC6E42BU111111. Weather is sunny. Ambulance was on scene."
+        canonical_doc = None
 
     markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_police_report(markdown_text)
     result["dynamic_fields"] = extract_generic_fields(markdown_text, file.filename)
+    
+    # Generate Bbox Map
+    bbox_map = {}
+    if canonical_doc:
+        for key, val in result.items():
+            if isinstance(val, str) and key not in ["summary", "accuracy_reasons"]:
+                bbox_info = find_bbox_for_text(canonical_doc, val)
+                if bbox_info: bbox_map[key] = bbox_info
+        for key, val in result.get("dynamic_fields", {}).items():
+            if isinstance(val, str):
+                bbox_info = find_bbox_for_text(canonical_doc, val)
+                if bbox_info: bbox_map[f"dynamic_{key}"] = bbox_info
+    result["bbox_map"] = bbox_map
     
     if os.path.exists(file_path):
         os.remove(file_path)
