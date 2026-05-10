@@ -1,16 +1,4 @@
-import os
-from docling.document_converter import DocumentConverter
-
-def parse_document(file_path: str):
-    """
-    Wrapper around Docling to parse uploaded PDFs into Markdown,
-    preserving table structures.
-    """
-    converter = DocumentConverter()
-    result = converter.convert(file_path)
-    markdown_text = result.document.export_to_markdown()
-    docling_doc = result.document
-    return markdown_text, docling_doc
+import re
 
 def flatten_markdown_tables(text: str) -> str:
     import re
@@ -56,3 +44,22 @@ def flatten_markdown_tables(text: str) -> str:
             headers = []
             
     return "\n".join(flattened_lines)
+
+test_md = """
+| CASE NUMBER      | NAPD-26-09-22-3308                                                  | WEATHER                      | Rain (moderate)                             |
+|------------------|---------------------------------------------------------------------|------------------------------|---------------------------------------------|
+| DATE OF INCIDENT | September 22, 2026                                                  | LIGHT CONDITIONS             | Daylight                                    |
+| TIME OF INCIDENT | 07:46 hrs                                                           | ROADWAY SURFACE              | Wet                                         |
+| LOCATION         | Sutton Street & Park Street (intersection), North Andover, MA 01845 | TYPE OF COLLISION / VEHICLES | Side-impact (failure to yield) / 2 vehicles |
+"""
+
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+from modules.police_extractor import extract_police_report
+
+flattened = flatten_markdown_tables(test_md)
+print(flattened)
+print("\n--- EXTRACTION RESULT ---")
+import json
+print(json.dumps(extract_police_report(flattened), indent=2))

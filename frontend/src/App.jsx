@@ -121,9 +121,12 @@ function App() {
       const formData = new FormData();
       formData.append('file', item.file);
       
-      const endpoint = item.type === 'ia' 
-        ? 'http://localhost:8000/api/extract/ia-report'
-        : 'http://localhost:8000/api/extract/police-report';
+      let endpoint = 'http://localhost:8000/api/extract/police-report';
+      if (item.type === 'ia') {
+        endpoint = 'http://localhost:8000/api/extract/ia-report';
+      } else if (item.type === 'acord') {
+        endpoint = 'http://localhost:8000/api/extract/acord-report';
+      }
         
       try {
         const response = await fetch(endpoint, {
@@ -268,6 +271,7 @@ function App() {
                   >
                     <option value="ia">IA Report</option>
                     <option value="police">Police Report</option>
+                    <option value="acord">ACORD Form</option>
                   </select>
                 </div>
               </div>
@@ -368,6 +372,7 @@ function App() {
                   <ExtractionResults 
                     type={selectedResult.type} 
                     data={selectedResult.data} 
+                    docId={selectedResult.name}
                     onFieldClick={(text) => setPdfSearchText(text)}
                   />
                 ) : (

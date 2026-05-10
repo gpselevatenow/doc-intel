@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { CheckCircle, AlertTriangle, Lightbulb, ArrowRightCircle, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2 } from 'lucide-react';
 import EditableField from './EditableField';
 
 const Badge = () => (
@@ -9,8 +9,56 @@ const Badge = () => (
   </span>
 );
 
-const ExtractionResults = ({ type, data, onFieldClick }) => {
-  const [recommendations, setRecommendations] = useState("");
+const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
+  const [recommendations, setRecommendations] = useState('');
+  const [customFields, setCustomFields] = useState([]);
+  const [newField, setNewField] = useState('');
+
+  useEffect(() => {
+    if (docId) {
+      fetchCustomFields();
+    }
+  }, [docId]);
+
+  const fetchCustomFields = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/settings/fields/${encodeURIComponent(docId)}`);
+      const json = await res.json();
+      if (json.status === 'success') {
+        setCustomFields(json.fields);
+      }
+    } catch (e) {
+      console.error("Failed to fetch custom fields", e);
+    }
+  };
+
+  const addField = async (e) => {
+    e.preventDefault();
+    if (!newField.trim() || !docId) return;
+    try {
+      await fetch('http://localhost:8000/api/settings/fields', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doc_id: docId, field_name: newField.trim() })
+      });
+      setNewField('');
+      fetchCustomFields();
+      alert(`Added '${newField}'. Please click 'Run Extraction' again in the sidebar to populate this field.`);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const deleteField = async (fieldName) => {
+    try {
+      await fetch(`http://localhost:8000/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, {
+        method: 'DELETE'
+      });
+      fetchCustomFields();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const score = data.accuracy_score || 0;
   let scoreColor = "var(--success)";
@@ -69,6 +117,14 @@ const ExtractionResults = ({ type, data, onFieldClick }) => {
       insights.push("Third-party liability identified.");
       nextActions.push("Initiate subrogation investigation against third party.");
     }
+  } else if (type === 'acord') {
+    if (data.description_of_loss && data.description_of_loss.toLowerCase().includes('fire')) {
+      insights.push("Severe property loss (Fire) indicated in description.");
+      nextActions.push("Assign to Large Loss Adjuster team immediately.");
+    } else {
+      insights.push("Standard ACORD Loss Notice parsed.");
+      nextActions.push("Verify policy coverage limits for the reported Date of Loss.");
+    }
   } else {
     const hasDui = data.state_codes && data.state_codes.some(c => c.code === '9-2' || c.description.includes('DUI'));
     if (hasDui) {
@@ -115,6 +171,80 @@ const ExtractionResults = ({ type, data, onFieldClick }) => {
   );
 
   // --- Render Payload ---
+  if (type === 'acord') {
+    return (
+      <div className="fade-in">
+        {renderAccuracyBadge()}
+        {renderInsights()}
+
+        <div className="glass-card">
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            Extracted ACORD Data
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to edit it and train the NLP engine.</p>
+          <div className="grid-2">
+            <div>
+              <div className="field-label">Agency / Producer</div>
+              <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" /></div>
+            </div>
+            <div>
+              <div className="field-label">Insurance Carrier</div>
+              <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" /></div>
+            </div>
+            <div>
+              <div className="field-label">Policy Number</div>
+              <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" /></div>
+            </div>
+            <div>
+              <div className="field-label">Named Insured</div>
+              <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" /></div>
+            </div>
+            <div>
+              <div className="field-label">Date of Loss</div>
+              <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" /></div>
+            </div>
+          </div>
+          <div style={{ marginTop: '1rem' }}>
+            <div className="field-label">Description of Loss</div>
+            <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" /></div>
+          </div>
+        </div>
+
+        {data.dynamic_fields && Object.keys(data.dynamic_fields).length > 0 && (
+          <div className="glass-card" style={{ marginBottom: '1rem' }}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+              Extracted Table Data & Custom Fields
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Fields extracted automatically by the generic NLP engine.</p>
+            <div className="grid-2">
+              {Object.entries(data.dynamic_fields).map(([key, val], idx) => (
+                <div key={idx}>
+                  <div className="field-label">{key}</div>
+                  <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" /></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="glass-card">
+          <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FileTextIcon /> File Note Preview
+          </h3>
+          <p className="field-label" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+            <span>Ready for copy-pasting.</span>
+            <span style={{ color: 'var(--text-muted)' }}><Info size={14} style={{ verticalAlign: 'text-bottom' }}/> ClaimCenter Integration Pending</span>
+          </p>
+          <textarea 
+            className="file-note" 
+            readOnly 
+            value={data.summary} 
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (type === 'ia') {
     return (
       <div className="fade-in">
@@ -315,6 +445,23 @@ const ExtractionResults = ({ type, data, onFieldClick }) => {
         </div>
       )}
 
+      {data.dynamic_fields && Object.keys(data.dynamic_fields).length > 0 && (
+        <div className="glass-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            Extracted Table Data & Custom Fields
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Fields extracted automatically by the generic NLP engine.</p>
+          <div className="grid-2">
+            {Object.entries(data.dynamic_fields).map(([key, val], idx) => (
+              <div key={idx}>
+                <div className="field-label">{key}</div>
+                <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" /></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="glass-card" style={{ marginBottom: '1rem' }}>
         <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
           Adjuster Recommendations
@@ -341,6 +488,41 @@ const ExtractionResults = ({ type, data, onFieldClick }) => {
           value={recommendations.trim() ? `${data.summary} Recommendations: ${recommendations.trim()}` : data.summary} 
         />
       </div>
+
+      <div className="glass-card" style={{ marginTop: '1rem', border: '1px solid var(--accent)' }}>
+        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)' }}>
+          <Plus size={18} /> Add Custom Extraction Field
+        </h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          Force the generic NLP engine to extract a specific field (e.g. "Ambulance Arrival Time") from this document.
+        </p>
+        <form onSubmit={addField} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <input 
+            type="text" 
+            value={newField}
+            onChange={(e) => setNewField(e.target.value)}
+            placeholder="Type field name to extract..."
+            style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+          />
+          <button type="submit" className="btn-primary" disabled={!newField.trim()} style={{ padding: '0.5rem 1rem' }}>
+            Add
+          </button>
+        </form>
+
+        {customFields.length > 0 && (
+          <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {customFields.map((field, idx) => (
+              <div key={idx} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.5rem', borderRadius: '16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                {field}
+                <button onClick={() => deleteField(field)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 0 }}>
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

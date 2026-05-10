@@ -16,46 +16,52 @@ STATE_CODES = {
 }
 
 def extract_police_report(text: str) -> dict:
-    # 1. Vehicles Parsing: "Make Ford | VIN 1FMCU0EG1DU444444 | Plate QWE1111"
+    # 1. Vehicles Parsing
     vehicles = []
+    # Horizontal Format: "Make Ford | VIN 1FMCU0EG1DU444444 | Plate QWE1111"
     v_lines = re.findall(r'(?i)Make\s+([A-Za-z]+)\s*\|\s*VIN\s+([A-HJ-NPR-Z0-9]{17})\s*\|\s*Plate\s+([A-Z0-9]+)', text)
     for make, vin, plate in v_lines:
         vehicles.append({
             "vin": vin, 
             "plate": plate, 
             "make": make.title(),
-            "year": "Unknown",
-            "model": "Unknown",
-            "color": "Unknown",
-            "damages": "Unknown",
-            "owner_name": "Unknown",
-            "owner_address": "Unknown",
-            "insurance_company": "Unknown",
-            "policy_number": "Unknown",
-            "towed": "Unknown",
-            "towing_company": "Unknown"
+            "year": "Unknown", "model": "Unknown", "color": "Unknown", "damages": "Unknown",
+            "owner_name": "Unknown", "owner_address": "Unknown", "insurance_company": "Unknown",
+            "policy_number": "Unknown", "towed": "Unknown", "towing_company": "Unknown"
         })
+
+    # Vertical Format (from flattened tables):
+    # #: V1
+    # Year / Make / Model: 2018 Subaru Outback
+    # VIN: 4S4BSANC9J3245677
+    if not vehicles:
+        v_blocks = re.split(r'(?i)#:\s*V\d+', text)
+        if len(v_blocks) > 1:
+            for block in v_blocks[1:]:
+                vin_match = re.search(r'(?i)VIN[\s:]*([A-HJ-NPR-Z0-9]{17})', block)
+                if vin_match:
+                    make_match = re.search(r'(?i)(?:Make|Model)[\s:]*([A-Za-z0-9\s]+)', block)
+                    plate_match = re.search(r'(?i)Plate[\s:]*([A-Z0-9\-]+)', block)
+                    vehicles.append({
+                        "vin": vin_match.group(1),
+                        "plate": plate_match.group(1).strip() if plate_match else "Unknown",
+                        "make": make_match.group(1).strip() if make_match else "Unknown",
+                        "year": "Unknown", "model": "Unknown", "color": "Unknown", "damages": "Unknown",
+                        "owner_name": "Unknown", "owner_address": "Unknown", "insurance_company": "Unknown",
+                        "policy_number": "Unknown", "towed": "Unknown", "towing_company": "Unknown"
+                    })
 
     if not vehicles:
         # Fallback if specific format isn't found
         vin_matches = list(set(re.findall(r'\b[A-HJ-NPR-Z0-9]{17}\b', text)))
-        plate_matches = list(set(re.findall(r'\b[A-Z0-9]{3,7}\b', text)))
-        plate_matches = [p for p in plate_matches if p not in vin_matches]
         for vin in vin_matches:
             vehicles.append({
                 "vin": vin, 
                 "plate": "Unknown", 
                 "make": "Unknown",
-                "year": "Unknown",
-                "model": "Unknown",
-                "color": "Unknown",
-                "damages": "Unknown",
-                "owner_name": "Unknown",
-                "owner_address": "Unknown",
-                "insurance_company": "Unknown",
-                "policy_number": "Unknown",
-                "towed": "Unknown",
-                "towing_company": "Unknown"
+                "year": "Unknown", "model": "Unknown", "color": "Unknown", "damages": "Unknown",
+                "owner_name": "Unknown", "owner_address": "Unknown", "insurance_company": "Unknown",
+                "policy_number": "Unknown", "towed": "Unknown", "towing_company": "Unknown"
             })
     
     # 2. State Code Lookup
@@ -66,39 +72,50 @@ def extract_police_report(text: str) -> dict:
             
     # 3. Weather
     weather = "Unknown"
-    w_match = re.search(r'(?i)Weather:\s*([A-Za-z]+)', text)
+    w_match = re.search(r'(?i)Weather[ \t:]*([A-Za-z \t\(\)]+)', text)
     if w_match:
-        weather = w_match.group(1).capitalize()
-    elif re.search(r'(?i)(clear|sunny|raining|snowing|cloudy)', text):
-        weather = re.search(r'(?i)(clear|sunny|raining|snowing|cloudy)', text).group(1).capitalize()
+        weather = w_match.group(1).strip()
+    elif re.search(r'(?i)(clear|sunny|raining|snowing|cloudy|rain)', text):
+        weather = re.search(r'(?i)(clear|sunny|raining|snowing|cloudy|rain)', text).group(1).capitalize()
         
     # 4. EMS Agency
     ems_agency = "Unknown EMS Agency"
-    if re.search(r'(?i)(EMS|Ambulance|Hospital|Transported)', text):
+    ems_match = re.search(r'(?i)(?:EMS Agency|Transported)[ \t:]*([A-Za-z0-9 \t,\-]+)', text)
+    if ems_match and "No" not in ems_match.group(1):
+        ems_agency = ems_match.group(1).strip()
+    elif re.search(r'(?i)(EMS|Ambulance|Hospital|Transported)', text):
         ems_agency = "Dispatched - Unknown Agency"
         
     # 5. Accident Type
     accident_type = "Unknown"
-    a_match = re.search(r'(?i)Accident Type:\s*([A-Za-z\s]+)', text)
+    a_match = re.search(r'(?i)(?:Accident Type|TYPE OF COLLISION[^\:]*)[ \t:]*([A-Za-z \t\-\(\)\/0-9]+)', text)
     if a_match:
         accident_type = a_match.group(1).strip()
         
     # 6. Date/Time
     date_time = "Unknown"
-    d_match = re.search(r'(?i)Date/Time:\s*([\d-]+\s\d{2}:\d{2})', text)
+    d_match = re.search(r'(?i)(?:Date/Time|DATE OF INCIDENT)[ \t:]*([A-Za-z0-9 \t,\-]+)', text)
+    t_match = re.search(r'(?i)TIME OF INCIDENT[ \t:]*([A-Za-z0-9 \t:]+)', text)
     if d_match:
-        date_time = d_match.group(1)
+        date_time = d_match.group(1).strip()
+        if t_match:
+            date_time += f" {t_match.group(1).strip()}"
         
     # 7. Location
     location = "Unknown"
-    l_match = re.search(r'(?i)Location:\s*(.*?)(?:\s*Weather:|$)', text)
+    l_match = re.search(r'(?i)Location[ \t:]*(.*?)(?:\n|$)', text)
     if l_match:
         location = l_match.group(1).strip()
+        
+    # 8. Report Number
+    report_number = "Unknown"
+    r_match = re.search(r'(?i)CASE NUMBER[ \t:]*([A-Za-z0-9\-]+)', text)
+    if r_match:
+        report_number = r_match.group(1).strip()
 
     # --- NEW FIELDS FOR USE CASE ---
     agency = "Unknown Agency"
     officer = "Unknown Officer"
-    report_number = "Unknown"
     
     parties = [] # Evaluated by Spacy/NLP in full version
     witnesses = []

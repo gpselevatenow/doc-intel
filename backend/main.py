@@ -5,10 +5,12 @@ import shutil
 import time
 import sqlite3
 
-from core.parser import parse_document
+from core.parser import parse_document, flatten_markdown_tables
 from modules.ia_summarizer import extract_ia_report
 from modules.police_extractor import extract_police_report
-from database import init_db, log_correction
+from modules.acord_extractor import extract_acord_report
+from modules.generic_extractor import extract_generic_fields
+from database import init_db, log_correction, add_custom_field, get_custom_fields, delete_custom_field
 from pydantic import BaseModel
 
 app = FastAPI(title="Elevatenow - Doc Intel - Extraction Suite")
@@ -36,6 +38,7 @@ async def extract_ia(file: UploadFile = File(...)):
         # Fallback if docling fails during demo
         markdown_text = f"Mocked text since Docling failed: {str(e)}\nCause of loss: Fire\nCoverage A: $100,000\nCoverage B: $20,000\nSettlement is estimated at $45,000\nSubrogation: Yes\nReserve: true"
 
+    markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_ia_report(markdown_text)
     
     if os.path.exists(file_path):
@@ -56,7 +59,31 @@ async def extract_police(file: UploadFile = File(...)):
         # Fallback if docling fails during demo
         markdown_text = f"Mocked text since Docling failed. Code 9-2 involved. Vehicle VIN 1G1RC6E42BU111111. Weather is sunny. Ambulance was on scene."
 
+    markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_police_report(markdown_text)
+    result["dynamic_fields"] = extract_generic_fields(markdown_text, file.filename)
+    
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        
+    return result
+
+@app.post("/api/extract/acord-report")
+async def extract_acord(file: UploadFile = File(...)):
+    file_path = f"temp_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    try:
+        # Use docling to parse
+        markdown_text, _ = parse_document(file_path)
+    except Exception as e:
+        # Fallback if docling fails during demo
+        markdown_text = "Agency: Elevate Insurance\nCompany: State Farm\nPolicy Number: P123456789\nNamed Insured: John Doe\nDate of Loss: 05/10/2026\nDescription of Loss: A large fire broke out in the kitchen causing severe smoke damage."
+
+    markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
+    result = extract_acord_report(markdown_text)
+    result["dynamic_fields"] = extract_generic_fields(markdown_text, file.filename)
     
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -82,6 +109,24 @@ async def receive_correction(correction: CorrectionModel):
         return {"status": "success", "message": "Correction logged for AI fine-tuning."}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+class CustomFieldModel(BaseModel):
+    doc_id: str
+    field_name: str
+
+@app.get("/api/settings/fields/{doc_id}")
+async def fetch_custom_fields(doc_id: str):
+    return {"status": "success", "fields": get_custom_fields(doc_id)}
+
+@app.post("/api/settings/fields")
+async def add_custom_field_route(payload: CustomFieldModel):
+    add_custom_field(payload.doc_id, payload.field_name)
+    return {"status": "success", "message": f"Added {payload.field_name}"}
+
+@app.delete("/api/settings/fields/{doc_id}/{field_name}")
+async def delete_custom_field_route(doc_id: str, field_name: str):
+    delete_custom_field(doc_id, field_name)
+    return {"status": "success", "message": f"Deleted {field_name}"}
 
 @app.get("/api/benchmark/run")
 async def run_benchmark():

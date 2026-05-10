@@ -16,7 +16,7 @@ if not exist "venv" (
 )
 
 echo [INFO] Starting Backend Server...
-start cmd /k "title Backend API && echo DO NOT CLOSE THIS WINDOW && uvicorn main:app --host 0.0.0.0 --port 8000"
+start cmd /k "title Backend API && echo DO NOT CLOSE THIS WINDOW && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 :: Start Frontend
 cd ../frontend
