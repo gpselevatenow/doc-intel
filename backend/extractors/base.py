@@ -1,15 +1,15 @@
-"""Strategy protocol + registration decorator.
+﻿"""Strategy protocol + registration decorator.
 
 A Strategy is anything that can produce Candidates from a (Document,
-field_id, config) triple. The registry maps strategy-name → class so
+field_id, config) triple. The registry maps strategy-name â†’ class so
 the orchestrator can dispatch by name from a template.
 """
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from backend.core.candidate import Candidate
-from backend.core.document_model import Document
+from core.candidate import Candidate
+from core.document_model import Document
 
 
 @runtime_checkable
@@ -31,3 +31,4 @@ def register(name: str):
         STRATEGY_REGISTRY[name] = cls
         return cls
     return _wrap
+

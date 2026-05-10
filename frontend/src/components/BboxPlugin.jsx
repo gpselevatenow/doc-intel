@@ -21,6 +21,7 @@ export const bboxPlugin = (props) => {
             return (
                 <>
                     {currentBoxes.map((box, idx) => {
+                        if (!box.bbox || box.bbox.length < 4) return null;
                         const [l, t, r, b] = box.bbox;
                         // docling returns bboxes in absolute PDF points.
                         // renderPageProps gives us the scaled width/height.

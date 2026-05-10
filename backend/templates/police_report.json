@@ -17,8 +17,12 @@
           "strategy": "global_regex",
           "priority": 1,
           "config": {
-            "patterns": ["(?:Date/Time|DATE OF INCIDENT)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"],
-            "flags": ["IGNORECASE"]
+            "patterns": [
+              "(?:Date/Time|DATE OF INCIDENT)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
           }
         }
       ]
@@ -41,11 +45,16 @@
           "strategy": "global_regex",
           "priority": 2,
           "config": {
-            "patterns": ["Location[ \\t:]*(?P<value>.*?)(?:\\n|$)"],
-            "flags": ["IGNORECASE"]
+            "patterns": [
+              "Location[ \\t:]*(?P<value>.*?)(?:\\n|$)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
           }
         }
-      ]
+      ],
+      "required": true
     },
     {
       "field_id": "weather",
@@ -56,7 +65,9 @@
           "strategy": "spatial_label",
           "priority": 1,
           "config": {
-            "labels": ["weather"],
+            "labels": [
+              "weather"
+            ],
             "direction": "right",
             "search_radius": 250
           }
@@ -65,11 +76,16 @@
           "strategy": "global_regex",
           "priority": 2,
           "config": {
-            "patterns": ["Weather[ \\t:]*(?P<value>[A-Za-z \\t\\(\\)]+)"],
-            "flags": ["IGNORECASE"]
+            "patterns": [
+              "Weather[ \\t:]*(?P<value>[A-Za-z \\t\\(\\)]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
           }
         }
-      ]
+      ],
+      "required": true
     },
     {
       "field_id": "accident_type",
@@ -80,11 +96,16 @@
           "strategy": "global_regex",
           "priority": 1,
           "config": {
-            "patterns": ["(?:Accident Type|TYPE OF COLLISION[^\\:]*)[ \\t:]*(?P<value>[A-Za-z \\t\\-\\(\\)\\/0-9]+)"],
-            "flags": ["IGNORECASE"]
+            "patterns": [
+              "(?:Accident Type|TYPE OF COLLISION[^\\:]*)[ \\t:]*(?P<value>[A-Za-z \\t\\-\\(\\)\\/0-9]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
           }
         }
-      ]
+      ],
+      "required": true
     },
     {
       "field_id": "ems_agency",
@@ -95,7 +116,10 @@
           "strategy": "spatial_label",
           "priority": 1,
           "config": {
-            "labels": ["ems agency", "transported"],
+            "labels": [
+              "ems agency",
+              "transported"
+            ],
             "direction": "right",
             "search_radius": 300
           }
@@ -104,11 +128,16 @@
           "strategy": "global_regex",
           "priority": 2,
           "config": {
-            "patterns": ["(?:EMS Agency|Transported)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"],
-            "flags": ["IGNORECASE"]
+            "patterns": [
+              "(?:EMS Agency|Transported)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
           }
         }
-      ]
+      ],
+      "required": true
     },
     {
       "field_id": "report_number",
@@ -125,7 +154,9 @@
           "strategy": "spatial_label",
           "priority": 1,
           "config": {
-            "labels": ["CASE NUMBER"],
+            "labels": [
+              "CASE NUMBER"
+            ],
             "direction": "right",
             "search_radius": 150
           }
@@ -134,8 +165,53 @@
           "strategy": "global_regex",
           "priority": 2,
           "config": {
-            "patterns": ["CASE NUMBER[ \\t:]*(?P<value>[A-Za-z0-9\\-]+)"],
-            "flags": ["IGNORECASE"]
+            "patterns": [
+              "CASE NUMBER[ \\t:]*(?P<value>[A-Za-z0-9\\-]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "field_id": "agency",
+      "display_name": "Responding Agency",
+      "field_type": "text",
+      "required": true,
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": [
+              "(?i)(?:Responding Agency|Agency)[ \\\\t:]*(?P<value>[A-Za-z0-9 \\\\t,\\\\-]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "field_id": "officer",
+      "display_name": "Investigating Officer",
+      "field_type": "text",
+      "required": true,
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": [
+              "(?i)(?:Investigating Officer|Officer)[ \\\\t:]*(?P<value>[A-Za-z0-9 \\\\t,\\\\-]+)"
+            ],
+            "flags": [
+              "IGNORECASE"
+            ]
           }
         }
       ]

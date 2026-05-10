@@ -1,9 +1,9 @@
-import json
+﻿import json
 import os
-from backend.core.document_model import Document
-from backend.core.template_schema import TemplateSchema, FieldDefinition, FieldStrategy
-from backend.core.orchestrator import extract
-from backend.database import get_custom_fields
+from core.document_model import Document
+from core.template_schema import TemplateSchema, FieldDefinition, FieldStrategy
+from core.orchestrator import extract
+from database import get_custom_fields
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 
@@ -63,3 +63,4 @@ def run_orchestrator(canonical_doc: Document, doc_id: str, doc_type: str) -> dic
         "record": result["record"],
         "review_flags": review_flags
     }
+

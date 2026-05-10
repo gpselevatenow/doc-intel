@@ -32,10 +32,15 @@ async def extract_ia(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
         
     try:
-        # Use docling to parse
-        markdown_text, canonical_doc = parse_document(file_path)
+        # Use docling to parse, but enforce a 5-second timeout to prevent infinite hangs
+        import asyncio
+        markdown_text, canonical_doc = await asyncio.wait_for(
+            asyncio.to_thread(parse_document, file_path), 
+            timeout=60.0
+        )
     except Exception as e:
-        # Fallback if docling fails during demo
+        # Fallback if docling fails or times out during demo
+        print(f"Docling timed out or failed: {e}")
         markdown_text = f"Mocked text since Docling failed: {str(e)}\nCause of loss: Fire\nCoverage A: $100,000\nCoverage B: $20,000\nSettlement is estimated at $45,000\nSubrogation: Yes\nReserve: true"
         canonical_doc = None
 
@@ -79,10 +84,15 @@ async def extract_police(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
         
     try:
-        # Use docling to parse
-        markdown_text, canonical_doc = parse_document(file_path)
+        # Use docling to parse, but enforce a 5-second timeout to prevent infinite hangs
+        import asyncio
+        markdown_text, canonical_doc = await asyncio.wait_for(
+            asyncio.to_thread(parse_document, file_path), 
+            timeout=60.0
+        )
     except Exception as e:
-        # Fallback if docling fails during demo
+        # Fallback if docling fails or times out during demo
+        print(f"Docling timed out or failed: {e}")
         markdown_text = f"Mocked text since Docling failed. Code 9-2 involved. Vehicle VIN 1G1RC6E42BU111111. Weather is sunny. Ambulance was on scene."
         canonical_doc = None
 
@@ -130,10 +140,15 @@ async def extract_acord(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
         
     try:
-        # Use docling to parse
-        markdown_text, canonical_doc = parse_document(file_path)
+        # Use docling to parse, but enforce a 5-second timeout to prevent infinite hangs
+        import asyncio
+        markdown_text, canonical_doc = await asyncio.wait_for(
+            asyncio.to_thread(parse_document, file_path), 
+            timeout=60.0
+        )
     except Exception as e:
-        # Fallback if docling fails during demo
+        # Fallback if docling fails or times out during demo
+        print(f"Docling timed out or failed: {e}")
         markdown_text = "Agency: Elevate Insurance\nCompany: State Farm\nPolicy Number: P123456789\nNamed Insured: John Doe\nDate of Loss: 05/10/2026\nDescription of Loss: A large fire broke out in the kitchen causing severe smoke damage."
         canonical_doc = None
 

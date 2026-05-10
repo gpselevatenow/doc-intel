@@ -1,6 +1,6 @@
-import os
+﻿import os
 from docling.document_converter import DocumentConverter
-from backend.core.docling_service import load_canonical_document
+from core.docling_service import load_canonical_document
 
 def parse_document(file_path: str):
     """
@@ -79,3 +79,4 @@ def flatten_markdown_tables(text: str) -> str:
             headers = []
             
     return "\n".join(flattened_lines)
+

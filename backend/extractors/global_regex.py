@@ -1,13 +1,13 @@
-"""global_regex — find a uniquely-shaped value anywhere in the markdown.
+﻿"""global_regex â€” find a uniquely-shaped value anywhere in the markdown.
 
-Used for fields with strong shape constraints — FEIN, SSN, NAICS code,
+Used for fields with strong shape constraints â€” FEIN, SSN, NAICS code,
 phone, email, URL, etc. Operates on `document.markdown` only; if the
 template wants spatial signal too, pair this with a spatial_label
 strategy at higher priority.
 
 Patterns may use a `(?P<value>...)` named group OR plain capturing group;
 if neither is present we use the full match. Multiple patterns are tried
-in order — every match across every pattern becomes a Candidate (the
+in order â€” every match across every pattern becomes a Candidate (the
 orchestrator then validates and ranks).
 """
 from __future__ import annotations
@@ -17,9 +17,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from backend.core.candidate import Candidate
-from backend.core.document_model import Document
-from backend.extractors.base import register
+from core.candidate import Candidate
+from core.document_model import Document
+from extractors.base import register
 
 
 class GlobalRegexConfig(BaseModel):
@@ -81,3 +81,4 @@ class GlobalRegexStrategy:
                     metadata        = {"pattern_index": pidx},
                 ))
         return out
+

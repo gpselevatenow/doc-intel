@@ -1,4 +1,4 @@
-"""Docling JSON + Markdown → canonical Document.
+﻿"""Docling JSON + Markdown â†’ canonical Document.
 
 Single conversion entry point. Strategies operate on the canonical
 Document only; they never touch raw Docling JSON.
@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from backend.core.document_model import (
+from core.document_model import (
     Block,
     Document,
     Page,
@@ -27,7 +27,7 @@ from backend.core.document_model import (
 )
 
 
-# ── Bbox helpers ─────────────────────────────────────────────────────
+# â”€â”€ Bbox helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _bbox_from_prov_entry(prov_entry: dict | None) -> list[float] | None:
     if not prov_entry:
@@ -38,7 +38,7 @@ def _bbox_from_prov_entry(prov_entry: dict | None) -> list[float] | None:
     return None
 
 
-# ── Public API ───────────────────────────────────────────────────────
+# â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def load_canonical_document(
     raw: dict[str, Any],
@@ -62,7 +62,7 @@ def load_canonical_document(
         ))
     pages_by_no: dict[int, Page] = {p.page_no: p for p in pages}
 
-    # Texts → Blocks
+    # Texts â†’ Blocks
     texts = raw.get("texts") or []
     for idx, item in enumerate(texts):
         prov = item.get("prov") or []
@@ -89,7 +89,7 @@ def load_canonical_document(
             pages_by_no[page_no] = page
         pages_by_no[page_no].blocks.append(block)
 
-    # Tables → Table + TableCell
+    # Tables â†’ Table + TableCell
     tables = raw.get("tables") or []
     for tidx, t in enumerate(tables):
         prov = t.get("prov") or []
@@ -170,3 +170,4 @@ def load_canonical_document(
         pages       = pages,
         metadata    = {"docling_export_version": raw.get("version")},
     )
+

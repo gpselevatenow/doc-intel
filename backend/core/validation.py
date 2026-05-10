@@ -1,4 +1,4 @@
-"""Validation engine — Layer 6.
+﻿"""Validation engine â€” Layer 6.
 
 Applies a list of `ValidatorRule` entries to each Candidate. A failed
 validator marks the candidate `rejected` but subsequent validators
@@ -7,14 +7,14 @@ still run, so the audit trail captures the full failure list.
 Built-in expected-type patterns cover phone / date / money / email /
 url / fein / ssn / naics / sic / integer. Additional shape validators
 (date_format, phone_format, fein_format) are aliases that delegate to
-the same _TYPE_PATTERNS — they exist for template clarity.
+the same _TYPE_PATTERNS â€” they exist for template clarity.
 """
 from __future__ import annotations
 
 import re
 
-from backend.core.candidate import Candidate, ValidationResult
-from backend.core.template_schema import ValidatorRule
+from core.candidate import Candidate, ValidationResult
+from core.template_schema import ValidatorRule
 
 
 _TYPE_PATTERNS: dict[str, re.Pattern] = {
@@ -115,3 +115,4 @@ def validate_all(
         rules = rules_by_field.get(field_id, [])
         for c in cands:
             validate_candidate(c, rules)
+

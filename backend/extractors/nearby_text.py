@@ -1,7 +1,7 @@
-"""nearby_text — local search around a regex anchor in markdown.
+﻿"""nearby_text â€” local search around a regex anchor in markdown.
 
 Used as a fallback when spatial_label can't apply (scanned docs with
-unreliable bbox, or narrative paragraphs where the label–value pairing
+unreliable bbox, or narrative paragraphs where the labelâ€“value pairing
 is loose). Operates on `document.markdown`.
 
 Algorithm:
@@ -18,9 +18,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from backend.core.candidate import Candidate
-from backend.core.document_model import Document
-from backend.extractors.base import register
+from core.candidate import Candidate
+from core.document_model import Document
+from extractors.base import register
 
 
 class NearbyTextConfig(BaseModel):
@@ -96,3 +96,4 @@ class NearbyTextStrategy:
                 },
             ))
         return out
+

@@ -14,6 +14,30 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
   const [customFields, setCustomFields] = useState([]);
   const [newField, setNewField] = useState('');
 
+  if (!data) {
+    return (
+      <div className="fade-in" style={{ padding: '3rem', textAlign: 'center', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--danger)' }}>
+        <AlertTriangle size={48} style={{ marginBottom: '1rem', color: 'var(--danger)' }} />
+        <h2 style={{ color: 'var(--danger)' }}>Extraction Failed</h2>
+        <p style={{ color: 'var(--text-muted)' }}>The document could not be processed. This is usually caused by a backend server error or an invalid PDF.</p>
+      </div>
+    );
+  }
+
+  if (data.detail) {
+    return (
+      <div className="fade-in" style={{ padding: '3rem', textAlign: 'center', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--danger)' }}>
+        <AlertTriangle size={48} style={{ marginBottom: '1rem', color: 'var(--danger)' }} />
+        <h2 style={{ color: 'var(--danger)' }}>Backend Error</h2>
+        <p style={{ color: 'var(--text-muted)' }}>{typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)}</p>
+      </div>
+    );
+  }
+
+  // Safe fallbacks to prevent crashes
+  const dynamic_fields = data.dynamic_fields || {};
+  const review_flags = data.review_flags || {};
+
   useEffect(() => {
     if (docId) {
       fetchCustomFields();
@@ -22,7 +46,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
 
   const fetchCustomFields = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/settings/fields/${encodeURIComponent(docId)}`);
+      const res = await fetch(`http://127.0.0.1:8000/api/settings/fields/${encodeURIComponent(docId)}`);
       const json = await res.json();
       if (json.status === 'success') {
         setCustomFields(json.fields);
@@ -36,7 +60,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
     e.preventDefault();
     if (!newField.trim() || !docId) return;
     try {
-      await fetch('http://localhost:8000/api/settings/fields', {
+      await fetch('http://127.0.0.1:8000/api/settings/fields', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId, field_name: newField.trim() })
@@ -51,7 +75,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
 
   const deleteField = async (fieldName) => {
     try {
-      await fetch(`http://localhost:8000/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, {
+      await fetch(`http://127.0.0.1:8000/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, {
         method: 'DELETE'
       });
       fetchCustomFields();
@@ -185,42 +209,42 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           <div className="grid-2">
             <div>
               <div className="field-label">Agency / Producer</div>
-              <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" needsReview={data.review_flags?.['agency']} /></div>
+              <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" needsReview={review_flags['agency']} /></div>
             </div>
             <div>
               <div className="field-label">Insurance Carrier</div>
-              <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" needsReview={data.review_flags?.['carrier']} /></div>
+              <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" needsReview={review_flags['carrier']} /></div>
             </div>
             <div>
               <div className="field-label">Policy Number</div>
-              <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" needsReview={data.review_flags?.['policy_number']} /></div>
+              <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" needsReview={review_flags['policy_number']} /></div>
             </div>
             <div>
               <div className="field-label">Named Insured</div>
-              <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" needsReview={data.review_flags?.['named_insured']} /></div>
+              <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" needsReview={review_flags['named_insured']} /></div>
             </div>
             <div>
               <div className="field-label">Date of Loss</div>
-              <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" needsReview={data.review_flags?.['date_of_loss']} /></div>
+              <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" needsReview={review_flags['date_of_loss']} /></div>
             </div>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <div className="field-label">Description of Loss</div>
-            <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" needsReview={data.review_flags?.['description_of_loss']} /></div>
+            <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" needsReview={review_flags['description_of_loss']} /></div>
           </div>
         </div>
 
-        {data.dynamic_fields && Object.keys(data.dynamic_fields).length > 0 && (
+        {dynamic_fields && Object.keys(dynamic_fields).length > 0 && (
           <div className="glass-card" style={{ marginBottom: '1rem' }}>
             <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               Extracted Table Data & Custom Fields
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Fields extracted automatically by the generic NLP engine.</p>
             <div className="grid-2">
-              {Object.entries(data.dynamic_fields).map(([key, val], idx) => (
+              {Object.entries(dynamic_fields).map(([key, val], idx) => (
                 <div key={idx}>
                   <div className="field-label">{key}</div>
-                  <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={data.review_flags?.[`dynamic_${key}`]} /></div>
+                  <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div>
                 </div>
               ))}
             </div>
@@ -238,7 +262,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           <textarea 
             className="file-note" 
             readOnly 
-            value={data.summary} 
+            value={data.summary || ''} 
           />
         </div>
       </div>
@@ -311,9 +335,9 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           <textarea 
             className="file-note" 
             readOnly 
-            value={recommendations.trim() ? `${data.summary} Recommendations: ${recommendations.trim()}` : data.summary} 
+            value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} 
           />
-          {data.summary.includes("WARNING: RESERVE INCLUDED") && (
+          {data.summary?.includes("WARNING: RESERVE INCLUDED") && (
             <p className="warning-text">
               <AlertTriangle size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
               Reserve trigger detected in document.
@@ -337,23 +361,23 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         <div className="grid-2">
           <div>
             <div className="field-label">Date/Time</div>
-            <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={data.review_flags?.['date_time']} /></div>
+            <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
           </div>
           <div>
             <div className="field-label">Location</div>
-            <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={data.review_flags?.['location']} /></div>
+            <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
           </div>
           <div>
             <div className="field-label">Weather</div>
-            <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={data.review_flags?.['weather']} /></div>
+            <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
           </div>
           <div>
             <div className="field-label">Accident Type</div>
-            <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={data.review_flags?.['accident_type']} /></div>
+            <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
           </div>
           <div>
             <div className="field-label">EMS Agency</div>
-            <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={data.review_flags?.['ems_agency']} /></div>
+            <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
           </div>
         </div>
       </div>
@@ -365,15 +389,15 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         <div className="grid-2">
           <div>
             <div className="field-label">Responding Agency</div>
-            <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={data.review_flags?.['agency']} /></div>
+            <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
           </div>
           <div>
             <div className="field-label">Investigating Officer</div>
-            <div className="field-value"><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={data.review_flags?.['officer']} /></div>
+            <div className="field-value"><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
           </div>
           <div>
             <div className="field-label">Report Number</div>
-            <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={data.review_flags?.['report_number']} /></div>
+            <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
           </div>
         </div>
       </div>
@@ -385,7 +409,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         
         <div style={{ marginBottom: '1.5rem' }}>
           <div className="field-label">Vehicles</div>
-          {data.vehicles.map((v, idx) => (
+          {data.vehicles && data.vehicles.map((v, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
                 <div><strong>VIN:</strong> <span className="clickable-field" onClick={() => onFieldClick('vin')}>{v.vin}</span> {v.vin !== "No VIN Found" && v.vin !== "Unknown" && <Badge />}</div>
@@ -445,17 +469,17 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         </div>
       )}
 
-      {data.dynamic_fields && Object.keys(data.dynamic_fields).length > 0 && (
+      {Object.keys(dynamic_fields).length > 0 && (
         <div className="glass-card" style={{ marginBottom: '1rem' }}>
           <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
             Extracted Table Data & Custom Fields
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Fields extracted automatically by the generic NLP engine.</p>
           <div className="grid-2">
-            {Object.entries(data.dynamic_fields).map(([key, val], idx) => (
+            {Object.entries(dynamic_fields).map(([key, val], idx) => (
               <div key={idx}>
                 <div className="field-label">{key}</div>
-                <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={data.review_flags?.[`dynamic_${key}`]} /></div>
+                <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div>
               </div>
             ))}
           </div>
@@ -485,7 +509,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         <textarea 
           className="file-note" 
           readOnly 
-          value={recommendations.trim() ? `${data.summary} Recommendations: ${recommendations.trim()}` : data.summary} 
+          value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} 
         />
       </div>
 

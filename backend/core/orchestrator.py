@@ -1,12 +1,12 @@
-"""Orchestrator — Layer 7.
+﻿"""Orchestrator â€” Layer 7.
 
 Pipeline:
     FOR EACH FIELD in template:
         FOR EACH STRATEGY in field.strategies (ordered by priority):
-            run strategy → list of Candidates
+            run strategy â†’ list of Candidates
         merge candidates (across strategies) for the field
         validate all candidates against the field's validators
-        score every candidate (rejected → 0)
+        score every candidate (rejected â†’ 0)
         pick the highest-scoring non-rejected candidate
         emit audit entry with full provenance + score breakdown
     return record + audit + summary stats
@@ -21,12 +21,12 @@ from collections import defaultdict
 from dataclasses import asdict
 from typing import Any
 
-from backend.core.candidate import Candidate, best
-from backend.core.document_model import Document
-from backend.core.scoring import score_candidate
-from backend.core.template_schema import TemplateSchema
-from backend.core.validation import validate_all
-from backend.extractors.base import STRATEGY_REGISTRY
+from core.candidate import Candidate, best
+from core.document_model import Document
+from core.scoring import score_candidate
+from core.template_schema import TemplateSchema
+from core.validation import validate_all
+from extractors.base import STRATEGY_REGISTRY
 
 
 def _instantiate_strategy(name: str):
@@ -145,3 +145,4 @@ def extract(
         "summary_stats":  summary,
         "all_candidates": all_candidates,
     }
+

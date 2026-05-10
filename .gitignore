@@ -20,3 +20,4 @@ frontend/.env.production.local
 scratch/
 brain/
 .DS_Store
+node_modules

@@ -1,4 +1,4 @@
-"""Scoring engine — Layer 5.
+﻿"""Scoring engine â€” Layer 5.
 
 Each Candidate is scored from multiple signals, weighted and combined
 into a final confidence in [0, 1]. The orchestrator then picks the
@@ -15,14 +15,14 @@ Default signal weights:
     overlap_penalty       -0.05  (subtracted)
 
 Strategy priority is folded in as a small additive bonus (lower
-priority number → larger bonus, capped at 0.05).
+priority number â†’ larger bonus, capped at 0.05).
 
 Rejected candidates score to 0.0 immediately.
 """
 from __future__ import annotations
 
-from backend.core.candidate import Candidate, ScoreBreakdown
-from backend.extractors._geometry import aabb_overlap
+from core.candidate import Candidate, ScoreBreakdown
+from extractors._geometry import aabb_overlap
 
 
 WEIGHTS: dict[str, float] = {
@@ -37,7 +37,7 @@ WEIGHTS: dict[str, float] = {
 }
 
 
-# ── Individual signals ──────────────────────────────────────────────
+# â”€â”€ Individual signals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _label_proximity(c: Candidate) -> float:
     """Closer label = higher signal. label_distance is set by spatial_label."""
@@ -45,7 +45,7 @@ def _label_proximity(c: Candidate) -> float:
         return 0.0
     dist = c.metadata.get("label_distance")
     if dist is None:
-        return 0.5     # have a label but distance not recorded — partial credit
+        return 0.5     # have a label but distance not recorded â€” partial credit
     if dist <= 30:
         return 1.0
     if dist >= 200:
@@ -55,7 +55,7 @@ def _label_proximity(c: Candidate) -> float:
 
 def _validator_pass(c: Candidate, num_validators: int) -> float:
     if num_validators == 0:
-        return 1.0      # no validators declared → neutral pass
+        return 1.0      # no validators declared â†’ neutral pass
     if c.rejected:
         return 0.0
     passed = sum(1 for v in c.validation_results if v.passed)
@@ -72,7 +72,7 @@ def _ocr_confidence(c: Candidate) -> float:
 
 
 def _page_preference(c: Candidate) -> float:
-    """Forms tend to put structured fields on page 1 — slight bias."""
+    """Forms tend to put structured fields on page 1 â€” slight bias."""
     if c.page is None:
         return 0.5
     return 1.0 if c.page == 1 else 0.7
@@ -95,7 +95,7 @@ def _overlap_penalty(c: Candidate) -> float:
     return 1.0 if aabb_overlap(c.bbox, c.label_bbox) else 0.0
 
 
-# ── Combine ─────────────────────────────────────────────────────────
+# â”€â”€ Combine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def score_candidate(c: Candidate, num_validators: int) -> None:
     """Mutates c.score (breakdown) and c.confidence (final)."""
@@ -126,7 +126,7 @@ def score_candidate(c: Candidate, num_validators: int) -> None:
       + WEIGHTS["overlap_penalty"]       * sig.overlap_penalty
     )
 
-    # Strategy priority bonus — at most +0.05
+    # Strategy priority bonus â€” at most +0.05
     pri = max(0, c.strategy_priority)
     priority_bonus = min(0.05, max(0.0, (100 - pri) * 0.0005))
     score += priority_bonus
@@ -134,3 +134,4 @@ def score_candidate(c: Candidate, num_validators: int) -> None:
     sig.final = max(0.0, min(1.0, score))
     c.score = sig
     c.confidence = sig.final
+

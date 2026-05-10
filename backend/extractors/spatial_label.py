@@ -1,4 +1,4 @@
-"""spatial_label — primary extraction strategy for forms.
+﻿"""spatial_label â€” primary extraction strategy for forms.
 
 Anchors on a label string near the value, then captures the value in
 the configured direction (right / left / below / above / self) within
@@ -9,7 +9,7 @@ the label item itself via `value_pattern` (capturing group). Used for
 forms where the label and value share a single text item, e.g.
 "DATE (MM/DD/YYYY)" with the date co-mingled into the same item.
 
-Config validation is done by `SpatialLabelConfig` — the strategy-specific
+Config validation is done by `SpatialLabelConfig` â€” the strategy-specific
 pydantic model. Templates pass an opaque dict; we validate on entry.
 """
 from __future__ import annotations
@@ -19,13 +19,13 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from backend.core.candidate import Candidate
-from backend.core.document_model import Block, Document
-from backend.extractors._geometry import distance, is_in_direction
-from backend.extractors.base import register
+from core.candidate import Candidate
+from core.document_model import Block, Document
+from extractors._geometry import distance, is_in_direction
+from extractors.base import register
 
 
-# ── Config ───────────────────────────────────────────────────────────
+# â”€â”€ Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class SpatialLabelConfig(BaseModel):
     """Config slice for a spatial_label strategy entry in a template."""
@@ -64,7 +64,7 @@ def _compile_label(pat: str, mode: str, flags: int) -> re.Pattern:
     return re.compile(rf"^{re.escape(pat)}$", flags)
 
 
-# ── Block searching ──────────────────────────────────────────────────
+# â”€â”€ Block searching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _find_label_blocks(blocks: list[Block], pattern: re.Pattern) -> list[Block]:
     return [b for b in blocks if pattern.search(b.text)]
@@ -110,7 +110,7 @@ def _find_value_block(
     return b, d
 
 
-# ── Strategy ─────────────────────────────────────────────────────────
+# â”€â”€ Strategy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @register("spatial_label")
 class SpatialLabelStrategy:
@@ -126,7 +126,7 @@ class SpatialLabelStrategy:
 
         out: list[Candidate] = []
 
-        # First label string that matches wins for this strategy entry —
+        # First label string that matches wins for this strategy entry â€”
         # consistent with legacy spatial_engine semantics. Multiple `labels`
         # entries are alternatives, not multiple shots.
         for label_str in cfg.labels:
@@ -138,7 +138,7 @@ class SpatialLabelStrategy:
                 continue
             label_block = matches[cfg.label_match_index]
 
-            # direction == "self" → value captured from label_block.text via value_pattern
+            # direction == "self" â†’ value captured from label_block.text via value_pattern
             if cfg.direction == "self":
                 if value_re is None:
                     continue
@@ -192,3 +192,4 @@ class SpatialLabelStrategy:
             return out
 
         return out
+

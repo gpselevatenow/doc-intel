@@ -55,6 +55,7 @@ function App() {
   const [processingProgress, setProcessingProgress] = useState({ current: 0, total: 0 });
   const [selectedField, setSelectedField] = useState(null);
   const [isCrossReferencing, setIsCrossReferencing] = useState(false);
+  const [pdfSearchText, setPdfSearchText] = useState('');
 
   // --- Upload Handlers ---
   const handleFileSelect = (event) => {
@@ -70,7 +71,7 @@ function App() {
       id: Math.random().toString(36).substr(2, 9),
       file,
       name: file.name,
-      type: file.name.toLowerCase().includes('police') ? 'police' : 'ia',
+      type: file.name.toLowerCase().match(/ia|property/i) ? 'ia' : 'police',
       pdfUrl: URL.createObjectURL(file)
     }));
 
@@ -100,11 +101,11 @@ function App() {
       const formData = new FormData();
       formData.append('file', item.file);
       
-      let endpoint = 'http://localhost:8000/api/extract/police-report';
+      let endpoint = 'http://127.0.0.1:8000/api/extract/police-report';
       if (item.type === 'ia') {
-        endpoint = 'http://localhost:8000/api/extract/ia-report';
+        endpoint = 'http://127.0.0.1:8000/api/extract/ia-report';
       } else if (item.type === 'acord') {
-        endpoint = 'http://localhost:8000/api/extract/acord-report';
+        endpoint = 'http://127.0.0.1:8000/api/extract/acord-report';
       }
         
       try {
@@ -345,7 +346,7 @@ function App() {
                 <ErrorBoundary>
                   <PDFViewer 
                     pdfUrl={selectedResult.pdfUrl} 
-                    bboxMap={selectedResult.data.bbox_map || {}}
+                    bboxMap={selectedResult.data?.bbox_map || {}}
                     selectedField={selectedField} 
                   />
                 </ErrorBoundary>
