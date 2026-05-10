@@ -22,76 +22,25 @@ This document outlines the architecture, data flows, and technical specification
 
 ## 2. Solution Architecture Diagram
 
-```mermaid
-graph TD
-    %% Define Styles
-    classDef frontend fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff
-    classDef backend fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
-    classDef logic fill:#334155,stroke:#fef08a,stroke-width:2px,color:#fff
-    classDef datastore fill:#475569,stroke:#fbbf24,stroke-width:2px,color:#fff
-    classDef external fill:#000000,stroke:#ef4444,stroke-width:2px,color:#fff
-
-    %% Subgraphs for Logical Separation
-    subgraph Frontend ["Frontend (React + Vite)"]
-        UI["Glassmorphic UI Engine"]
-        Results["Extraction Results Component"]
-        ReviewFlags["Low-Confidence Alert UI"]
-        Viewer["PDF Viewer Component"]
-        BboxPlugin["Custom BboxPlugin<br>(Absolute CSS Overlay)"]
-        Editable["Inline Editable UI (Human-in-the-Loop)"]
-    end
-
-    subgraph Backend ["Backend (FastAPI)"]
-        API["FastAPI Server (main.py)"]
-        Docling["Docling Parser<br>(Generates Canonical Doc)"]
-        
-        subgraph Engine ["Declarative Extraction Engine"]
-            Templates["JSON Templates<br>(e.g., police_report.json)"]
-            Orchestrator["Orchestrator Core"]
-            Extractors["Spatial & Regex Extractors"]
-            Validation["Scoring & Validation Pipeline"]
-        end
-        
-        DB[("feedback.db<br>(SQLite Local VPC Database)")]
-    end
-
-    subgraph FutureIntegrations ["Future Release"]
-        ClaimCenter["Guidewire ClaimCenter APIs"]
-    end
-
-    %% Process Flow
-    User((Adjuster)) -->|1. Uploads PDF| API
-    
-    API -->|2. Raw PDF binary| Docling
-    Docling -->|3. Canonical Doc (Text + BBoxes)| Orchestrator
-    
-    Templates -->|4. Loads extraction strategies| Orchestrator
-    DB -->|5. Injects UI Custom Fields as Global Regex| Orchestrator
-    
-    Orchestrator -->|6. Executes Strategies| Extractors
-    Extractors -->|7. Returns Candidates| Validation
-    Validation -->|8. Drops scores for failing rules| Orchestrator
-    
-    Orchestrator -->|9. JSON Record, BBox Map, & Review Flags| Results
-    
-    Results --> ReviewFlags
-    Results --> Editable
-    Results -->|10. Render Clickable Fields| UI
-    
-    UI -->|11. Field Click Event| BboxPlugin
-    BboxPlugin -->|12. Draws Absolute Pixel Overlays| Viewer
-    
-    User -->|13. Corrects Low Confidence Data| Editable
-    Editable -->|14. HTTP POST Correction| DB
-    
-    User -->|15. Copy-pastes formatted File Note| ClaimCenter
-
-    %% Apply Styles
-    class UI,Results,ReviewFlags,Viewer,BboxPlugin,Editable frontend
-    class API,Docling backend
-    class Orchestrator,Templates,Extractors,Validation logic
-    class DB datastore
-    class ClaimCenter external
+```text
+[ Adjuster ] --> Uploads PDF --> [ FastAPI Server ]
+                                      |
+                                      v
+                             [ Docling Parser ]
+                             (Canonical Doc + BBoxes)
+                                      |
+                                      v
+                        [ Orchestrator Engine ] <--- [ JSON Templates ]
+                        /          |          \
+                       v           v           v
+            [ Extractors ]   [ Validation ]  [ feedback.db ]
+                   |
+                   v
+[ React Frontend ] <--- (JSON, BBox Map, Review Flags)
+ |
+ +--> [ BboxPlugin (Absolute Overlays) ]
+ |
+ +--> [ Editable UI (Human-in-the-loop) ] ---> POST Correction ---> [ feedback.db ]
 ```
 
 ---
