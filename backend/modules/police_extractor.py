@@ -1,4 +1,8 @@
 import re
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
+from database import get_aliases_for
 
 def clean_text_for_paragraph(text: str) -> str:
     # Remove markdown special characters, keep only alphanumerics, spaces, and basic punctuation
@@ -44,6 +48,22 @@ def extract_police_report(text: str) -> dict:
     parties = []
     witnesses = []
     
+    # Fetch learned aliases from feedback.db
+    aliases = {
+        "vin": ["vin"] + get_aliases_for("vin"),
+        "plate": ["plate"] + get_aliases_for("plate"),
+        "make": ["make", "year"] + get_aliases_for("make"),
+        "name": ["name"] + get_aliases_for("name"),
+        "dob": ["dob"] + get_aliases_for("dob"),
+        "license": ["license", "license_number"] + get_aliases_for("license"),
+        "citation": ["citation"] + get_aliases_for("citation"),
+        "condition": ["injury", "condition"] + get_aliases_for("condition"),
+        "transported_to": ["transport"] + get_aliases_for("transported_to"),
+        "address": ["address"] + get_aliases_for("address"),
+        "phone": ["phone"] + get_aliases_for("phone"),
+        "statement": ["statement"] + get_aliases_for("statement")
+    }
+    
     # --- 1. Universal Markdown Table Extraction ---
     tables = parse_markdown_tables(text)
     for table in tables:
@@ -54,7 +74,7 @@ def extract_police_report(text: str) -> dict:
         
         for idx, row in enumerate(table):
             row_str = " ".join(row).lower()
-            if "vin" in row_str or "plate" in row_str or ("year" in row_str and "make" in row_str):
+            if any(a in row_str for a in aliases["vin"]) or any(a in row_str for a in aliases["plate"]) or ("year" in row_str and "make" in row_str):
                 header_row_idx = idx
                 is_vehicle = True
                 break
@@ -79,7 +99,7 @@ def extract_police_report(text: str) -> dict:
                     
                     vin = "Unknown"
                     for h in headers:
-                        if "vin" in h: vin = row_data[h]
+                        if any(a in h for a in aliases["vin"]): vin = row_data[h]
                     if vin == "Unknown" or vin == "": continue
                     
                     v = {
@@ -89,9 +109,9 @@ def extract_police_report(text: str) -> dict:
                         "policy_number": "Unknown", "towed": "Unknown", "towing_company": "Unknown"
                     }
                     for k, val in row_data.items():
-                        if "plate" in k: v["plate"] = val
+                        if any(a in k for a in aliases["plate"]): v["plate"] = val
                         elif "damage" in k: v["damages"] = val
-                        elif "make" in k or "year" in k: v["make"] = val
+                        elif any(a in k for a in aliases["make"]): v["make"] = val
                     vehicles_dict[vin] = v
                     
             elif is_party:
@@ -99,7 +119,7 @@ def extract_police_report(text: str) -> dict:
                     row_data = {headers[i]: row[i] for i in range(min(len(headers), len(row)))}
                     name = "Unknown"
                     for h in headers:
-                        if "name" in h: name = row_data[h]
+                        if any(a in h for a in aliases["name"]): name = row_data[h]
                     if name == "Unknown" or name == "": continue
                     
                     p = {
@@ -108,12 +128,12 @@ def extract_police_report(text: str) -> dict:
                         "transported_to": "Unknown", "citations": "None"
                     }
                     for k, val in row_data.items():
-                        if "dob" in k: p["dob"] = val
-                        elif "license" in k: p["license_number"] = val
-                        elif "citation" in k: p["citations"] = val
-                        elif "injury" in k or "condition" in k: p["condition"] = val
-                        elif "transport" in k: p["transported_to"] = val
-                        elif "address" in k: p["address"] = val
+                        if any(a in k for a in aliases["dob"]): p["dob"] = val
+                        elif any(a in k for a in aliases["license"]): p["license_number"] = val
+                        elif any(a in k for a in aliases["citation"]): p["citations"] = val
+                        elif any(a in k for a in aliases["condition"]): p["condition"] = val
+                        elif any(a in k for a in aliases["transported_to"]): p["transported_to"] = val
+                        elif any(a in k for a in aliases["address"]): p["address"] = val
                     parties.append(p)
                     
             elif is_witness:
@@ -129,10 +149,10 @@ def extract_police_report(text: str) -> dict:
                         "phone": "Unknown", "statement": "Unknown"
                     }
                     for k, val in row_data.items():
-                        if "dob" in k: w["dob"] = val
-                        elif "address" in k: w["address"] = val
-                        elif "phone" in k: w["phone"] = val
-                        elif "statement" in k: w["statement"] = val
+                        if any(a in k for a in aliases["dob"]): w["dob"] = val
+                        elif any(a in k for a in aliases["address"]): w["address"] = val
+                        elif any(a in k for a in aliases["phone"]): w["phone"] = val
+                        elif any(a in k for a in aliases["statement"]): w["statement"] = val
                     witnesses.append(w)
 
     # --- 2. Fallback: Block Parser (For Flattened Tables) ---

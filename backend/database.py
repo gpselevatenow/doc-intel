@@ -1,7 +1,8 @@
 import sqlite3
 from datetime import datetime
+import os
 
-DB_NAME = "feedback.db"
+DB_NAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "feedback.db")
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -23,6 +24,19 @@ def init_db():
             field_name TEXT NOT NULL,
             timestamp TEXT NOT NULL,
             UNIQUE(doc_id, field_name)
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS raw_documents (
+            doc_id TEXT PRIMARY KEY,
+            markdown_text TEXT NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS table_aliases (
+            canonical_field TEXT NOT NULL,
+            alias_header TEXT NOT NULL,
+            UNIQUE(canonical_field, alias_header)
         )
     ''')
     conn.commit()
@@ -65,3 +79,27 @@ def delete_custom_field(doc_id: str, field_name: str):
     cursor.execute('DELETE FROM custom_fields WHERE doc_id = ? AND field_name = ?', (doc_id, field_name))
     conn.commit()
     conn.close()
+
+def save_raw_document(doc_id: str, markdown_text: str):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('INSERT OR REPLACE INTO raw_documents (doc_id, markdown_text) VALUES (?, ?)', (doc_id, markdown_text))
+        conn.commit()
+    except Exception as e:
+        print(f"Failed to save raw doc: {e}")
+    finally:
+        conn.close()
+
+def get_aliases_for(canonical_field: str) -> list[str]:
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT alias_header FROM table_aliases WHERE canonical_field = ?', (canonical_field,))
+        aliases = [row[0] for row in cursor.fetchall()]
+        return aliases
+    except Exception:
+        return []
+    finally:
+        conn.close()
+

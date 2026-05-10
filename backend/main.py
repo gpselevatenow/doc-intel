@@ -10,7 +10,7 @@ from modules.ia_summarizer import extract_ia_report
 from modules.police_extractor import extract_police_report
 from modules.acord_extractor import extract_acord_report
 from core.orchestrator_integration import run_orchestrator
-from database import init_db, log_correction, add_custom_field, get_custom_fields, delete_custom_field
+from database import init_db, log_correction, add_custom_field, get_custom_fields, delete_custom_field, save_raw_document
 from pydantic import BaseModel
 
 app = FastAPI(title="Elevatenow - Doc Intel - Extraction Suite")
@@ -97,6 +97,7 @@ async def extract_police(file: UploadFile = File(...)):
         canonical_doc = None
 
     markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
+    save_raw_document(file.filename, markdown_text)
     result = extract_police_report(markdown_text)
     
     # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
