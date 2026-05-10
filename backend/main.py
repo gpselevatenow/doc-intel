@@ -9,7 +9,7 @@ from core.parser import parse_document, flatten_markdown_tables, find_bbox_for_t
 from modules.ia_summarizer import extract_ia_report
 from modules.police_extractor import extract_police_report
 from modules.acord_extractor import extract_acord_report
-from modules.generic_extractor import extract_generic_fields
+from core.orchestrator_integration import run_orchestrator
 from database import init_db, log_correction, add_custom_field, get_custom_fields, delete_custom_field
 from pydantic import BaseModel
 
@@ -42,6 +42,19 @@ async def extract_ia(file: UploadFile = File(...)):
     markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_ia_report(markdown_text)
     
+    # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
+    if canonical_doc:
+        orchestrator_record = run_orchestrator(canonical_doc, file.filename, "ia_report")
+        result["dynamic_fields"] = {}
+        for key, val in orchestrator_record.items():
+            if val is not None:
+                if key.startswith("dynamic_"):
+                    result["dynamic_fields"][key.replace("dynamic_", "")] = val
+                else:
+                    result[key] = val
+    else:
+        result["dynamic_fields"] = {}
+    
     # Generate Bbox Map
     bbox_map = {}
     if canonical_doc:
@@ -72,7 +85,19 @@ async def extract_police(file: UploadFile = File(...)):
 
     markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_police_report(markdown_text)
-    result["dynamic_fields"] = extract_generic_fields(markdown_text, file.filename)
+    
+    # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
+    if canonical_doc:
+        orchestrator_record = run_orchestrator(canonical_doc, file.filename, "police_report")
+        result["dynamic_fields"] = {}
+        for key, val in orchestrator_record.items():
+            if val is not None:
+                if key.startswith("dynamic_"):
+                    result["dynamic_fields"][key.replace("dynamic_", "")] = val
+                else:
+                    result[key] = val
+    else:
+        result["dynamic_fields"] = {}
     
     # Generate Bbox Map
     bbox_map = {}
@@ -100,14 +125,40 @@ async def extract_acord(file: UploadFile = File(...)):
         
     try:
         # Use docling to parse
-        markdown_text, _ = parse_document(file_path)
+        markdown_text, canonical_doc = parse_document(file_path)
     except Exception as e:
         # Fallback if docling fails during demo
         markdown_text = "Agency: Elevate Insurance\nCompany: State Farm\nPolicy Number: P123456789\nNamed Insured: John Doe\nDate of Loss: 05/10/2026\nDescription of Loss: A large fire broke out in the kitchen causing severe smoke damage."
+        canonical_doc = None
 
     markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
     result = extract_acord_report(markdown_text)
-    result["dynamic_fields"] = extract_generic_fields(markdown_text, file.filename)
+    
+    # Run Phase 2 Orchestrator Template Engine for flat & dynamic fields
+    if canonical_doc:
+        orchestrator_record = run_orchestrator(canonical_doc, file.filename, "acord_report")
+        result["dynamic_fields"] = {}
+        for key, val in orchestrator_record.items():
+            if val is not None:
+                if key.startswith("dynamic_"):
+                    result["dynamic_fields"][key.replace("dynamic_", "")] = val
+                else:
+                    result[key] = val
+    else:
+        result["dynamic_fields"] = {}
+        
+    # Generate Bbox Map
+    bbox_map = {}
+    if canonical_doc:
+        for key, val in result.items():
+            if isinstance(val, str) and key not in ["summary", "accuracy_reasons"]:
+                bbox_info = find_bbox_for_text(canonical_doc, val)
+                if bbox_info: bbox_map[key] = bbox_info
+        for key, val in result.get("dynamic_fields", {}).items():
+            if isinstance(val, str):
+                bbox_info = find_bbox_for_text(canonical_doc, val)
+                if bbox_info: bbox_map[f"dynamic_{key}"] = bbox_info
+    result["bbox_map"] = bbox_map
     
     if os.path.exists(file_path):
         os.remove(file_path)

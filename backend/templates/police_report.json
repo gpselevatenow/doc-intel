@@ -1,0 +1,102 @@
+{
+  "template_id": "police_01",
+  "version": "1.0",
+  "document_type": "police_report",
+  "domain": "auto_claims",
+  "label": "Standard Police Report",
+  "description": "Base template for extracting flat fields from Police Reports.",
+  "auto_accept_threshold": 0.8,
+  "fields": [
+    {
+      "field_id": "date_time",
+      "display_name": "Date/Time",
+      "field_type": "text",
+      "required": true,
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": ["(?:Date/Time|DATE OF INCIDENT)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"],
+            "flags": ["IGNORECASE"]
+          }
+        }
+      ]
+    },
+    {
+      "field_id": "location",
+      "display_name": "Location",
+      "field_type": "text",
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": ["Location[ \\t:]*(?P<value>.*?)(?:\\n|$)"],
+            "flags": ["IGNORECASE"]
+          }
+        }
+      ]
+    },
+    {
+      "field_id": "weather",
+      "display_name": "Weather",
+      "field_type": "text",
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": ["Weather[ \\t:]*(?P<value>[A-Za-z \\t\\(\\)]+)"],
+            "flags": ["IGNORECASE"]
+          }
+        }
+      ]
+    },
+    {
+      "field_id": "accident_type",
+      "display_name": "Accident Type",
+      "field_type": "text",
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": ["(?:Accident Type|TYPE OF COLLISION[^\\:]*)[ \\t:]*(?P<value>[A-Za-z \\t\\-\\(\\)\\/0-9]+)"],
+            "flags": ["IGNORECASE"]
+          }
+        }
+      ]
+    },
+    {
+      "field_id": "ems_agency",
+      "display_name": "EMS Agency",
+      "field_type": "text",
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": ["(?:EMS Agency|Transported)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"],
+            "flags": ["IGNORECASE"]
+          }
+        }
+      ]
+    },
+    {
+      "field_id": "report_number",
+      "display_name": "Report Number",
+      "field_type": "text",
+      "strategies": [
+        {
+          "strategy": "global_regex",
+          "priority": 1,
+          "config": {
+            "patterns": ["CASE NUMBER[ \\t:]*(?P<value>[A-Za-z0-9\\-]+)"],
+            "flags": ["IGNORECASE"]
+          }
+        }
+      ]
+    }
+  ]
+}
