@@ -1,0 +1,449 @@
+:root {
+  --primary-bg: #0a2260;
+  --secondary-bg: #1e1547;
+  --accent: #93c5fd;
+  --accent-hover: #c4b5fd;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --danger: #ef4444;
+  --success: #6ee7b7;
+  --border-color: rgba(255, 255, 255, 0.15);
+  --card-bg: rgba(30, 21, 71, 0.6);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--primary-bg);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  padding: 0 2rem;
+  background: var(--secondary-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(to right, var(--accent), var(--accent-hover));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.nav-tabs {
+  display: flex;
+  height: 100%;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 1.5rem;
+  height: 100%;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-tab:hover {
+  color: var(--text-main);
+  background: rgba(255,255,255,0.05);
+}
+
+.nav-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.upload-view {
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  background: rgba(30, 41, 59, 0.3);
+}
+
+.upload-area:hover {
+  border-color: var(--accent);
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.upload-area input {
+  display: none;
+}
+
+.staged-files {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.file-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.type-select {
+  background: var(--primary-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem;
+  border-radius: 6px;
+  outline: none;
+  font-family: inherit;
+  margin-right: 1rem;
+}
+
+.type-select:focus {
+  border-color: var(--accent);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--secondary-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background: var(--border-color);
+}
+
+.master-detail-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar {
+  width: 300px;
+  background: var(--secondary-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.doc-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.doc-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.doc-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.doc-item.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-left: 4px solid var(--accent);
+}
+
+.doc-item-title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-item-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.status-badge {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+}
+
+.status-badge.success {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.status-badge.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.detail-view {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.left-pane {
+  border-right: 1px solid var(--border-color);
+  background: #1e293b;
+}
+
+.right-pane {
+  background: linear-gradient(135deg, var(--primary-bg), #0f172a);
+}
+
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+  background: white;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+  margin-left: 0.5rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.field-value {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.file-note {
+  width: 100%;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  padding: 1rem;
+  font-family: inherit;
+  resize: none;
+  line-height: 1.5;
+}
+
+.file-note:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.warning-text {
+  color: var(--danger);
+  font-weight: bold;
+}
+
+/* Spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spinner {
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+/* Clickable Fields */
+.clickable-field {
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  margin: -0.2rem -0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.clickable-field:hover {
+  background: rgba(147, 197, 253, 0.2); /* ElevateNow accent with opacity */
+  color: var(--accent);
+}
+
+.clickable-field:active {
+  background: rgba(147, 197, 253, 0.4);
+}
+
+/* Insights Cards */
+.insight-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.insight-card {
+  background: rgba(16, 185, 129, 0.1); /* Subtle green */
+  border-left: 4px solid var(--success);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.action-card {
+  background: rgba(239, 68, 68, 0.1); /* Subtle red */
+  border-left: 4px solid var(--danger);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+/* React PDF Viewer Custom Highlight overrides */
+.rpv-search__highlight {
+  background-color: #fef08a !important; /* Soft yellow marker */
+  color: #1e293b !important; /* Dark slate text for contrast */
+  opacity: 0.8 !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 2px rgba(254, 240, 138, 0.8) !important;
+  transition: all 0.2s ease !important;
+}

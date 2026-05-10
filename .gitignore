@@ -1,0 +1,22 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/feedback.db
+backend/temp_*/
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Documents / Sensitive Info
+*.pdf
+*.docx
+*.txt
+scratch/
+brain/
+.DS_Store
