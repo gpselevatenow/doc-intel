@@ -8,7 +8,7 @@ from core.document_model import Document
 from extractors.base import Strategy, register
 
 class AdvancedTableConfig(BaseModel):
-    table_type: str # "vehicles", "parties", "witnesses"
+    table_type: str  # "vehicles", "parties", "witnesses"
 
 @register("advanced_table")
 class AdvancedTableStrategy(Strategy):
@@ -22,11 +22,10 @@ class AdvancedTableStrategy(Strategy):
             return []
 
         result_list = []
-        
-        # We port the robust logic to extract vehicles, parties, and witnesses natively
+
         def has_word(s: str, w: str) -> bool:
-            return re.search(rf'\b{w}\b', s.lower()) is not None
-            
+            return re.search(rf'\b{re.escape(w)}\b', s.lower()) is not None
+
         if cfg.table_type == "vehicles":
             aliases = {
                 "vin": ["vin", "vehicle identification", "identification number"],
@@ -36,103 +35,172 @@ class AdvancedTableStrategy(Strategy):
                 "model": ["model", "mod"],
                 "color": ["color", "col"],
                 "damages": ["damage", "damages", "severity"],
-                "owner_name": ["owner", "owner name"],
+                "owner_name": ["owner name", "owner"],
+                "owner_address": ["owner address", "owner addr", "owner street"],
                 "insurance_company": ["insurance", "insurance company", "carrier"],
-                "policy_number": ["policy", "policy number"],
-                "towed": ["towed", "towed by"],
-                "towing_company": ["towing company", "tower"]
+                "policy_number": ["policy", "policy number", "policy no"],
+                "towed": ["towed", "tow"],
+                "towing_company": ["towing company", "towed by", "tower"]
             }
             vehicles_dict = {}
             lines = text.splitlines()
             current_entity = {}
             current_id = None
-            
-            def save():
+
+            def save_vehicle():
                 nonlocal current_entity, current_id
                 if current_id and current_entity:
                     if current_id not in vehicles_dict:
                         vehicles_dict[current_id] = {
                             "vin": "Unknown", "plate": "Unknown", "make": "Unknown",
-                            "year": "Unknown", "model": "Unknown", "color": "Unknown", "damages": "Unknown",
-                            "owner_name": "Unknown", "insurance_company": "Unknown",
-                            "policy_number": "Unknown", "towed": "Unknown", "towing_company": "Unknown"
+                            "year": "Unknown", "model": "Unknown", "color": "Unknown",
+                            "damages": "Unknown", "owner_name": "Unknown",
+                            "owner_address": "Unknown", "insurance_company": "Unknown",
+                            "policy_number": "Unknown", "towed": "Unknown",
+                            "towing_company": "Unknown"
                         }
                     for k, v in current_entity.items():
-                        if k != "_id": vehicles_dict[current_id][k] = v
-            
+                        if k != "_id":
+                            vehicles_dict[current_id][k] = v
+
             for line in lines:
                 line = line.strip()
-                if not line: continue
-                
-                # Match V1, V2, etc.
-                v_match = re.search(r'(?i)(?:#:\s*V\d+|Vehicle V\d+)', line)
+                if not line:
+                    continue
+
+                # Match: V1, V2:, Vehicle 1, Vehicle #1, #: V1, VEHICLE 2, etc.
+                v_match = re.search(
+                    r'(?i)(?:^|\b)(?:#\s*:\s*V(\d+)|Vehicle\s*[#]?\s*(\d+)\s*[:\s]|V(\d+)\s*[:]\s*)',
+                    line
+                )
                 if v_match:
-                    save()
-                    current_id = v_match.group(0)
+                    save_vehicle()
+                    num = v_match.group(1) or v_match.group(2) or v_match.group(3)
+                    current_id = f"V{num}" if num else v_match.group(0).strip()
                     current_entity = {}
                     continue
-                    
+
                 if ":" in line:
                     parts = line.split(":", 1)
                     key = parts[0].strip().lower()
                     val = parts[1].strip()
-                    
+
                     for target_key, alias_list in aliases.items():
-                        if any(has_word(key, a) for a in alias_list):
+                        if any(has_word(key, a) or a in key for a in alias_list):
                             current_entity[target_key] = val
                             break
-                            
-            save()
+
+            save_vehicle()
             result_list = list(vehicles_dict.values())
-            
+
         elif cfg.table_type == "parties":
             parties = []
             current_entity = {}
             lines = text.splitlines()
-            
-            def save():
+
+            def save_party():
                 nonlocal current_entity
-                if current_entity:
-                    parties.append({
-                        "name": current_entity.get("name", "Unknown"),
-                        "dob": current_entity.get("dob", "Unknown"),
-                        "address": current_entity.get("address", "Unknown"),
-                        "license_number": current_entity.get("license_number", "Unknown"),
-                        "condition": current_entity.get("condition", "Unknown"),
-                        "transported_to": current_entity.get("transported_to", "Unknown"),
-                        "citations": current_entity.get("citations", "None")
-                    })
-                    
+                if not current_entity:
+                    return
+
+                condition_raw = current_entity.get("condition", "Unknown")
+
+                # Split injuries from substance involvement
+                substance_pattern = r'(?i)(alcohol|drug|intoxicat|dui|dwi|impair|under the influence|substance|narcotics?|cannabis|marijuana)'
+                substance_match = re.search(substance_pattern, condition_raw)
+                if substance_match:
+                    substance = substance_match.group(0)
+                    injuries = re.sub(substance_pattern, '', condition_raw, flags=re.IGNORECASE).strip(' ,;')
+                else:
+                    substance = "None reported"
+                    injuries = condition_raw
+
+                # Normalize citations to list
+                raw_citations = current_entity.get("citations", "")
+                if raw_citations and raw_citations.lower() not in ("none", "unknown", ""):
+                    citations_list = [c.strip() for c in re.split(r'[,;|]', raw_citations) if c.strip()]
+                else:
+                    citations_list = []
+
+                # Transported flag + destination
+                transported_to = current_entity.get("transported_to", "Unknown")
+                transported = (
+                    transported_to not in ("Unknown", "None", "", "N/A")
+                    or bool(current_entity.get("_transported_flag"))
+                )
+
+                parties.append({
+                    "role": current_entity.get("role", "Unknown"),
+                    "name": current_entity.get("name", "Unknown"),
+                    "dob": current_entity.get("dob", "Unknown"),
+                    "address": current_entity.get("address", "Unknown"),
+                    "license_number": current_entity.get("license_number", "Unknown"),
+                    "injuries": injuries if injuries else "None reported",
+                    "substance_involvement": substance,
+                    "transported": transported,
+                    "transported_to": transported_to,
+                    "citations": citations_list
+                })
+
             for line in lines:
                 line = line.strip()
-                if not line: continue
-                
-                if re.match(r'(?i)Party:\s*(.+)', line) or re.match(r'(?i)Veh:\s*V\d+', line):
-                    save()
-                    current_entity = {}
+                if not line:
                     continue
-                    
+
+                # Match: Party:, Party 1:, PARTY:, Operator:, Driver:, Passenger:, Veh: V1
+                party_match = re.match(
+                    r'(?i)(Party\s*[#]?\s*\d*\s*:?|Veh\s*:\s*V\d+|Operator\s*[#]?\s*\d*\s*:|Driver\s*[#]?\s*\d*\s*:|Passenger\s*[#]?\s*\d*\s*:)',
+                    line
+                )
+                if party_match:
+                    save_party()
+                    current_entity = {}
+                    token = party_match.group(0).lower()
+                    if "operator" in token or "driver" in token:
+                        current_entity["role"] = "Operator"
+                    elif "passenger" in token:
+                        current_entity["role"] = "Passenger"
+                    continue
+
                 if ":" in line:
                     parts = line.split(":", 1)
                     key = parts[0].strip().lower()
                     val = parts[1].strip()
-                    
-                    if "name" in key: current_entity["name"] = val
-                    elif "dob" in key: current_entity["dob"] = val
-                    elif "license" in key: current_entity["license_number"] = val
-                    elif "injury" in key or "condition" in key: current_entity["condition"] = val
-                    elif "transport" in key: current_entity["transported_to"] = val
-                    elif "citation" in key: current_entity["citations"] = val
-                    elif "address" in key: current_entity["address"] = val
-            save()
+
+                    if "role" in key or "type" in key:
+                        current_entity["role"] = val
+                    elif "name" in key:
+                        current_entity["name"] = val
+                    elif "dob" in key or "date of birth" in key or "birth" in key:
+                        current_entity["dob"] = val
+                    elif "address" in key or "addr" in key:
+                        current_entity["address"] = val
+                    elif any(k in key for k in ("license", "dl #", "dl#", "driver lic", "driver's lic")):
+                        current_entity["license_number"] = val
+                    elif "injury" in key or "condition" in key:
+                        current_entity["condition"] = val
+                    elif any(k in key for k in ("alcohol", "drug", "substance", "dui")):
+                        current_entity["condition"] = (current_entity.get("condition", "") + " " + val).strip()
+                    elif "transport" in key or "taken to" in key or "hospital" in key:
+                        current_entity["transported_to"] = val
+                        current_entity["_transported_flag"] = True
+                    elif "citation" in key or "charge" in key or "infraction" in key:
+                        existing = current_entity.get("citations", "")
+                        current_entity["citations"] = (existing + ", " + val).strip(", ") if existing else val
+                    elif "passenger" in key:
+                        current_entity["role"] = "Passenger"
+                    elif "operator" in key or "driver" in key:
+                        current_entity["role"] = "Operator"
+
+            save_party()
             result_list = parties
-            
+
         elif cfg.table_type == "witnesses":
             witnesses = []
             current_entity = {}
             lines = text.splitlines()
-            
-            def save():
+
+            def save_witness():
                 nonlocal current_entity
                 if current_entity:
                     witnesses.append({
@@ -142,33 +210,44 @@ class AdvancedTableStrategy(Strategy):
                         "phone": current_entity.get("phone", "Unknown"),
                         "statement": current_entity.get("statement", "Unknown")
                     })
-                    
+
             for line in lines:
                 line = line.strip()
-                if not line: continue
-                
-                if re.match(r'(?i)#:\s*W\d+', line) or re.match(r'(?i)Witness\s*\d+', line):
-                    save()
+                if not line:
+                    continue
+
+                # Match: W1, W2:, Witness 1, Witness #1, #: W1
+                w_match = re.match(
+                    r'(?i)(?:#\s*:\s*W\d+|Witness\s*[#]?\s*\d+\s*[:\s]?|W\d+\s*[:\s])',
+                    line
+                )
+                if w_match:
+                    save_witness()
                     current_entity = {}
                     continue
-                    
+
                 if ":" in line:
                     parts = line.split(":", 1)
                     key = parts[0].strip().lower()
                     val = parts[1].strip()
-                    
-                    if "name" in key: current_entity["name"] = val
-                    elif "dob" in key: current_entity["dob"] = val
-                    elif "address" in key: current_entity["address"] = val
-                    elif "phone" in key: current_entity["phone"] = val
-                    elif "statement" in key: current_entity["statement"] = val
-            save()
+
+                    if "name" in key:
+                        current_entity["name"] = val
+                    elif "dob" in key or "date of birth" in key or "birth" in key:
+                        current_entity["dob"] = val
+                    elif "address" in key or "addr" in key:
+                        current_entity["address"] = val
+                    elif "phone" in key or "tel" in key or "cell" in key:
+                        current_entity["phone"] = val
+                    elif "statement" in key:
+                        current_entity["statement"] = val
+
+            save_witness()
             result_list = witnesses
 
         if not result_list:
             return []
-            
-        # Return as JSON serialized string
+
         json_val = json.dumps(result_list)
         return [
             Candidate(
