@@ -43,7 +43,9 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:inspection firm|inspecting firm|inspection company|inspected by|adjusting firm|adjusting company|adjuster)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,&.'\\-]{2,80})"
+                            "(?im)(?:inspection firm|inspecting firm|inspection company|adjusting firm|adjusting company)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,&.'\\-]{2,80})",
+                            "(?im)inspected by(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,&.'\\-]{2,80})",
+                            "(?im)adjuster(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,&.'\\-]{2,60}(?:LLC|Inc|Corp|Group|Services|Adjusters)?)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -207,9 +209,9 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:adjuster(?:'s)? )?recommendations?(?:[:\\s]+)(?P<value>[^\\n]{2,500})"
+                            "(?ims)(?:adjuster(?:'s)? )?recommendations?(?:[:\\s]+)(?P<value>.{2,1000}?)(?=\\n(?:[A-Z][a-z]+:|$)|\\Z)"
                         ],
-                        "flags": ["IGNORECASE"]
+                        "flags": ["IGNORECASE", "DOTALL"]
                     }
                 }
             ]
