@@ -53,7 +53,7 @@ async def extract_ia(file: UploadFile = File(...)):
         duplicate_insights = []
         candidates_by_field = {}
         for c in all_candidates:
-            fid = c["field_id"]
+            fid = c.field_id
             if fid not in candidates_by_field:
                 candidates_by_field[fid] = []
             candidates_by_field[fid].append(c)
@@ -134,7 +134,7 @@ async def extract_police(file: UploadFile = File(...)):
         duplicate_insights = []
         candidates_by_field = {}
         for c in all_candidates:
-            fid = c["field_id"]
+            fid = c.field_id
             if fid not in candidates_by_field:
                 candidates_by_field[fid] = []
             candidates_by_field[fid].append(c)

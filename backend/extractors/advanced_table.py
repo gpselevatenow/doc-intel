@@ -174,10 +174,9 @@ class AdvancedTableStrategy(Strategy):
             Candidate(
                 field_id=field_id,
                 value=json_val,
-                score=1.0,
-                bbox=None,
+                confidence=1.0,
+                source_strategy="advanced_table",
                 page=1,
-                reason=f"Extracted {cfg.table_type} via advanced table strategy",
-                source="advanced_table"
+                metadata={"reason": f"Extracted {cfg.table_type} via advanced table strategy"}
             )
         ]

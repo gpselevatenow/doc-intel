@@ -61,6 +61,7 @@ StrategyName = Literal[
     "nearby_text",
     "table_cell",
     "anchor_region",
+    "advanced_table",
 ]
 
 
