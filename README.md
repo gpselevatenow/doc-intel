@@ -60,6 +60,24 @@ graph TD
 
 ---
 
+## 🧠 How the Solution Learns (Human-in-the-Loop)
+
+The solution learns without requiring expensive machine learning retraining! It utilizes a **Human-in-the-Loop (HITL) Pipeline** and a dynamic configuration engine.
+
+### 1. Learning from Mistakes (The HITL Pipeline)
+If the AI misses a field in a table (for example, it didn't find the "VIN" because the state trooper's form labeled the column as "Tag No." instead), here is how the system learns:
+* **The Correction:** The claims adjuster notices the missing VIN in the UI, clicks the field, and types the correct value.
+* **The Database:** The UI immediately sends this correction to the backend database (`feedback.db`).
+* **Reverse Tracing (`train_feedback.py`):** A background learning script takes the adjuster's typed correction, re-opens the original raw document, and searches the document's tables for that exact value. Once it finds it, it traces straight up to the top of the column to see what the header was (e.g., "Tag No.").
+* **Permanent Memory:** It permanently saves "Tag No." as an alias for "VIN" in the database (`table_aliases` table). The next time it processes a document with a "Tag No." column, it automatically extracts it!
+
+### 2. Extracting Completely New Fields
+If you need to start extracting a brand new field, there are two ways to do it without touching the Python code:
+* **For Flat Fields (The JSON Templates):** Open the `police_report.json` or `ia_report.json` file in the backend and add a new block. Specify the `field_id` and give it a spatial label or regex pattern to look for. The Orchestrator dynamically reads this JSON file on every request, so it will immediately start extracting that new field on all future documents.
+* **For Dynamic NLP Fields (The UI):** If an adjuster needs a specific field for a specific claim right now, they can scroll to the bottom of the UI and use the **"Add Custom Extraction Field"** input. They just type what they want (e.g., "Airbag Deployed"), click Add, and hit "Rerun Extraction". The backend will dynamically instruct the Orchestrator to hunt for that specific concept in the document and extract it.
+
+---
+
 ## 🗂️ How Duplicates Are Managed
 
 Because the Orchestrator runs an array of fallback strategies, it often locates multiple potential matches (Candidates) for the exact same field ID.
