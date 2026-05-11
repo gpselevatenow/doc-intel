@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X } from 'lucide-react';
 import EditableField from './EditableField';
 
 const Badge = () => (
@@ -14,6 +14,60 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   const [customFields, setCustomFields] = useState([]);
   const [newField, setNewField] = useState('');
   const [feedbackGiven, setFeedbackGiven] = useState(null);
+  const [auditModalField, setAuditModalField] = useState(null);
+
+  const renderFieldLabel = (label, fieldId) => (
+    <div className="field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span>{label}</span>
+      {fieldId && (
+        <button onClick={() => setAuditModalField(fieldId)} title="View Audit Trail" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)' }}>
+          <Search size={14} />
+        </button>
+      )}
+    </div>
+  );
+
+  const renderAuditModal = () => {
+    if (!auditModalField) return null;
+    const candidates = data.audit_trail ? data.audit_trail.filter(c => c.field_id === auditModalField) : [];
+
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '2rem', width: '80%', maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+            <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Search size={24} /> Audit Trail: {auditModalField}</h2>
+            <button onClick={() => setAuditModalField(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={24} /></button>
+          </div>
+          
+          {candidates.length === 0 ? (
+             <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No audit trail data available for this field.</p>
+          ) : (
+             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+               <thead>
+                 <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                   <th style={{ padding: '0.5rem' }}>Rank</th>
+                   <th style={{ padding: '0.5rem' }}>Value</th>
+                   <th style={{ padding: '0.5rem' }}>Confidence</th>
+                   <th style={{ padding: '0.5rem' }}>Strategy</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 {candidates.sort((a, b) => b.confidence - a.confidence).map((c, i) => (
+                   <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i === 0 ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}>
+                     <td style={{ padding: '0.75rem 0.5rem' }}>{i + 1} {i === 0 && <CheckCircle size={14} style={{ color: 'var(--success)', verticalAlign: 'text-bottom' }} />}</td>
+                     <td style={{ padding: '0.75rem 0.5rem', fontWeight: i === 0 ? 'bold' : 'normal' }}>{c.value}</td>
+                     <td style={{ padding: '0.75rem 0.5rem' }}>{typeof c.confidence === 'number' ? c.confidence.toFixed(2) : c.confidence}</td>
+                     <td style={{ padding: '0.75rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>{c.source_strategy}</td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
+          )}
+        </div>
+      </div>
+    );
+  };
+
 
   if (!data) {
     return (
@@ -262,28 +316,28 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to edit it and train the NLP engine.</p>
           <div className="grid-2">
             <div>
-              <div className="field-label">Agency / Producer</div>
+              {renderFieldLabel('Agency / Producer', 'agency')}
               <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" needsReview={review_flags['agency']} /></div>
             </div>
             <div>
-              <div className="field-label">Insurance Carrier</div>
+              {renderFieldLabel('Insurance Carrier', 'carrier')}
               <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" needsReview={review_flags['carrier']} /></div>
             </div>
             <div>
-              <div className="field-label">Policy Number</div>
+              {renderFieldLabel('Policy Number', 'policy_number')}
               <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" needsReview={review_flags['policy_number']} /></div>
             </div>
             <div>
-              <div className="field-label">Named Insured</div>
+              {renderFieldLabel('Named Insured', 'named_insured')}
               <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" needsReview={review_flags['named_insured']} /></div>
             </div>
             <div>
-              <div className="field-label">Date of Loss</div>
+              {renderFieldLabel('Date of Loss', 'date_of_loss')}
               <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" needsReview={review_flags['date_of_loss']} /></div>
             </div>
           </div>
           <div style={{ marginTop: '1rem' }}>
-            <div className="field-label">Description of Loss</div>
+            {renderFieldLabel('Description of Loss', 'description_of_loss')}
             <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" needsReview={review_flags['description_of_loss']} /></div>
           </div>
         </div>
@@ -297,7 +351,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             <div className="grid-2">
               {Object.entries(dynamic_fields).map(([key, val], idx) => (
                 <div key={idx}>
-                  <div className="field-label">{key}</div>
+                  {renderFieldLabel(key, key)}
                   <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div>
                 </div>
               ))}
@@ -336,31 +390,31 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to highlight it in the original document.</p>
           <div className="grid-2">
             <div>
-              <div className="field-label">Cause of Loss</div>
+              {renderFieldLabel('Cause of Loss', 'cause_of_loss')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('cause_of_loss')}>{data.cause_of_loss}</div>
             </div>
             <div>
-              <div className="field-label">Settlement Estimate <Badge /></div>
+              {renderFieldLabel(<>Settlement Estimate <Badge /></>, 'settlement')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('settlement')}>{data.settlement}</div>
             </div>
             <div>
-              <div className="field-label">Coverage A</div>
+              {renderFieldLabel('Coverage A', 'coverage_a')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_a')}>{data.coverage_a}</div>
             </div>
             <div>
-              <div className="field-label">Coverage B</div>
+              {renderFieldLabel('Coverage B', 'coverage_b')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_b')}>{data.coverage_b}</div>
             </div>
             <div>
-              <div className="field-label">Coverage C</div>
+              {renderFieldLabel('Coverage C', 'coverage_c')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_c')}>{data.coverage_c}</div>
             </div>
             <div>
-              <div className="field-label">Coverage D</div>
+              {renderFieldLabel('Coverage D', 'coverage_d')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_d')}>{data.coverage_d}</div>
             </div>
             <div>
-              <div className="field-label">Subrogation Status</div>
+              {renderFieldLabel('Subrogation Status', 'subrogation')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('subrogation')}>{data.subrogation}</div>
             </div>
           </div>
@@ -414,23 +468,23 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to highlight it in the original document.</p>
         <div className="grid-2">
           <div>
-            <div className="field-label">Date/Time</div>
+            {renderFieldLabel('Date/Time', 'date_time')}
             <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
           </div>
           <div>
-            <div className="field-label">Location</div>
+            {renderFieldLabel('Location', 'location')}
             <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
           </div>
           <div>
-            <div className="field-label">Weather</div>
+            {renderFieldLabel('Weather', 'weather')}
             <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
           </div>
           <div>
-            <div className="field-label">Accident Type</div>
+            {renderFieldLabel('Accident Type', 'accident_type')}
             <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
           </div>
           <div>
-            <div className="field-label">EMS Agency</div>
+            {renderFieldLabel('EMS Agency', 'ems_agency')}
             <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
           </div>
         </div>
@@ -442,15 +496,15 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         </h3>
         <div className="grid-2">
           <div>
-            <div className="field-label">Responding Agency</div>
+            {renderFieldLabel('Responding Agency', 'agency')}
             <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
           </div>
           <div>
-            <div className="field-label">Investigating Officer</div>
+            {renderFieldLabel('Investigating Officer', 'officer')}
             <div className="field-value"><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
           </div>
           <div>
-            <div className="field-label">Report Number</div>
+            {renderFieldLabel('Report Number', 'report_number')}
             <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
           </div>
         </div>
@@ -462,7 +516,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         </h3>
         
         <div style={{ marginBottom: '1.5rem' }}>
-          <div className="field-label">Vehicles</div>
+          {renderFieldLabel('Vehicles', null)}
           {data.vehicles && data.vehicles.map((v, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
@@ -480,7 +534,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         </div>
 
         <div style={{ marginBottom: '1.5rem' }}>
-          <div className="field-label">Operators & Passengers</div>
+          {renderFieldLabel('Operators & Passengers', null)}
           {data.parties && data.parties.length > 0 ? data.parties.map((p, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
@@ -497,7 +551,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         </div>
 
         <div>
-          <div className="field-label">Witnesses</div>
+          {renderFieldLabel('Witnesses', null)}
           {data.witnesses && data.witnesses.length > 0 ? data.witnesses.map((w, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
@@ -532,7 +586,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div className="grid-2">
             {Object.entries(dynamic_fields).map(([key, val], idx) => (
               <div key={idx}>
-                <div className="field-label">{key}</div>
+                {renderFieldLabel(key, key)}
                 <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div>
               </div>
             ))}
