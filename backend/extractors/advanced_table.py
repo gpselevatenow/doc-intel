@@ -129,17 +129,22 @@ class AdvancedTableStrategy(Strategy):
                     or bool(current_entity.get("_transported_flag"))
                 )
 
+                citations_str = ", ".join(citations_list) if citations_list else "None"
+                condition_combined = injuries if substance == "None reported" else f"{injuries}; {substance}"
+
                 parties.append({
                     "role": current_entity.get("role", "Unknown"),
                     "name": current_entity.get("name", "Unknown"),
                     "dob": current_entity.get("dob", "Unknown"),
                     "address": current_entity.get("address", "Unknown"),
                     "license_number": current_entity.get("license_number", "Unknown"),
+                    "condition": condition_combined,
                     "injuries": injuries if injuries else "None reported",
                     "substance_involvement": substance,
                     "transported": transported,
                     "transported_to": transported_to,
-                    "citations": citations_list
+                    "citations": citations_str,
+                    "citations_list": citations_list
                 })
 
             for line in lines:

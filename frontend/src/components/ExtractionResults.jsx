@@ -402,6 +402,14 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_a')}>{data.coverage_a}</div>
             </div>
             <div>
+              {renderFieldLabel('Inspection Date', 'inspection_date')}
+              <div className="field-value clickable-field" onClick={() => onFieldClick('inspection_date')}>{data.inspection_date}</div>
+            </div>
+            <div>
+              {renderFieldLabel('Inspection Firm', 'inspection_firm')}
+              <div className="field-value clickable-field" onClick={() => onFieldClick('inspection_firm')}>{data.inspection_firm}</div>
+            </div>
+            <div>
               {renderFieldLabel('Coverage B', 'coverage_b')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_b')}>{data.coverage_b}</div>
             </div>
@@ -414,8 +422,20 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_d')}>{data.coverage_d}</div>
             </div>
             <div>
+              {renderFieldLabel('Coverages / Policy Form', 'coverages')}
+              <div className="field-value clickable-field" onClick={() => onFieldClick('coverages')}>{data.coverages}</div>
+            </div>
+            <div>
               {renderFieldLabel('Subrogation Status', 'subrogation')}
               <div className="field-value clickable-field" onClick={() => onFieldClick('subrogation')}>{data.subrogation}</div>
+            </div>
+            <div>
+              {renderFieldLabel('Officials (Report Filed)', 'officials')}
+              <div className="field-value clickable-field" onClick={() => onFieldClick('officials')}>{data.officials}</div>
+            </div>
+            <div>
+              {renderFieldLabel('Payment Summary', 'payment_summary')}
+              <div className="field-value clickable-field" onClick={() => onFieldClick('payment_summary')}>{data.payment_summary}</div>
             </div>
           </div>
         </div>
@@ -445,7 +465,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             readOnly 
             value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} 
           />
-          {data.summary?.includes("WARNING: RESERVE INCLUDED") && (
+          {data.reserve_warning && (
             <p className="warning-text">
               <AlertTriangle size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
               Reserve trigger detected in document.
@@ -527,6 +547,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
                 <div><strong>Damages:</strong> <span className="clickable-field" onClick={() => onFieldClick('damages')}>{v.damages}</span></div>
                 <div><strong>Towed/Company:</strong> <span className="clickable-field" onClick={() => onFieldClick('towed')}>{v.towed}</span> / <span className="clickable-field" onClick={() => onFieldClick('towing_company')}>{v.towing_company}</span></div>
                 <div><strong>Owner:</strong> <span className="clickable-field" onClick={() => onFieldClick('owner_name')}>{v.owner_name}</span></div>
+                <div><strong>Owner Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('owner_address')}>{v.owner_address}</span></div>
                 <div><strong>Insurance (Policy):</strong> <span className="clickable-field" onClick={() => onFieldClick('insurance_company')}>{v.insurance_company}</span> (<span className="clickable-field" onClick={() => onFieldClick('policy_number')}>{v.policy_number}</span>)</div>
               </div>
             </div>
@@ -538,11 +559,14 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           {data.parties && data.parties.length > 0 ? data.parties.map((p, idx) => (
             <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
               <div className="grid-2" style={{ gap: '0.5rem' }}>
+                <div><strong>Role:</strong> <span className="clickable-field" onClick={() => onFieldClick('role')}>{p.role}</span></div>
                 <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{p.name}</span></div>
                 <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{p.dob}</span></div>
                 <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{p.address}</span></div>
                 <div><strong>License:</strong> <span className="clickable-field" onClick={() => onFieldClick('license_number')}>{p.license_number}</span></div>
-                <div><strong>Condition/Injuries:</strong> <span className="clickable-field" onClick={() => onFieldClick('condition')}>{p.condition}</span></div>
+                <div><strong>Injuries:</strong> <span className="clickable-field" onClick={() => onFieldClick('injuries')}>{p.injuries}</span></div>
+                <div><strong>Substance Involvement:</strong> <span className="clickable-field" onClick={() => onFieldClick('substance_involvement')}>{p.substance_involvement}</span></div>
+                <div><strong>Transported:</strong> <span>{p.transported ? 'Yes' : 'No'}</span></div>
                 <div><strong>Transported To:</strong> <span className="clickable-field" onClick={() => onFieldClick('transported_to')}>{p.transported_to}</span></div>
                 <div><strong>Citations:</strong> <span className="clickable-field" onClick={() => onFieldClick('citations')}>{p.citations}</span></div>
               </div>
