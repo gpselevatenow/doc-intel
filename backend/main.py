@@ -316,7 +316,7 @@ async def run_benchmark():
     # Simulate processing 50 documents rapidly to measure pure RegEx latency
     mock_text = "Cause of loss: Fire\nCoverage A: $100,000\nCoverage B: $20,000\nSettlement is estimated at $45,000\nSubrogation: Yes\nReserve: true"
     for _ in range(iterations):
-        extract_ia_report(mock_text)
+        extract_acord_report(mock_text)
         
     end_time = time.perf_counter()
     total_time_sec = end_time - start_time
