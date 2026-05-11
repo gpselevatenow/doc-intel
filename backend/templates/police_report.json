@@ -11,14 +11,12 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:INCIDENT DATE|Date of Incident|Date/Time|Date)[ \t]*\\|?[ \t]*(?P<value>[A-Za-z0-9, ]+)[ \t]*\\|?(?:[ \t]*(?:INCIDENT TIME|Time)[ \t]*\\|?[ \t]*(?P<value2>[0-9:]+[ \t]*[A-Za-z]*))?",
-                            "(?im)Date:[ \t]*(?P<value>.+)",
-                            "(?i)Date[ \t]+Occurred[ \t:]+(?P<value>[0-9/]+)"
+                            "(?im)DATE OF INCIDENT[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Date of Incident|INCIDENT DATE|Date/Time|Date and Time)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)Date:[ \\t]*(?P<value>.+)",
+                            "(?i)Date[ \\t]+Occurred[ \\t]*:[ \\t]*(?P<value>[0-9/]+)"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]
@@ -32,12 +30,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:Location|Location of Incident|Street)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                            "(?im)LOCATION[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Location of Incident|Location|Street)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]
@@ -51,12 +47,11 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)Weather[ \t]*\\|?[ \t]*(?P<value>[a-zA-Z]+)",
-                            "(?im)(clear|sunny|raining|snowing|cloudy|rain)"
+                            "(?im)WEATHER[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)Weather[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)\\b(?P<value>clear|sunny|raining|rain|snowing|snow|cloudy|fog|foggy|overcast|icy|windy|hail)\\b"
                         ],
-                        "flags": [
-                            "IGNORECASE"
-                        ]
+                        "flags": ["IGNORECASE"]
                     }
                 }
             ]
@@ -70,12 +65,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:Accident Type|COLLISION TYPE)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                            "(?im)TYPE OF COLLISION[ \\t]*:[ \\t]*(?P<value>[^\\n/]+)",
+                            "(?im)(?:Accident Type|COLLISION TYPE|Collision Type)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]
@@ -89,13 +82,11 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:Responding Agency|Agency)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)",
+                            "(?im)Responding Agency[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Responding Agency|AGENCY)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
                             "(?i)(?P<value>[A-Za-z \\-]+\\s+(?:Police Department|Sheriff'?s Office|Highway Patrol|PD|SO))"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]
@@ -109,12 +100,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:Investigating Officer|Officer|Badge)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                            "(?im)Investigating Officer[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Investigating Officer|Officer Name|Badge)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]
@@ -128,12 +117,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:Report Number|Case Number)[ \t]*\\|?[ \t]*(?P<value>[A-Za-z0-9\\-]+)"
+                            "(?im)CASE NUMBER[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
+                            "(?im)(?:Report Number|Report No|Case Number|Case No)[ \\t]*:?[ \\t]*(?P<value>[A-Za-z0-9\\-]+)"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]
@@ -147,12 +134,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:EMS Agency|EMS|Transported)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                            "(?im)EMS Agency[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:EMS Agency|EMS)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9 \\-,().]+)"
                         ],
-                        "flags": [
-                            "IGNORECASE",
-                            "MULTILINE"
-                        ]
+                        "flags": ["IGNORECASE", "MULTILINE"]
                     }
                 }
             ]

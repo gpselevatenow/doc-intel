@@ -40,7 +40,8 @@ class AdvancedTableStrategy(Strategy):
                 "insurance_company": ["insurance", "insurance company", "carrier"],
                 "policy_number": ["policy", "policy number", "policy no"],
                 "towed": ["towed", "tow"],
-                "towing_company": ["towing company", "towed by", "tower"]
+                "towing_company": ["towing company", "towed by", "tower"],
+                "year_make_model": ["year / make / model", "year/make/model", "make/model/year"]
             }
             vehicles_dict = {}
             lines = text.splitlines()
@@ -87,7 +88,14 @@ class AdvancedTableStrategy(Strategy):
 
                     for target_key, alias_list in aliases.items():
                         if any(has_word(key, a) or a in key for a in alias_list):
-                            current_entity[target_key] = val
+                            if target_key == "year_make_model":
+                                ymm = re.match(r'(\d{4})\s+(\S+)\s+(.+)', val)
+                                if ymm:
+                                    current_entity.setdefault("year", ymm.group(1))
+                                    current_entity.setdefault("make", ymm.group(2))
+                                    current_entity.setdefault("model", ymm.group(3).strip())
+                            else:
+                                current_entity[target_key] = val
                             break
 
             save_vehicle()
@@ -147,6 +155,7 @@ class AdvancedTableStrategy(Strategy):
                     "citations_list": citations_list
                 })
 
+            delimiter_found = False
             for line in lines:
                 line = line.strip()
                 if not line:
@@ -160,11 +169,17 @@ class AdvancedTableStrategy(Strategy):
                 if party_match:
                     save_party()
                     current_entity = {}
-                    token = party_match.group(0).lower()
-                    if "operator" in token or "driver" in token:
+                    delimiter_found = True
+                    full_line_lower = line.lower()
+                    if "driver" in full_line_lower or "operator" in full_line_lower:
                         current_entity["role"] = "Operator"
-                    elif "passenger" in token:
+                    elif "passenger" in full_line_lower:
                         current_entity["role"] = "Passenger"
+                    elif full_line_lower.startswith("veh"):
+                        current_entity["role"] = "Passenger"
+                    continue
+
+                if not delimiter_found:
                     continue
 
                 if ":" in line:
@@ -172,7 +187,7 @@ class AdvancedTableStrategy(Strategy):
                     key = parts[0].strip().lower()
                     val = parts[1].strip()
 
-                    if "role" in key or "type" in key:
+                    if key in ("role", "party role", "party type"):
                         current_entity["role"] = val
                     elif "name" in key:
                         current_entity["name"] = val
