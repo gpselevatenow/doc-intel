@@ -7,7 +7,7 @@ echo ===================================================
 cd backend
 if not exist "venv" (
     echo [INFO] First time setup: Creating Python virtual environment...
-    python -m venv venv
+    py -m venv venv
     call venv\Scripts\activate
     echo [INFO] Installing Python dependencies...
     pip install -r requirements.txt

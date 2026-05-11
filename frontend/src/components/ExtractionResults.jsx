@@ -231,7 +231,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   let nextActions = [];
 
   if (type === 'ia') {
-    if (data.summary && data.summary.includes("WARNING: RESERVE INCLUDED")) {
+    if (data.reserve_warning) {
       insights.push("High severity claim with explicit reserve request detected.");
       nextActions.push("Escalate to Claims Manager for reserve authorization.");
     } else {

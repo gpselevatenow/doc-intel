@@ -72,7 +72,9 @@ function App() {
       id: Math.random().toString(36).substr(2, 9),
       file,
       name: file.name,
-      type: file.name.toLowerCase().match(/\b(ia|property)\b/i) ? 'ia' : 'police',
+      type: file.name.replace(/[_.\-]/g, ' ').match(/\b(ia|property|adjuster)\b/i) ? 'ia'
+           : file.name.replace(/[_.\-]/g, ' ').match(/\bacord\b/i) ? 'acord'
+           : 'police',
       pdfUrl: URL.createObjectURL(file)
     }));
 
@@ -364,7 +366,7 @@ function App() {
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{res.timestamp}</span>
                   </div>
                   <div className="doc-item-meta">
-                    <span>{res.type === 'ia' ? 'IA Report' : 'Police Report'}</span>
+                    <span>{res.type === 'ia' ? 'IA Report' : res.type === 'acord' ? 'ACORD Form' : 'Police Report'}</span>
                     <span className={`status-badge ${res.status}`}>{res.status === 'success' ? 'Extracted' : 'Failed'}</span>
                   </div>
                 </div>
