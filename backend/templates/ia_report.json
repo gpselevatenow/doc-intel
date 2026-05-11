@@ -1,147 +1,150 @@
 {
-  "template_id": "ia_01",
-  "version": "1.0",
-  "document_type": "ia_report",
-  "fields": [
-    {
-      "field_id": "cause_of_loss",
-      "display_name": "Cause of Loss",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+    "template_id": "ia_report_v1",
+    "document_type": "ia_report",
+    "fields": [
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)cause of loss(?:[:\\\\s]+)?(?P<value>[A-Za-z ]{2,30})"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "cause_of_loss",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)cause of loss(?:[:\\s]+)?(?P<value>[A-Za-z ]{2,30})"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "coverage_a",
-      "display_name": "Coverage A",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)coverage a(?:[:\\\\s]+)?(?P<value>[\\\\$\\\\d,\\\\.]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "inspection_date",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)date of inspection(?:[:\\s]+)?(?P<value>[\\d-]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "coverage_b",
-      "display_name": "Coverage B",
-      "field_type": "text",
-      "required": false,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)coverage b(?:[:\\\\s]+)?(?P<value>[\\\\$\\\\d,\\\\.]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "coverage_a",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)coverage a(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "coverage_c",
-      "display_name": "Coverage C",
-      "field_type": "text",
-      "required": false,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)coverage c(?:[:\\\\s]+)?(?P<value>[\\\\$\\\\d,\\\\.]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "coverage_b",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)coverage b(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "coverage_d",
-      "display_name": "Coverage D",
-      "field_type": "text",
-      "required": false,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)coverage d(?:[:\\\\s]+)?(?P<value>[\\\\$\\\\d,\\\\.]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "coverage_c",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)coverage c(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "settlement",
-      "display_name": "Settlement Estimate",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)settlement (?:is|estimated at) (?P<value>[\\\\$\\\\d,\\\\.]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "coverage_d",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)coverage d(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "subrogation",
-      "display_name": "Subrogation Status",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)subrogation(?:[:\\\\s]+)?(?P<value>yes|no|potential)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "subrogation",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)subrogation(?:[:\\s]+)?(?P<value>yes|no|potential)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
+        },
+        {
+            "field_id": "settlement",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)settlement (?:is|estimated at) (?P<value>[\\$\\d,\\.]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

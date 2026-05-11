@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2 } from 'lucide-react';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react';
 import EditableField from './EditableField';
 
 const Badge = () => (
@@ -9,10 +9,11 @@ const Badge = () => (
   </span>
 );
 
-const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
+const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, onReprocess }) => {
   const [recommendations, setRecommendations] = useState('');
   const [customFields, setCustomFields] = useState([]);
   const [newField, setNewField] = useState('');
+  const [feedbackGiven, setFeedbackGiven] = useState(null);
 
   if (!data) {
     return (
@@ -41,6 +42,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
   useEffect(() => {
     if (docId) {
       fetchCustomFields();
+      setFeedbackGiven(null);
     }
   }, [docId]);
 
@@ -67,7 +69,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
       });
       setNewField('');
       fetchCustomFields();
-      alert(`Added '${newField}'. Please click 'Run Extraction' again in the sidebar to populate this field.`);
+      // Auto-trigger reprocess or allow user to click the button if preferred.
+      // We will let the user click the button so they can add multiple fields at once.
     } catch (e) {
       console.error(e);
     }
@@ -81,6 +84,19 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
       fetchCustomFields();
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const submitFeedback = async (action) => {
+    try {
+      await fetch('http://127.0.0.1:8000/api/feedback/rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doc_id: docId || 'unknown_doc', action })
+      });
+      setFeedbackGiven(action);
+    } catch (e) {
+      console.error("Failed to submit feedback", e);
     }
   };
 
@@ -121,6 +137,38 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
           </ul>
         </details>
       )}
+      
+      <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', borderTop: `1px solid ${scoreColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          {feedbackGiven ? "Thanks for your feedback! The engine will use this to improve." : "How did the system do?"}
+        </span>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            onClick={() => submitFeedback('up')}
+            disabled={feedbackGiven !== null}
+            style={{ 
+              background: feedbackGiven === 'up' ? 'var(--success)' : 'transparent', 
+              border: `1px solid ${feedbackGiven === 'up' ? 'var(--success)' : 'var(--text-muted)'}`, 
+              color: feedbackGiven === 'up' ? 'black' : 'var(--text-muted)', 
+              borderRadius: '4px', padding: '0.25rem 0.5rem', cursor: feedbackGiven ? 'default' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+            <ThumbsUp size={16} />
+          </button>
+          <button 
+            onClick={() => submitFeedback('down')}
+            disabled={feedbackGiven !== null}
+            style={{ 
+              background: feedbackGiven === 'down' ? 'var(--danger)' : 'transparent', 
+              border: `1px solid ${feedbackGiven === 'down' ? 'var(--danger)' : 'var(--text-muted)'}`, 
+              color: feedbackGiven === 'down' ? 'white' : 'var(--text-muted)', 
+              borderRadius: '4px', padding: '0.25rem 0.5rem', cursor: feedbackGiven ? 'default' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+            <ThumbsDown size={16} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 
@@ -166,10 +214,16 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
       if (!hasDui) nextActions.push("Review liability apportionment across all drivers.");
     }
     
-    if (insights.length === 0) {
+    if (insights.length === 0 && (!data.duplicate_insights || data.duplicate_insights.length === 0)) {
       insights.push("Standard single or dual-vehicle incident reported with no severe flags.");
       nextActions.push("Proceed with standard auto-damage appraisal.");
     }
+  }
+
+  // Inject Duplicate Insights from Backend
+  if (data.duplicate_insights && data.duplicate_insights.length > 0) {
+    insights.push(...data.duplicate_insights);
+    nextActions.push("Review duplicate data fields and confirm accurate selection.");
   }
 
   const renderInsights = () => (
@@ -534,15 +588,30 @@ const ExtractionResults = ({ type, data, docId, onFieldClick }) => {
         </form>
 
         {customFields.length > 0 && (
-          <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {customFields.map((field, idx) => (
-              <div key={idx} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.5rem', borderRadius: '16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                {field}
-                <button onClick={() => deleteField(field)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 0 }}>
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            ))}
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {customFields.map((field, idx) => (
+                <div key={idx} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.5rem', borderRadius: '16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  {field}
+                  <button onClick={() => deleteField(field)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 0 }}>
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <button 
+              className="btn-primary" 
+              onClick={onReprocess} 
+              disabled={isReprocessing}
+              style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none' }}
+            >
+              {isReprocessing ? (
+                <><div className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }}></div> Rerunning Extraction...</>
+              ) : (
+                <><RefreshCw size={16} /> Rerun Extraction with Custom Fields</>
+              )}
+            </button>
           </div>
         )}
       </div>

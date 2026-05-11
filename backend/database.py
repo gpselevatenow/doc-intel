@@ -39,6 +39,14 @@ def init_db():
             UNIQUE(canonical_field, alias_header)
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_id TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -68,7 +76,8 @@ def add_custom_field(doc_id: str, field_name: str):
 def get_custom_fields(doc_id: str) -> list:
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute('SELECT field_name FROM custom_fields WHERE doc_id = ?', (doc_id,))
+    # Fetch globally to apply continuous learning across all documents
+    cursor.execute('SELECT DISTINCT field_name FROM custom_fields')
     fields = [row[0] for row in cursor.fetchall()]
     conn.close()
     return fields
@@ -102,4 +111,15 @@ def get_aliases_for(canonical_field: str) -> list[str]:
         return []
     finally:
         conn.close()
+
+def log_user_feedback(doc_id: str, score: int):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    timestamp = datetime.now().isoformat()
+    cursor.execute('''
+        INSERT INTO user_feedback (doc_id, score, timestamp)
+        VALUES (?, ?, ?)
+    ''', (doc_id, score, timestamp))
+    conn.commit()
+    conn.close()
 

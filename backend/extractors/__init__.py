@@ -1,4 +1,4 @@
-﻿"""Extraction strategies â€” Layer 3.
+"""Extraction strategies â€” Layer 3.
 
 Each strategy is a small module that:
   - accepts a canonical Document and a strategy config
@@ -18,6 +18,7 @@ from extractors.base import STRATEGY_REGISTRY, Strategy, register
 from extractors import global_regex   # noqa: F401, E402
 from extractors import nearby_text    # noqa: F401, E402
 from extractors import spatial_label  # noqa: F401, E402
+from extractors import advanced_table # noqa: F401, E402
 
 __all__ = ["Strategy", "STRATEGY_REGISTRY", "register"]
 

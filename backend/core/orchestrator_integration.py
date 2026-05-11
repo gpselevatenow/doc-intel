@@ -1,5 +1,6 @@
-﻿import json
+import json
 import os
+import re
 from core.document_model import Document
 from core.template_schema import TemplateSchema, FieldDefinition, FieldStrategy
 from core.orchestrator import extract
@@ -31,8 +32,15 @@ def run_orchestrator(canonical_doc: Document, doc_id: str, doc_type: str) -> dic
     # Fetch custom fields requested by user (Human-in-the-Loop)
     custom_fields = get_custom_fields(doc_id)
     for field_name in custom_fields:
-        # Generate a dynamic FieldDefinition using global_regex
-        pattern = f"(?i){field_name}[\\s:]*(?P<value>.+?)(?:\\n|$)"
+        patterns = [
+            # 1. Markdown Table match: | Field Name | Value |
+            f"\\|[ \\t]*{re.escape(field_name)}[ \\t]*\\|[ \\t]*(?P<value>[^\\|\\n]+?)[ \\t]*\\|",
+            # 2. Section Block match (multi-line): ## Section Name \n Value \n Next Section/Table
+            f"(?im)^#+[ \\t]*{re.escape(field_name)}[^\\n]*\\n+(?P<value>.*?)(?:\\n#|\\n\\||$)",
+            # 3. Standard Key: Value inline match: Field Name: Value
+            f"{re.escape(field_name)}[\\s:]+(?P<value>[^\\n]+)"
+        ]
+        
         dynamic_field = FieldDefinition(
             field_id=f"dynamic_{field_name}",
             display_name=field_name,
@@ -42,8 +50,8 @@ def run_orchestrator(canonical_doc: Document, doc_id: str, doc_type: str) -> dic
                     strategy="global_regex",
                     priority=1,
                     config={
-                        "patterns": [pattern],
-                        "flags": ["IGNORECASE"]
+                        "patterns": patterns,
+                        "flags": ["IGNORECASE", "DOTALL"]
                     }
                 )
             ]
@@ -61,6 +69,7 @@ def run_orchestrator(canonical_doc: Document, doc_id: str, doc_type: str) -> dic
             
     return {
         "record": result["record"],
-        "review_flags": review_flags
+        "review_flags": review_flags,
+        "all_candidates": result.get("all_candidates", [])
     }
 

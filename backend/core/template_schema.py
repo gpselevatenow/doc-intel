@@ -46,6 +46,7 @@ class FieldType(str, Enum):
     BOOL          = "bool"
     ENUM          = "enum"
     CHECKBOX      = "checkbox"
+    LIST_OF_OBJECTS = "list_of_objects"
 
 
 # ── Strategy entry ───────────────────────────────────────────────────

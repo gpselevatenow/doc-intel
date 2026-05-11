@@ -56,6 +56,7 @@ function App() {
   const [selectedField, setSelectedField] = useState(null);
   const [isCrossReferencing, setIsCrossReferencing] = useState(false);
   const [pdfSearchText, setPdfSearchText] = useState('');
+  const [isReprocessingId, setIsReprocessingId] = useState(null);
 
   // --- Upload Handlers ---
   const handleFileSelect = (event) => {
@@ -71,7 +72,7 @@ function App() {
       id: Math.random().toString(36).substr(2, 9),
       file,
       name: file.name,
-      type: file.name.toLowerCase().match(/ia|property/i) ? 'ia' : 'police',
+      type: file.name.toLowerCase().match(/\b(ia|property)\b/i) ? 'ia' : 'police',
       pdfUrl: URL.createObjectURL(file)
     }));
 
@@ -148,6 +149,47 @@ function App() {
     if (newResults.length > 0) {
       setSelectedResultId(newResults[0].id);
       setActiveView('results');
+    }
+  };
+
+  const reprocessResult = async (resultId) => {
+    const target = processedResults.find(r => r.id === resultId);
+    if (!target) return;
+    
+    setIsReprocessingId(resultId);
+    
+    try {
+      const res = await fetch(target.pdfUrl);
+      const blob = await res.blob();
+      const file = new File([blob], target.name, { type: 'application/pdf' });
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      let endpoint = 'http://127.0.0.1:8000/api/extract/police-report';
+      if (target.type === 'ia') {
+        endpoint = 'http://127.0.0.1:8000/api/extract/ia-report';
+      } else if (target.type === 'acord') {
+        endpoint = 'http://127.0.0.1:8000/api/extract/acord-report';
+      }
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+      });
+      const newData = await response.json();
+      
+      setProcessedResults(prev => prev.map(r => r.id === resultId ? {
+        ...r,
+        data: newData,
+        status: 'success',
+        timestamp: new Date().toLocaleString()
+      } : r));
+    } catch (error) {
+      console.error('Error reprocessing data for', target.name, error);
+      alert('Failed to rerun extraction. Please try again.');
+    } finally {
+      setIsReprocessingId(null);
     }
   };
 
@@ -358,6 +400,8 @@ function App() {
                     data={selectedResult.data} 
                     docId={selectedResult.name}
                     onFieldClick={(fieldId) => setSelectedField(fieldId)}
+                    isReprocessing={isReprocessingId === selectedResult.id}
+                    onReprocess={() => reprocessResult(selectedResult.id)}
                   />
                 ) : (
                   <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger)' }}>

@@ -1,4 +1,4 @@
-﻿import os
+import os
 from docling.document_converter import DocumentConverter
 from core.docling_service import load_canonical_document
 
@@ -13,6 +13,7 @@ def parse_document(file_path: str):
     
     raw_dict = result.document.export_to_dict()
     canonical_doc = load_canonical_document(raw_dict)
+    canonical_doc.markdown = markdown_text
     
     return markdown_text, canonical_doc
 

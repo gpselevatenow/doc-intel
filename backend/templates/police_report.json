@@ -1,220 +1,200 @@
 {
-  "template_id": "police_01",
-  "version": "1.0",
-  "document_type": "police_report",
-  "domain": "auto_claims",
-  "label": "Standard Police Report",
-  "description": "Base template for extracting flat fields from Police Reports.",
-  "auto_accept_threshold": 0.8,
-  "fields": [
-    {
-      "field_id": "date_time",
-      "display_name": "Date/Time",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+    "template_id": "police_report_v1",
+    "document_type": "police_report",
+    "fields": [
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?:Date/Time|DATE OF INCIDENT)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "date_time",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INCIDENT DATE|Date of Incident|Date/Time|Date)[ \t]*\\|?[ \t]*(?P<value>[A-Za-z0-9, ]+)[ \t]*\\|?(?:[ \t]*(?:INCIDENT TIME|Time)[ \t]*\\|?[ \t]*(?P<value2>[0-9:]+[ \t]*[A-Za-z]*))?",
+                            "(?im)Date:[ \t]*(?P<value>.+)",
+                            "(?i)Date[ \t]+Occurred[ \t:]+(?P<value>[0-9/]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "location",
-      "display_name": "Location",
-      "field_type": "text",
-      "strategies": [
-        {
-          "strategy": "nearby_text",
-          "priority": 1,
-          "config": {
-            "anchor_pattern": "Location",
-            "direction": "right",
-            "max_distance": 200
-          }
         },
         {
-          "strategy": "global_regex",
-          "priority": 2,
-          "config": {
-            "patterns": [
-              "Location[ \\t:]*(?P<value>.*?)(?:\\n|$)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "location",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:Location|Location of Incident|Street)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ],
-      "required": true
-    },
-    {
-      "field_id": "weather",
-      "display_name": "Weather",
-      "field_type": "text",
-      "strategies": [
-        {
-          "strategy": "spatial_label",
-          "priority": 1,
-          "config": {
-            "labels": [
-              "weather"
-            ],
-            "direction": "right",
-            "search_radius": 250
-          }
         },
         {
-          "strategy": "global_regex",
-          "priority": 2,
-          "config": {
-            "patterns": [
-              "Weather[ \\t:]*(?P<value>[A-Za-z \\t\\(\\)]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)Weather[ \t]*\\|?[ \t]*(?P<value>[a-zA-Z]+)",
+                            "(?im)(clear|sunny|raining|snowing|cloudy|rain)"
+                        ],
+                        "flags": [
+                            "IGNORECASE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ],
-      "required": true
-    },
-    {
-      "field_id": "accident_type",
-      "display_name": "Accident Type",
-      "field_type": "text",
-      "strategies": [
-        {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?:Accident Type|TYPE OF COLLISION[^\\:]*)[ \\t:]*(?P<value>[A-Za-z \\t\\-\\(\\)\\/0-9]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
-            ]
-          }
-        }
-      ],
-      "required": true
-    },
-    {
-      "field_id": "ems_agency",
-      "display_name": "EMS Agency",
-      "field_type": "text",
-      "strategies": [
-        {
-          "strategy": "spatial_label",
-          "priority": 1,
-          "config": {
-            "labels": [
-              "ems agency",
-              "transported"
-            ],
-            "direction": "right",
-            "search_radius": 300
-          }
         },
         {
-          "strategy": "global_regex",
-          "priority": 2,
-          "config": {
-            "patterns": [
-              "(?:EMS Agency|Transported)[ \\t:]*(?P<value>[A-Za-z0-9 \\t,\\-]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:Accident Type|COLLISION TYPE)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ],
-      "required": true
-    },
-    {
-      "field_id": "report_number",
-      "display_name": "Report Number",
-      "field_type": "text",
-      "validators": [
-        {
-          "type": "regex_match",
-          "pattern": "^[0-9]{5,10}$"
-        }
-      ],
-      "strategies": [
-        {
-          "strategy": "spatial_label",
-          "priority": 1,
-          "config": {
-            "labels": [
-              "CASE NUMBER"
-            ],
-            "direction": "right",
-            "search_radius": 150
-          }
         },
         {
-          "strategy": "global_regex",
-          "priority": 2,
-          "config": {
-            "patterns": [
-              "CASE NUMBER[ \\t:]*(?P<value>[A-Za-z0-9\\-]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:Responding Agency|Agency)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)",
+                            "(?i)(?P<value>[A-Za-z \\-]+\\s+(?:Police Department|Sheriff'?s Office|Highway Patrol|PD|SO))"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ],
-      "required": true
-    },
-    {
-      "field_id": "agency",
-      "display_name": "Responding Agency",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)(?:Responding Agency|Agency)[ \\\\t:]*(?P<value>[A-Za-z0-9 \\\\t,\\\\-]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "officer",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:Investigating Officer|Officer|Badge)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "field_id": "officer",
-      "display_name": "Investigating Officer",
-      "field_type": "text",
-      "required": true,
-      "strategies": [
+        },
         {
-          "strategy": "global_regex",
-          "priority": 1,
-          "config": {
-            "patterns": [
-              "(?i)(?:Investigating Officer|Officer)[ \\\\t:]*(?P<value>[A-Za-z0-9 \\\\t,\\\\-]+)"
-            ],
-            "flags": [
-              "IGNORECASE"
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:Report Number|Case Number)[ \t]*\\|?[ \t]*(?P<value>[A-Za-z0-9\\-]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
             ]
-          }
+        },
+        {
+            "field_id": "ems_agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:EMS Agency|EMS|Transported)[ \t]*\\|?[ \t]*(?P<value>[^\\|\n]+)"
+                        ],
+                        "flags": [
+                            "IGNORECASE",
+                            "MULTILINE"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "vehicles",
+            "field_type": "list_of_objects",
+            "strategies": [
+                {
+                    "strategy": "advanced_table",
+                    "priority": 1,
+                    "config": {
+                        "table_type": "vehicles"
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "parties",
+            "field_type": "list_of_objects",
+            "strategies": [
+                {
+                    "strategy": "advanced_table",
+                    "priority": 1,
+                    "config": {
+                        "table_type": "parties"
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "witnesses",
+            "field_type": "list_of_objects",
+            "strategies": [
+                {
+                    "strategy": "advanced_table",
+                    "priority": 1,
+                    "config": {
+                        "table_type": "witnesses"
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
