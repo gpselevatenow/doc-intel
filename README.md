@@ -95,11 +95,22 @@ Because the Orchestrator runs an array of fallback strategies, it often locates 
 * **Missing Fields:** If a template expects a field but the strategy fails to find it, the Orchestrator does not crash. It injects `None` and safely logs it as a "Missing" reason.
 * **Parser Failure:** If Docling fails to parse a badly corrupted PDF, the backend safely catches the exception and falls back to a mocked extraction text block, returning an Accuracy Score of `0%` so the frontend can safely handle the error state without a 500 server crash.
 * **Needs Review Flags:** If confidence falls below thresholds or an extraction requires human confirmation, the backend flags the field in `review_flags`. The frontend binds this to a red validation badge directly on the editable input field.
+* **Global Fault Tolerance:** All extraction endpoints are wrapped in global `try-except-finally` blocks, guaranteeing that temporary files are never leaked and unhandled exceptions always return a safe, formatted JSON error response instead of crashing the UI.
 
-### Audit Trails
+### Audit Trails (Interactive UI)
 Every single candidate extraction decision is explicitly tracked inside the Orchestrator. 
 * During generation, each Candidate records the `strategy_name` used (e.g. `global_regex`, `advanced_table`), the `pattern` that caught it, and the `page_number`.
-* These logs are preserved in the internal `audit` payload before final API serialization, ensuring that any AI decision can be traced back to the exact regex pattern that triggered it.
+* **Interactive UI:** Adjusters can click the "Search/Trace" icon next to any extracted field in the frontend. This opens a modal displaying the exact ranking of AI candidates, their confidence scores, the raw text pulled, and the specific extraction strategy used to arrive at that decision.
+* These logs are preserved in the internal `audit` payload before final API serialization, ensuring full transparency and trust in the AI's rationale.
+
+---
+
+## 📂 Sample Documents Included
+
+For testing and demonstration purposes, this repository includes a `sample documents/` directory pre-loaded with over 40 diverse PDF reports.
+* **Coverage:** Includes both Police Reports and Independent Adjuster (IA) Reports.
+* **Complexity:** Documents range from cleanly formatted digital forms (Low Complexity) to highly unstructured, multi-page weather event reports (High Complexity).
+* **Usage:** Simply upload any of these files into the UI to immediately see the template extraction engine in action!
 
 ---
 
