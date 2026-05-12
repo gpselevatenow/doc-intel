@@ -99,6 +99,21 @@ class AdvancedTableStrategy(Strategy):
                             break
 
             save_vehicle()
+
+            # Fallback: theft/incident reports have no V1/V2 delimiter — single vehicle fields appear bare
+            if not vehicles_dict and any(k in current_entity for k in ("vin", "plate", "make", "model", "year")):
+                vehicles_dict["V1"] = {
+                    "vin": "Unknown", "plate": "Unknown", "make": "Unknown",
+                    "year": "Unknown", "model": "Unknown", "color": "Unknown",
+                    "damages": "Unknown", "owner_name": "Unknown",
+                    "owner_address": "Unknown", "insurance_company": "Unknown",
+                    "policy_number": "Unknown", "towed": "Unknown",
+                    "towing_company": "Unknown"
+                }
+                for k, v in current_entity.items():
+                    if k in vehicles_dict["V1"]:
+                        vehicles_dict["V1"][k] = v
+
             result_list = list(vehicles_dict.values())
 
         elif cfg.table_type == "parties":
@@ -162,8 +177,9 @@ class AdvancedTableStrategy(Strategy):
                     continue
 
                 # Match: Party:, Party 1:, PARTY:, Operator:, Driver:, Passenger:, Veh: V1
+                # Also: VICTIM / COMPLAINANT, SUSPECT / OFFENDER (theft/incident reports)
                 party_match = re.match(
-                    r'(?i)(Party\s*[#]?\s*\d*\s*:?|Veh\s*:\s*V\d+|Operator\s*[#]?\s*\d*\s*:|Driver\s*[#]?\s*\d*\s*:|Passenger\s*[#]?\s*\d*\s*:)',
+                    r'(?i)(Party\s*[#]?\s*\d*\s*:?|Veh\s*:\s*V\d+|Operator\s*[#]?\s*\d*\s*:|Driver\s*[#]?\s*\d*\s*:|Passenger\s*[#]?\s*\d*\s*:|VICTIM[\s/]*COMPLAINANT|VICTIM|COMPLAINANT|SUSPECT[\s/]*OFFENDER|SUSPECT|OFFENDER)',
                     line
                 )
                 if party_match:
@@ -171,7 +187,11 @@ class AdvancedTableStrategy(Strategy):
                     current_entity = {}
                     delimiter_found = True
                     full_line_lower = line.lower()
-                    if "driver" in full_line_lower or "operator" in full_line_lower:
+                    if "victim" in full_line_lower or "complainant" in full_line_lower:
+                        current_entity["role"] = "Victim"
+                    elif "suspect" in full_line_lower or "offender" in full_line_lower:
+                        current_entity["role"] = "Suspect"
+                    elif "driver" in full_line_lower or "operator" in full_line_lower:
                         current_entity["role"] = "Operator"
                     elif "passenger" in full_line_lower:
                         current_entity["role"] = "Passenger"
@@ -207,6 +227,8 @@ class AdvancedTableStrategy(Strategy):
                     elif "citation" in key or "charge" in key or "infraction" in key:
                         existing = current_entity.get("citations", "")
                         current_entity["citations"] = (existing + ", " + val).strip(", ") if existing else val
+                    elif "physical description" in key or "physical desc" in key:
+                        current_entity["condition"] = val
                     elif "passenger" in key:
                         current_entity["role"] = "Passenger"
                     elif "operator" in key or "driver" in key:

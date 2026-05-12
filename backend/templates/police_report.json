@@ -31,7 +31,8 @@
                     "config": {
                         "patterns": [
                             "(?im)LOCATION[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:Location of Incident|Location|Street)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                            "(?im)(?:Location of Incident|Location|Street)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)^ADDRESS[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -66,7 +67,9 @@
                     "config": {
                         "patterns": [
                             "(?im)TYPE OF COLLISION[ \\t]*:[ \\t]*(?P<value>[^\\n/]+)",
-                            "(?im)(?:Accident Type|COLLISION TYPE|Collision Type)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                            "(?im)(?:Accident Type|COLLISION TYPE|Collision Type)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)STATUTE[ \\t]*/[ \\t]*CHARGE[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)OFFENSE[ \\t]*/[ \\t]*CLASSIFICATION[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -101,7 +104,8 @@
                     "config": {
                         "patterns": [
                             "(?im)Investigating Officer[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:Investigating Officer|Officer Name|Badge)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                            "(?im)(?:Investigating Officer|Officer Name|Badge)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)Reporting Officer[ \\t]*:[ \\t]*(?P<value>[^\\n|]+)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -118,7 +122,8 @@
                     "config": {
                         "patterns": [
                             "(?im)CASE NUMBER[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
-                            "(?im)(?:Report Number|Report No|Case Number|Case No)[ \\t]*:?[ \\t]*(?P<value>[A-Za-z0-9\\-]+)"
+                            "(?im)Report No\\.[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
+                            "(?im)(?:Report Number|Report No|Case Number|Case No)\\.?[ \\t]*:?[ \\t]*(?P<value>[A-Za-z0-9\\-]+)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
