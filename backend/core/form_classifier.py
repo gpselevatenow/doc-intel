@@ -36,6 +36,13 @@ _FINGERPRINTS: list[tuple[str, list[str]]] = [
         r'TEXAS\s+PEACE\s+OFFICER',
         r'TXDOT.{0,40}CRASH\s+REPORT',
         r'TEXAS\s+DEPARTMENT\s+OF\s+TRANSPORTATION.{0,40}CRASH',
+        # TX city-agency collision reports (FWPD, HPD — not CR-3 forms but TX-jurisdiction docs)
+        r'Fort\s+Worth\s+Police\s+Department',
+        r'Houston\s+Police\s+Department',
+        r'\bTxDPS\b',
+        r'\bTxDOT\b',
+        r'\bFWPD-\d{2}-\d{2}',
+        r'\bHPD-\d{2}-\d{2}-\d{2}',
     ]),
 
     # ── NY — must require the A to avoid matching NJ NJTR-1 ──────────────────
@@ -421,7 +428,7 @@ _FINGERPRINTS: list[tuple[str, list[str]]] = [
 ]
 
 # How many chars from the start of the document to scan.
-_SCAN_CHARS = 3000
+CLASSIFIER_SCAN_CHARS = 8000
 
 
 def classify_form(text: str) -> tuple[str, float]:
@@ -429,12 +436,12 @@ def classify_form(text: str) -> tuple[str, float]:
     Identify which state form this document is.
 
     Args:
-        text: Full extracted document text (only the first 3000 chars are used).
+        text: Full extracted document text (only the first CLASSIFIER_SCAN_CHARS are used).
 
     Returns:
         (form_id, confidence)
     """
-    header = text[:_SCAN_CHARS]
+    header = text[:CLASSIFIER_SCAN_CHARS]
 
     for form_id, patterns in _FINGERPRINTS:
         for pattern in patterns:

@@ -11,6 +11,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)^CASE\\s+NUMBER[ \\t]+(?P<value>[A-Za-z0-9][A-Za-z0-9\\-]{3,40})(?=[ \\t]|\\s*$)",
+                            "(?im)\\bREPORT\\s+NO\\.?[ \\t]+(?P<value>[A-Za-z0-9][A-Za-z0-9\\-]{3,40})",
                             "(?im)(?:CRASH\\s+ID|CR[-\\s]*3\\s+(?:CASE|REPORT|NUMBER|ID)|AGENCY\\s+REPORT\\s+(?:NUMBER|NO\\.?)|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|TXDOT\\s+(?:CRASH|CASE)\\s+(?:NUMBER|NO\\.?))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
                         ]
                     }
@@ -57,6 +59,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)^DATE\\s+OF\\s+INCIDENT[ \\t]+(?P<value>.+?)(?=[ \\t]+(?:LIGHT|TIME|ROADWAY|SURFACE|WEATHER|CASE|REPORT|TYPE)\\b|\\s*$)",
+                            "(?im)^DATE[ \\t]+(?P<value>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\.?\\s+\\d{1,2},?\\s+\\d{4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*(?:hrs?|AM|PM))?)?)",
                             "(?im)(?:CRASH\\s+DATE(?:\\s*/\\s*TIME)?|DATE(?:\\s*/\\s*TIME)?\\s+OF\\s+CRASH|DATE\\s+OF\\s+ACCIDENT|DATE\\s+OF\\s+INCIDENT)(?:[:\\s]+)?(?P<value>[^\\n]{5,40})"
                         ]
                     }
@@ -72,6 +76,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)^LOCATION[ \\t]+(?!(?:OF|AT|IN)\\b)(?P<value>.+?)(?=[ \\t,]+(?:SURFACE|TYPE\\s+OF|COLLISION[\\s/]|WEATHER|LIGHT|TIME|DATE|CASE|REPORT)\\b|\\s*$)",
                             "(?im)(?:CRASH\\s+LOCATION|LOCATION\\s+OF\\s+CRASH|STREET\\s+NAME(?:\\s+OR\\s+HIGHWAY)?|ROADWAY\\s+NAME|CITY\\s*[/,]?\\s*COUNTY)(?:[:\\s]+)?(?P<value>[^\\n]{5,100})",
                             "(?im)(?:AT\\s+INTERSECTION\\s+OF|MILES?\\s+(?:NORTH|SOUTH|EAST|WEST)\\s+OF|NEAREST\\s+CITY)(?:[:\\s]+)?(?P<value>[^\\n]{5,80})"
                         ]

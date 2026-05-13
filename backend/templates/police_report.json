@@ -12,7 +12,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)^DATE\\s+OF\\s+INCIDENT[ \\t]+(?P<value>[^\\n]+)",
+                            "(?im)^DATE\\s+OF\\s+INCIDENT[ \\t]+(?P<value>.+?)(?=[ \\t]+(?:LIGHT|TIME|ROADWAY|SURFACE|WEATHER|CASE|REPORT|TYPE)\\b|\\s*$)",
                             "(?im)DATE\\s+OF\\s+INCIDENT[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)^DATE[ \\t]+(?P<value>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\.?\\s+\\d{1,2},?\\s+\\d{4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*(?:hrs?|AM|PM))?)?)",
                             "(?im)(?:CRASH\\s+DATE(?:/TIME)?|DATE(?:/TIME)?\\s+OF\\s+CRASH|DATE\\s+OF\\s+ACCIDENT|ACCIDENT\\s+DATE|DATE\\s+OF\\s+COLLISION|COLLISION\\s+DATE)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
@@ -38,7 +38,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)^LOCATION[ \\t]+(?!(?:OF|AT|IN|AND)[ \\t])(?P<value>[^\\n]{5,})",
+                            "(?im)^LOCATION[ \\t]+(?!(?:OF|AT|IN|AND)[ \\t])(?P<value>.+?)(?=[ \\t,]+(?:SURFACE|TYPE\\s+OF|COLLISION[\\s/]|WEATHER|LIGHT|TIME|DATE|CASE|REPORT)\\b|\\s*$)",
                             "(?im)LOCATION\\s+OF\\s+(?:INCIDENT|CRASH|ACCIDENT|COLLISION)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:CRASH\\s+LOCATION|PLACE\\s+OF\\s+CRASH|WHERE\\s+DID\\s+CRASH\\s+OCCUR|SCENE\\s+(?:LOCATION|ADDRESS))[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:ACCIDENT\\s+LOCATION|ACCIDENT\\s+SCENE|SCENE\\s+OF\\s+ACCIDENT|ACCIDENT\\s+ADDRESS)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
