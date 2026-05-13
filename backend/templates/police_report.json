@@ -6,6 +6,12 @@
         {
             "field_id": "date_time",
             "field_type": "text",
+            "label_text": ["DATE", "DATE OF INCIDENT", "DATE OF CRASH", "CRASH DATE", "DATE/TIME", "INCIDENT DATE", "DATE OF ACCIDENT"],
+            "expected_position": "header",
+            "validators": [
+                {"type": "min_length", "value": 4},
+                {"type": "regex_match", "pattern": "\\d"}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -33,6 +39,12 @@
         {
             "field_id": "location",
             "field_type": "text",
+            "label_text": ["LOCATION", "CRASH LOCATION", "LOCATION OF INCIDENT", "LOCATION OF CRASH", "ACCIDENT LOCATION", "SCENE"],
+            "expected_position": "header",
+            "validators": [
+                {"type": "min_length", "value": 3},
+                {"type": "max_length", "value": 200}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -58,6 +70,12 @@
         {
             "field_id": "weather",
             "field_type": "text",
+            "label_text": ["WEATHER", "WEATHER CONDITIONS", "WEATHER CONDITION", "ATMOSPHERIC CONDITIONS"],
+            "expected_position": "any",
+            "validators": [
+                {"type": "min_length", "value": 2},
+                {"type": "max_length", "value": 80}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -76,6 +94,11 @@
         {
             "field_id": "road_surface",
             "field_type": "text",
+            "label_text": ["ROAD SURFACE", "SURFACE CONDITIONS", "ROADWAY SURFACE"],
+            "expected_position": "any",
+            "validators": [
+                {"type": "min_length", "value": 2}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -93,6 +116,12 @@
         {
             "field_id": "light_condition",
             "field_type": "text",
+            "label_text": ["LIGHT CONDITIONS", "LIGHT CONDITION", "LIGHTING CONDITIONS", "LIGHTING"],
+            "expected_position": "any",
+            "validators": [
+                {"type": "min_length", "value": 2},
+                {"type": "max_length", "value": 80}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -110,6 +139,11 @@
         {
             "field_id": "accident_type",
             "field_type": "text",
+            "label_text": ["MANNER OF COLLISION", "TYPE OF COLLISION", "ACCIDENT TYPE", "CRASH TYPE", "DIRECTION OF CRASH", "COLLISION TYPE"],
+            "expected_position": "any",
+            "validators": [
+                {"type": "min_length", "value": 3}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -134,6 +168,12 @@
         {
             "field_id": "agency",
             "field_type": "text",
+            "label_text": ["AGENCY", "REPORTING AGENCY", "INVESTIGATING AGENCY", "LAW ENFORCEMENT AGENCY", "POLICE AGENCY"],
+            "expected_position": "header",
+            "validators": [
+                {"type": "min_length", "value": 3},
+                {"type": "max_length", "value": 120}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -154,6 +194,12 @@
         {
             "field_id": "officer",
             "field_type": "text",
+            "label_text": ["INVESTIGATING OFFICER", "REPORTING OFFICER", "OFFICER", "OFFICER NAME"],
+            "expected_position": "header",
+            "validators": [
+                {"type": "min_length", "value": 3},
+                {"type": "max_length", "value": 100}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -176,6 +222,12 @@
         {
             "field_id": "report_number",
             "field_type": "text",
+            "label_text": ["CASE NUMBER", "REPORT NO", "REPORT NUMBER", "REPORT", "CRASH REPORT", "INCIDENT NUMBER", "OCA"],
+            "expected_position": "header",
+            "validators": [
+                {"type": "min_length", "value": 4},
+                {"type": "max_length", "value": 40}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -199,6 +251,12 @@
         {
             "field_id": "ems_agency",
             "field_type": "text",
+            "label_text": ["EMS", "EMS AGENCY", "AMBULANCE", "RESCUE", "TAKEN TO"],
+            "expected_position": "footer",
+            "validators": [
+                {"type": "min_length", "value": 3},
+                {"type": "max_length", "value": 100}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -220,6 +278,11 @@
         {
             "field_id": "contributing_factors",
             "field_type": "text",
+            "label_text": ["CONTRIBUTING FACTORS", "CONTRIBUTING FACTOR", "DRIVER ACTION", "HUMAN FACTOR"],
+            "expected_position": "any",
+            "validators": [
+                {"type": "min_length", "value": 3}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",
@@ -240,6 +303,11 @@
         {
             "field_id": "property_damage",
             "field_type": "text",
+            "label_text": ["PROPERTY DAMAGE", "DAMAGE DESCRIPTION", "ESTIMATED DAMAGE"],
+            "expected_position": "any",
+            "validators": [
+                {"type": "min_length", "value": 3}
+            ],
             "strategies": [
                 {
                     "strategy": "global_regex",

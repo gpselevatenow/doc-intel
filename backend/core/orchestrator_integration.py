@@ -182,15 +182,35 @@ def _load_json(path: str) -> dict:
         return json.load(f)
 
 
+_INHERITED_HINTS = ("label_text", "expected_position", "validators")
+
+
 def _merge_templates(base: dict, override: dict) -> dict:
     """
     Merge two template dicts. Override fields replace base fields with the
     same field_id; new override fields are appended.
+
+    Scoring hints (label_text, expected_position, validators) declared in
+    the base template are inherited by the override field when the override
+    does not define them, so state-specific pattern overrides do not silently
+    discard the base template's scoring metadata.
+
     Returns a new dict — inputs are not mutated.
     """
     base_fields = {f["field_id"]: f for f in base.get("fields", [])}
     for field in override.get("fields", []):
-        base_fields[field["field_id"]] = field  # replace or add
+        fid = field["field_id"]
+        if fid in base_fields:
+            merged_field = dict(field)
+            base_f = base_fields[fid]
+            for hint in _INHERITED_HINTS:
+                base_val = base_f.get(hint)
+                # Inherit when override omits the hint or carries an empty value
+                if base_val and not merged_field.get(hint):
+                    merged_field[hint] = base_val
+            base_fields[fid] = merged_field
+        else:
+            base_fields[fid] = field
     merged = dict(base)
     merged["fields"] = list(base_fields.values())
     return merged

@@ -102,13 +102,16 @@ class ValidatorRule(BaseModel):
 
 class FieldDefinition(BaseModel):
     """One field the user wants extracted."""
-    field_id:     str
-    display_name: str | None = None
-    field_type:   FieldType
-    required:     bool = False
-    description:  str | None = None
-    strategies:   list[FieldStrategy] = Field(default_factory=list)
-    validators:   list[ValidatorRule] = Field(default_factory=list)
+    field_id:          str
+    display_name:      str | None = None
+    field_type:        FieldType
+    required:          bool = False
+    description:       str | None = None
+    strategies:        list[FieldStrategy] = Field(default_factory=list)
+    validators:        list[ValidatorRule] = Field(default_factory=list)
+    # Text-scoring hints (used by pdfplumber scoring path; ignored by Docling path)
+    label_text:        list[str] = Field(default_factory=list)
+    expected_position: str | None = None  # "header" | "footer" | "any" | None
 
 
 # ── Template (top-level) ─────────────────────────────────────────────

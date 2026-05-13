@@ -71,10 +71,19 @@ def extract(
     validate_all(cands_per_field, rules_by_field)
 
     # 3) Score
+    doc_text = document.markdown or ""
     for fdef in template.fields:
-        n_validators = len(fdef.validators)
-        for c in cands_per_field.get(fdef.field_id, []):
-            score_candidate(c, n_validators)
+        n_validators    = len(fdef.validators)
+        field_cands     = cands_per_field.get(fdef.field_id, [])
+        for c in field_cands:
+            score_candidate(
+                c,
+                n_validators,
+                label_terms       = fdef.label_text,
+                expected_position = fdef.expected_position,
+                doc_text          = doc_text,
+                field_candidates  = field_cands,
+            )
 
     # 4) Select best + audit
     record:           dict[str, Any]       = {}
