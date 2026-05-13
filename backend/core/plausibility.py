@@ -319,6 +319,29 @@ def _plausibility_ems_agency(value: str) -> float:
     return 0.5
 
 
+# ── Road surface plausibility ─────────────────────────────────────────
+
+_ROAD_SURFACE_TERMS = frozenset({
+    "wet", "dry", "ice", "icy", "snow", "snowy", "slush", "slushy",
+    "standing water", "glare ice", "freezing rain", "frost", "frosty",
+    "mud", "muddy", "gravel", "sand", "sandy", "oil", "oily", "water",
+    "black ice",
+})
+
+
+def _plausibility_road_surface(value: str) -> float:
+    v = value.strip()
+    n = len(v)
+    if not v or n > 80:
+        return 0.2
+    if re.search(r'\d', v):
+        return 0.2
+    lower = v.lower()
+    if any(t in lower for t in _ROAD_SURFACE_TERMS):
+        return 1.0
+    return 0.5
+
+
 # ── Registry ──────────────────────────────────────────────────────────
 
 _REGISTRY: dict[str, Callable[[str], float]] = {
@@ -334,6 +357,7 @@ _REGISTRY: dict[str, Callable[[str], float]] = {
     "contributing_factors":   _plausibility_contributing_factors,
     "property_damage":        _plausibility_property_damage,
     "ems_agency":             _plausibility_ems_agency,
+    "road_surface":           _plausibility_road_surface,
 }
 
 

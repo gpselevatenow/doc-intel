@@ -105,8 +105,9 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)Road\\s+Surface[ \\t]+N?(?P<value>Dry|Wet|Snow|Ice|Slush|Sand|Mud|Oil|Water|Other[^\\n]{0,20})\\b",
-                            "(?im)(?:Road(?:way)?\\s+Surface(?:\\s+Conditions?)?|Surface\\s+Conditions?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                            "(?im)\\bROADWAY\\s+(?P<road_surface>[^\\n]+?)\\s+SURFACE\\b",
+                            "(?i)\\bSURFACE[ \\t]+(?P<road_surface>[^\\n;]+)",
+                            "(?i)Road\\s+Surface\\s*:?\\s*(?P<road_surface>[^\\n]+)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -252,7 +253,7 @@
             "field_id": "ems_agency",
             "field_type": "text",
             "label_text": ["EMS", "EMS AGENCY", "AMBULANCE", "RESCUE", "TAKEN TO"],
-            "expected_position": "footer",
+            "expected_position": "any",
             "validators": [
                 {"type": "min_length", "value": 3},
                 {"type": "max_length", "value": 100}
@@ -263,6 +264,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?i)EMS\\s+Agency\\s*:?\\s*(?P<ems_agency>[^\\n]+)",
                             "(?im)Taken\\s+To\\s+(?P<value>(?!S?N/A\\b)(?!Treated)[A-Za-z][A-Za-z0-9 \\-,.()]{5,60}?)(?=\\s*(?:EMS\\s+)?Run\\s+#|\\s*$)",
                             "(?im)(?:EMS\\s+Agency|EMS|Ambulance(?:\\s+Service)?|Rescue(?:\\s+Squad)?|Medic\\s+Unit)[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:EMS\\s+Agency|Ambulance\\s+Service|Rescue\\s+Squad|Medic\\s+Unit|Emergency\\s+Medical\\s+Services?)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\s\\-,().]+)",
@@ -289,7 +291,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)CONTRIBUTING\\s+FACTORS?[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)CONTRIBUTING\\s+FACTORS?\\s*[:\\-]?\\s*(?P<contributing_factors>(?:[^\\n]+)(?:\\n(?!SECTION|EMS|REPORT|OFFICER|WITNESS)[^\\n]+){0,3})",
                             "(?im)(?:PRIMARY\\s+CONTRIBUTING\\s+(?:FACTOR|CAUSE)|SECONDARY\\s+CONTRIBUTING\\s+(?:FACTOR|CAUSE)|HUMAN\\s+CONTRIBUTING\\s+FACTOR|CONTRIBUTING\\s+FACTOR\\s+CODE)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
                             "(?im)DRIVER\\s+ACTION(?:S)?(?:\\s*/\\s*CONTRIBUTING\\s+FACTORS?)?[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
                             "(?im)(?:HUMAN\\s+FACTOR|VEHICLE\\s+FACTOR|ENVIRONMENTAL\\s+FACTOR|ROADWAY\\s+FACTOR)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",

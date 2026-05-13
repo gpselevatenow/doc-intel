@@ -142,6 +142,32 @@ class TestEmsAgency:
         assert plausibility_score("ems_agency", "EMS") <= 0.3
 
 
+# ── road_surface ──────────────────────────────────────────────────────
+
+class TestRoadSurface:
+    def test_good_dry(self):
+        assert plausibility_score("road_surface", "Dry") >= 0.9
+
+    def test_good_wet(self):
+        assert plausibility_score("road_surface", "Wet") >= 0.9
+
+    def test_good_ice_slush(self):
+        assert plausibility_score("road_surface", "Ice / Slush") >= 0.9
+
+    def test_good_standing_water(self):
+        assert plausibility_score("road_surface", "Standing Water") >= 0.9
+
+    def test_bad_digits(self):
+        assert plausibility_score("road_surface", "12345") <= 0.3
+
+    def test_bad_too_long(self):
+        assert plausibility_score("road_surface", "a" * 85) <= 0.3
+
+    def test_neutral_no_vocab(self):
+        score = plausibility_score("road_surface", "Normal conditions")
+        assert 0.4 <= score <= 0.6
+
+
 # ── unregistered field still returns 0.5 ─────────────────────────────
 
 def test_unregistered_field_neutral():
