@@ -11,6 +11,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Report\\s+#[\\s\\S]{1,300}?(?P<value>[A-Z]{2}-20\\d{2}-\\d{4,8})\\b",
                             "(?im)(?:MV[-\\s]*4002\\b|WISCONSIN\\s+(?:MOTOR\\s+VEHICLE\\s+ACCIDENT|CRASH)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|WISDOT\\s+(?:CASE|REPORT))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
                         ]
                     }
@@ -40,7 +41,17 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Clear", "Cloudy", "Rain", "Sleet/Hail", "Snow", "Fog/Smog/Smoke", "Blowing Sand/Soil/Dirt/Snow", "Severe Crosswinds", "Other"],
+                        "options": [
+                            "Clear",
+                            "Cloudy",
+                            "Rain",
+                            "Sleet/Hail",
+                            "Snow",
+                            "Fog/Smog/Smoke",
+                            "Blowing Sand/Soil/Dirt/Snow",
+                            "Severe Crosswinds",
+                            "Other"
+                        ],
                         "section_anchor": "WEATHER"
                     }
                 },
@@ -63,7 +74,16 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Not Collision Between Two Motor Vehicles", "Rear End", "Head On", "Rear to Rear", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Other"],
+                        "options": [
+                            "Not Collision Between Two Motor Vehicles",
+                            "Rear End",
+                            "Head On",
+                            "Rear to Rear",
+                            "Angle",
+                            "Sideswipe \u00e2\u20ac\u201c Same Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Opposite Direction",
+                            "Other"
+                        ],
                         "section_anchor": "MANNER OF COLLISION"
                     }
                 },

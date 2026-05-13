@@ -11,6 +11,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Report\\s+#[\\s\\S]{1,300}?(?P<value>[A-Z]{2}-20\\d{2}-\\d{4,8})\\b",
                             "(?im)(?:432015\\b|IOWA\\s+(?:CRASH|TRAFFIC\\s+ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|ISP\\s+(?:CASE|REPORT)|IOWA\\s+STATE\\s+PATROL|IOWA\\s+DOT)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
                         ]
                     }
