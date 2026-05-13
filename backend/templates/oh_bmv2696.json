@@ -11,6 +11,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Report\\s+#[\\s\\S]{1,300}?(?P<value>[A-Z]{2}-20\\d{2}-\\d{4,8})\\b",
                             "(?im)(?:BMV[-\\s]*2696|CRASH\\s+REPORT\\s+(?:NUMBER|NO\\.?)|OHIO\\s+(?:CRASH|REPORT)\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|CASE\\s+(?:NUMBER|NO\\.?)|OHP\\s+(?:CASE|REPORT))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
                         ]
                     }
@@ -126,8 +127,8 @@
                             "Head On",
                             "Rear to Rear",
                             "Angle",
-                            "Sideswipe – Same Direction",
-                            "Sideswipe – Opposite Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Same Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Opposite Direction",
                             "Other"
                         ],
                         "section_anchor": "MANNER OF COLLISION"
@@ -169,9 +170,9 @@
                     "config": {
                         "options": [
                             "Daylight",
-                            "Dark – Lighted",
-                            "Dark – Not Lighted",
-                            "Dark – Unknown Lighting",
+                            "Dark \u00e2\u20ac\u201c Lighted",
+                            "Dark \u00e2\u20ac\u201c Not Lighted",
+                            "Dark \u00e2\u20ac\u201c Unknown Lighting",
                             "Dawn",
                             "Dusk",
                             "Other"
@@ -204,7 +205,7 @@
                             "Snow/Slush",
                             "Ice",
                             "Sand/Mud/Dirt/Oil/Gravel",
-                            "Water – Standing/Moving",
+                            "Water \u00e2\u20ac\u201c Standing/Moving",
                             "Other"
                         ],
                         "section_anchor": "ROAD SURFACE CONDITION"

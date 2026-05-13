@@ -11,6 +11,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Report\\s+#[\\s\\S]{1,300}?(?P<value>[A-Z]{2}-20\\d{2}-\\d{4,8})\\b",
                             "(?im)(?:CASE\\s+(?:NO\\.?|NUMBER)|NYPD\\s+CASE\\s+(?:NO\\.?|NUMBER)|MV[-\\s]*104\\s+(?:CASE|REPORT)\\s+(?:NO\\.?|NUMBER)|POLICE\\s+REPORT\\s+(?:NO\\.?|NUMBER)|COMPLAINT\\s+(?:NO\\.?|NUMBER)|CCN|EVENT\\s+(?:NO\\.?|NUMBER|#))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
                         ]
                     }
@@ -125,8 +126,8 @@
                             "Rear-End",
                             "Head-On",
                             "Angle",
-                            "Sideswipe – Same Direction",
-                            "Sideswipe – Opposite Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Same Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Opposite Direction",
                             "Left Turn",
                             "Right Turn",
                             "Single Vehicle",

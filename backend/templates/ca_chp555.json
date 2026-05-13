@@ -11,6 +11,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Report\\s+#[\\s\\S]{1,300}?(?P<value>[A-Z]{2}-20\\d{2}-\\d{4,8})\\b",
                             "(?im)\\bOPI\\s+(?P<value>[A-Z]{2}-\\d{4}-\\d{4,8})\\b",
                             "(?im)(?:LOCAL\\s+REPORT\\s+(?:NUMBER|NO\\.?)|CHP\\s+REPORT\\s+(?:NUMBER|NO\\.?)|OTS\\s+555\\s+(?:REPORT\\s+)?(?:NO\\.?|NUMBER)|OFFICER(?:'S)?\\s+(?:REPORT\\s+)?(?:NUMBER|NO\\.?)|CHP\\s+(?:CASE|FILE)\\s+(?:NUMBER|NO\\.?))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/# \\t]{3,30})",
                             "(?im)(?:FORM\\s+555|CHP-555)\\s*(?:REPORT\\s+)?(?:NO\\.?|NUMBER|#)\\s*[:\\-]?\\s*(?P<value>[A-Za-z0-9\\-/#]{3,20})"
@@ -29,7 +30,7 @@
                     "config": {
                         "patterns": [
                             "(?im)(?:REPORTING\\s+AGENCY|INVESTIGATING\\s+AGENCY|AGENCY\\s+NAME|BEAT|REPORTING\\s+DISTRICT)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})",
-                            "(?im)(?:CHP|CALIFORNIA\\s+HIGHWAY\\s+PATROL)\\s*[\\-–]?\\s*(?P<value>[A-Za-z][A-Za-z0-9 \\t,().\\-]{3,50})",
+                            "(?im)(?:CHP|CALIFORNIA\\s+HIGHWAY\\s+PATROL)\\s*[\\-\u00e2\u20ac\u201c]?\\s*(?P<value>[A-Za-z][A-Za-z0-9 \\t,().\\-]{3,50})",
                             "(?im)(?P<value>(?:[A-Z][a-z]+(?:\\s+[A-Z][a-z]+){0,4})\\s+(?:Police\\s+Department|Sheriff'?s?\\s+(?:Office|Department)|Highway\\s+Patrol|Department\\s+of\\s+Public\\s+Safety))"
                         ]
                     }
@@ -126,6 +127,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Contributing\\s+Factors?\\s+\\([^)]+\\)\\s*[:\\-]\\s*(?P<value>[^\\n]{2,120})",
                             "(?im)(?:PRIMARY\\s+(?:CONTRIBUTING\\s+)?(?:COLLISION\\s+)?FACTOR|OTHER\\s+ASSOCIATED\\s+FACTOR(?:S)?|ASSOCIATED\\s+FACTOR|VIOLATION\\s+(?:CODE|CATEGORY)|PCF\\s+VIOLATION\\s+(?:CODE|SECTION))(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
                         ]
                     }

@@ -11,6 +11,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Report\\s+#[\\s\\S]{1,300}?(?P<value>[A-Z]{2}-20\\d{2}-\\d{4,8})\\b",
                             "(?im)(?:CRASH\\s+REPORT\\s+(?:NUMBER|NO\\.?)|POLICE\\s+REPORT\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NO\\.?|NUMBER|#)|AA[-\\s]*600\\s+(?:NO\\.?|NUMBER|ID)|CASE\\s+(?:NUMBER|NO\\.?))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
                         ]
                     }
@@ -126,8 +127,8 @@
                             "Head-On",
                             "Rear-to-Rear (Backing)",
                             "Angle",
-                            "Sideswipe – Same Direction",
-                            "Sideswipe – Opposite Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Same Direction",
+                            "Sideswipe \u00e2\u20ac\u201c Opposite Direction",
                             "Other"
                         ],
                         "section_anchor": "MANNER OF COLLISION"
@@ -154,9 +155,9 @@
                     "config": {
                         "options": [
                             "Daylight",
-                            "Dark – Lighted",
-                            "Dark – Not Lighted",
-                            "Dark – Unknown Lighting",
+                            "Dark \u00e2\u20ac\u201c Lighted",
+                            "Dark \u00e2\u20ac\u201c Not Lighted",
+                            "Dark \u00e2\u20ac\u201c Unknown Lighting",
                             "Dawn",
                             "Dusk",
                             "Other"
@@ -190,7 +191,7 @@
                             "Snow/Slush",
                             "Ice",
                             "Ice Patches",
-                            "Water – Standing/Moving",
+                            "Water \u00e2\u20ac\u201c Standing/Moving",
                             "Other"
                         ],
                         "section_anchor": "ROAD SURFACE CONDITION"
@@ -216,7 +217,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:CONTRIBUTING\\s+CIRCUMSTANCE(?:S)?(?:\\s+[\\-–]\\s+(?:PERSON|VEHICLE|ROADWAY))?|PRIMARY\\s+CONTRIBUTING\\s+CIRCUMSTANCE|HUMAN\\s+CONTRIBUTING\\s+CIRCUMSTANCE)(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                            "(?im)Contributing\\s+Factors?\\s+\\([^)]+\\)\\s*[:\\-]\\s*(?P<value>[^\\n]{2,120})",
+                            "(?im)(?:CONTRIBUTING\\s+CIRCUMSTANCE(?:S)?(?:\\s+[\\-\u00e2\u20ac\u201c]\\s+(?:PERSON|VEHICLE|ROADWAY))?|PRIMARY\\s+CONTRIBUTING\\s+CIRCUMSTANCE|HUMAN\\s+CONTRIBUTING\\s+CIRCUMSTANCE)(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
                         ]
                     }
                 }

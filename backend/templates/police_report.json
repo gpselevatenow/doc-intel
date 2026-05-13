@@ -205,7 +205,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)Taken\\s+To\\s+(?P<value>(?!N/A\\b|SN/A\\b)[A-Za-z][A-Za-z0-9 \\-,.()]{2,50}?)(?=\\s+EMS\\s+Run|\\s*$)",
+                            "(?im)Taken\\s+To\\s+(?P<value>(?!S?N/A\\b)(?!Treated)[A-Za-z][A-Za-z0-9 \\-,.()]{5,60}?)(?=\\s*(?:EMS\\s+)?Run\\s+#|\\s*$)",
                             "(?im)(?:EMS\\s+Agency|EMS|Ambulance(?:\\s+Service)?|Rescue(?:\\s+Squad)?|Medic\\s+Unit)[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:EMS\\s+Agency|Ambulance\\s+Service|Rescue\\s+Squad|Medic\\s+Unit|Emergency\\s+Medical\\s+Services?)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\s\\-,().]+)",
                             "(?im)(?:Fire(?:\\s+Dept\\.?|\\s+Department)?(?:\\s+EMS)?|FIRE\\s+AND\\s+RESCUE|EMERGENCY\\s+SERVICES?)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\s\\-,().]+)",
