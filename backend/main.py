@@ -343,8 +343,8 @@ async def extract_police(file: UploadFile = File(...)):
 
             save_raw_document(file.filename, full_text)
 
-            # Classify the state/form so the right template overlay is applied
-            form_id, form_confidence = classify_form(full_text)
+            # Classify using pdfplumber text — classifier fingerprints were built on it
+            form_id, form_confidence = classify_form('\n'.join(_plumber_parts))
 
             orchestrator_output = run_orchestrator(
                 canonical_doc, file.filename, "police_report", form_id=form_id
