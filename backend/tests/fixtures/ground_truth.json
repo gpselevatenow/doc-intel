@@ -1,5 +1,114 @@
 {
   "_schema_version": "1.0",
   "_note": "Hand-labeled ground truth for extraction benchmark. Do not auto-generate.",
-  "documents": []
+  "_labeled_at": "2026-05-13",
+  "_labeled_by": "Raj (hand-labeled from PDF)",
+  "documents": [
+    {
+      "filename": "sample_full_report.pdf",
+      "expected_form_id": "tx_cr3",
+      "fields": {
+        "date_time": "October 14, 2026 at 22:47 hrs",
+        "location": "I-35W Northbound between Exit 54A (N. Tarrant Pkwy) and Exit 54B (Western Center Blvd), Fort Worth, TX 76131 — approx. Mile Marker 54.0",
+        "weather": "Dense Fog / Light Rain",
+        "road_surface": "Wet",
+        "light_condition": "Night",
+        "accident_type": "3-vehicle rear-end chain",
+        "agency": "Fort Worth Police Department",
+        "officer": "Officer Daniel R. Fuentes",
+        "report_number": "TR-2026-14-7731",
+        "ems_agency": "MedStar Mobile Healthcare",
+        "contributing_factors": "fog, speed, and operator alcohol impairment",
+        "property_damage": "I-35W NB overhead guidance sign support post at MM 54.1 — minor side-panel contact from V3 trailer",
+        "vehicles": "LMK-4421 (TX), MRY-8820 (TX), CMV-3319 (TX)",
+        "parties": "Karen L. Whitfield, Marcus J. Reyna, Bobby R. Hastings",
+        "witnesses": "Sandra P. Morales, Kevin D. Ostrowski, Anthony L. Brewer"
+      },
+      "_notes": "PDF distinguishes CASE NUMBER (FWPD-26-10-14-7731) from Report Number (TR-2026-14-7731). Ground truth uses Report Number. Extractor currently picks up CASE NUMBER — known issue for tx_cr3 template."
+    },
+    {
+      "filename": "sample_25_dui_wrongway_la.pdf",
+      "expected_form_id": "ca_chp555",
+      "fields": {
+        "date_time": "July 4, 2026 at 02:14 hrs",
+        "location": "I-405 Northbound, Mile Marker 38.2 (near Sunset Blvd exit), Los Angeles, CA 90049",
+        "weather": "Clear",
+        "road_surface": "Dry",
+        "light_condition": "Dark",
+        "accident_type": "6-vehicle pileup",
+        "agency": "Los Angeles Police Department",
+        "officer": "Officer Tamara L. Watkins",
+        "report_number": "LAPD-26-07-04-1188",
+        "ems_agency": "LAFD — Rescue Ambulance 71 and 88",
+        "contributing_factors": "wrong-way driving, DUI",
+        "property_damage": "I-405 NB center divider — V6 struck barrier before entering northbound lanes; three panels displaced",
+        "vehicles": "CA-7HKR441, CA-8LTX224, CA-6PKW881, CA-9MXP112, CA-4TNW773, CA-2BWK558",
+        "parties": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
+        "witnesses": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh"
+      }
+    },
+    {
+      "filename": "sample_27_tropical_moto_tampa.pdf",
+      "expected_form_id": "fl_hsmv",
+      "fields": {
+        "date_time": "September 28, 2026 at 18:33 hrs",
+        "location": "I-275 Southbound, Mile Marker 39.8 (Howard Ave exit area), Tampa, FL 33606",
+        "weather": "heavy rain",
+        "road_surface": "Standing Water",
+        "light_condition": "Dusk",
+        "accident_type": "4-vehicle chain collision",
+        "agency": "Tampa Police Department",
+        "officer": "Officer Brianna T. Moss",
+        "report_number": "TPD-26-09-28-1441",
+        "ems_agency": "Tampa Fire Rescue — Rescue 1 and Rescue 5",
+        "contributing_factors": null,
+        "property_damage": "I-275 SB right shoulder crash attenuator (barrel array) at MM 39.7 — struck by V3 post-impact; 4 barrels displaced",
+        "vehicles": "FL-PKT-4418, FL-QRX-8821, FL-RTW-3319, FL-SXM-7723, FL-MCY-441",
+        "parties": "Elena B. Santos, Charles T. Walters, Yuna S. Kim, Preet A. Patel, Eduardo R. Garcia",
+        "witnesses": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R. Melendez #144, Kevin T. Morrison"
+      }
+    },
+    {
+      "filename": "sample_24_rain_ped_nyc.pdf",
+      "expected_form_id": "ny_mv104a",
+      "fields": {
+        "date_time": "August 19, 2026 at 17:38 hrs",
+        "location": "Queens Blvd & 69th Road (intersection), Woodside, Queens, NY 11377",
+        "weather": "Thunderstorm",
+        "road_surface": "Wet",
+        "light_condition": "Daylight / Overcast",
+        "accident_type": "4-vehicle collision + 2 pedestrians struck",
+        "agency": "New York City Police Department",
+        "officer": "Officer Svetlana M. Borisova",
+        "report_number": "NYPD-26-08-19-8814",
+        "ems_agency": "FDNY EMS — Units 44 and 51",
+        "contributing_factors": null,
+        "property_damage": "Pedestrian crosswalk signal button housing",
+        "vehicles": "NY-HKR-4418, NY-JLX-8821, NY-KBW-3319, NY-LCM-7723",
+        "parties": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
+        "witnesses": "Calvin R. Moore, Maria T. Santos, David K. Lowenstein, Julia R. Marchetti, Officer T. Park"
+      }
+    },
+    {
+      "filename": "sample_33_ice_ped_philadelphia.pdf",
+      "expected_form_id": "pa_aa600",
+      "fields": {
+        "date_time": "December 28, 2026 at 8:19 hrs",
+        "location": "Broad Street & Washington Avenue (intersection), Philadelphia, PA 19148",
+        "weather": "Freezing Rain / Ice Storm",
+        "road_surface": "Glare Ice / Freezing Rain",
+        "light_condition": "Daylight / Overcast",
+        "accident_type": "5-vehicle intersection pileup + 2 pedestrians struck",
+        "agency": "Philadelphia Police Department",
+        "officer": "Officer Darnell T. Pierce",
+        "report_number": "PPD-26-12-28-1101",
+        "ems_agency": "Philadelphia Fire Dept. — Medic 8 and Medic 19",
+        "contributing_factors": null,
+        "property_damage": "Traffic signal pole, Broad & Washington (NE corner) — V1 post-collision contact; signal head cracked",
+        "vehicles": "PA-APX-4418, PA-BKR-8821, PA-CTX-3319, PA-DLM-7723, PA-EMT-441",
+        "parties": "Eileen C. Murphy, Miguel A. Gonzalez, Sharon Y. Chen, Chukwuma P. Okafor, Tamika R. Williams",
+        "witnesses": "Franklin T. Booker, Denise P. Rawlins, Alonzo W. Henderson, Det. R. Kim, Officer Patricia L. Diaz"
+      }
+    }
+  ]
 }
