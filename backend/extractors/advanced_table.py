@@ -8,6 +8,70 @@ from core.document_model import Document
 from extractors.base import Strategy, register
 from database import get_aliases_for
 
+# Tokens that mark the start of a description/context field after a witness name
+# in space-delimited tables.  Does NOT include institutional markers like "lapd",
+# "crew", "division" — those are handled by the all-caps rule in _truncate_to_name.
+_NAME_TERMINATORS = frozenset({
+    "motorist", "passenger", "pedestrian", "driver", "operator",
+    "freeway", "highway", "interstate",
+    "witness", "bystander", "occupant", "rider",
+    "gas", "waiting", "sitting", "standing", "walking",
+    "saw", "observed", "stopped", "exited", "pulled", "arrived",
+    "southeast", "southwest", "northeast", "northwest",
+    "off-duty", "on-duty",
+    "yes", "no",
+})
+
+_WITNESS_PHONE_RE = re.compile(r"\(?\d{3}\)?[\s\-]\d{3}[\s\-]\d{4}")
+
+_NAME_SUFFIXES = frozenset({"jr", "sr", "ii", "iii", "iv", "phd", "md", "esq"})
+
+
+def _truncate_to_name(text: str) -> str:
+    """Truncate to the leading proper-name tokens in a space-delimited witness row.
+
+    Used when w_match fires but no em-dash/hyphen separator is present, causing
+    the entire row remainder to land in parts[0].  Cuts at the first non-name token.
+    Cap: 3 tokens, extended to 4 only when the 3rd token ends with '.' (middle
+    initial pattern, e.g. 'Patricia L.') so that 'First M. Last' is kept whole.
+    Institutional identifiers like 'LAPD Air-7 Crew' are handled correctly: the
+    all-caps rule stops at the *second* 'LAPD' token, leaving 'LAPD Air-7 Crew'.
+    """
+    if not text:
+        return text
+    phone_m = _WITNESS_PHONE_RE.search(text)
+    if phone_m:
+        text = text[:phone_m.start()].strip()
+    tokens = text.split()
+    if not tokens:
+        return text
+    kept: list[str] = []
+    for i, tok in enumerate(tokens):
+        if i == 0:
+            kept.append(tok)
+            continue
+        clean = tok.lower().strip(".,;:")
+        if clean in _NAME_TERMINATORS:
+            break
+        if "," in tok and clean.strip(",") not in _NAME_SUFFIXES:
+            if tok[0].isupper() and tok.replace(",", "").replace(".", "").isalpha():
+                kept.append(tok.rstrip(","))
+            break
+        if tok and tok[0].isdigit():
+            break
+        if tok.isupper() and len(tok) > 2:
+            break
+        kept.append(tok)
+        # Allow a 4th token only when the 3rd ends with '.' (middle initial).
+        # This prevents street/descriptor words from being captured as a 4th name
+        # token when the 3rd is already a full last name.
+        if len(kept) == 3 and not kept[-1].endswith('.'):
+            break
+        if len(kept) >= 4:
+            break
+    return " ".join(kept)
+
+
 class AdvancedTableConfig(BaseModel):
     table_type: str  # "vehicles", "parties", "witnesses"
 
@@ -766,8 +830,9 @@ class AdvancedTableStrategy(Strategy):
                     rest = line[w_match.end():].strip()
                     if rest:
                         parts = re.split(r'\s*[—–]{1,2}\s*|\s+-\s+', rest)
-                        if parts[0].strip():
-                            current_entity["name"] = parts[0].strip()
+                        candidate = _truncate_to_name(parts[0].strip())
+                        if candidate:
+                            current_entity["name"] = candidate
                         if len(parts) > 1:
                             p1 = parts[1].strip()
                             if re.search(r'[\d\(\)\-\+]{7,}', p1):
