@@ -252,7 +252,7 @@ def values_match(field_id: str, gt: str | None, extracted: str | None) -> str | 
     Classification order (first match wins):
       exact       — normalized strings are equal (or dates match)
       trim        — equal only after leading/trailing punctuation strip
-      containment — one trimmed value is a substring of the other (min 4 chars each)
+      containment — one trimmed value is a substring of the other (min 3 chars each)
       False       — no match
     List fields use frozenset comparison only; containment is not applied.
     """
@@ -271,7 +271,7 @@ def values_match(field_id: str, gt: str | None, extracted: str | None) -> str | 
     ex_t = _norm_string_trimmed(extracted)
     if gt_t == ex_t:
         return "trim"
-    if len(gt_t) >= 4 and len(ex_t) >= 4:
+    if len(gt_t) >= 3 and len(ex_t) >= 3:
         if gt_t in ex_t or ex_t in gt_t:
             return "containment"
     return False
