@@ -330,7 +330,17 @@ async def extract_police(file: UploadFile = File(...)):
         full_text = normalized + "\n\n" + full_tables
 
         if canonical_doc:
-            canonical_doc.markdown = pre_narrative + "\n\n" + full_tables
+            # advanced_table was built against pdfplumber raw text, not Docling markdown.
+            # Docling renders vehicle sections as tables; flatten_markdown_tables loses the
+            # UNIT/VEHICLE #N section boundaries that advanced_table needs to split V1/V2/V3.
+            # Use pdfplumber text as the canonical markdown for orchestrator extraction.
+            import pdfplumber as _plumber
+            _plumber_parts = []
+            with _plumber.open(file_path) as _pdf:
+                for _pg in _pdf.pages:
+                    _plumber_parts.append(_pg.extract_text() or '')
+            canonical_doc.markdown = '\n'.join(_plumber_parts)
+
             save_raw_document(file.filename, full_text)
 
             # Classify the state/form so the right template overlay is applied
