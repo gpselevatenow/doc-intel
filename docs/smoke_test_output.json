@@ -1,0 +1,24 @@
+{
+  "doc": "sample_full_report.pdf",
+  "form_id": "tx_cr3",
+  "form_confidence": 0.95,
+  "non_null_fields": 11,
+  "total_fields": 15,
+  "record": {
+    "date_time": "October 14, 2026",
+    "location": "I-35W Northbound between Exit 54A",
+    "weather": "Dense Fog / Light Rain",
+    "road_surface": null,
+    "light_condition": ", reduced",
+    "accident_type": "3-vehicle rear-end chain \u2014",
+    "agency": null,
+    "officer": "Officer Daniel R. Fuentes,",
+    "report_number": "TR-2026-14-7731",
+    "ems_agency": null,
+    "contributing_factors": "fog,",
+    "property_damage": "Rear bumper assembly crushed and deformed; left tail lamp assembly shattered; rear lift",
+    "vehicles": "[{\"vin\": \"2T3RWRFV9NC123456\", \"plate\": \"LMK-4421\", \"make\": \"Toyota\", \"year\": \"2022\", \"model\": \"RAV4 XLE AWD\", \"color\": \"Magnetic Gray Metallic\", \"damages\": \"Unknown\", \"owner_name\": \"Karen L. Whitfield\", \"owner_address\": \"4812 Ridgemont Drive, Fort Worth, TX 76131\", \"insurance_company\": \"State Farm Mutual Automobile Insurance Company\", \"policy_number\": \"SF-TX-4421-KLW-2026\", \"towed\": \"47 hrs by registered owner's spouse\", \"towing_company\": \"Unknown\"}, {\"vin\": \"5NPEG4JA1LH234567\", \"plate\": \"MRY-8820\", \"make\": \"Hyundai\", \"year\": \"2020\", \"model\": \"Sonata SE\", \"color\": \"Quartz White Pearl\", \"damages\": \"Unknown\", \"owner_name\": \"Marcus J. Reyna\", \"owner_address\": \"2211 Sundance Court, Keller, TX 76248\", \"insurance_company\": \"Progressive Northern Insurance Company\", \"policy_number\": \"PROG-TX-8820-MJR-2026\", \"towed\": \"18 hrs; vehicle loaded and departed\", \"towing_company\": \"Star Towing & Recovery, (817) 555-0241 \\u2014 Storage Lot #4, 6800 Blue Mound Road,\"}, {\"vin\": \"3AKJGLD57KSFA3344\", \"plate\": \"CMV-3319\", \"make\": \"Freightliner\", \"year\": \"2019\", \"model\": \"Cascadia 126 \\u2014 Class 8 Tractor with 53-ft Refrigerated Trailer\", \"color\": \"CMV\", \"damages\": \"Unknown\", \"owner_name\": \"T.\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Great West Casualty Company\", \"policy_number\": \"GWC-CMV-2019-HL-TX-55182\", \"towed\": \"14 hrs\", \"towing_company\": \"Star Towing & Recovery CMV Division, (817) 555-0241 \\u2014 CMV Yard, 6800 Blue Mound\"}]",
+    "parties": "[{\"role\": \"Operator\", \"name\": \"Karen L. Whitfield\", \"dob\": \"07/22/1983\", \"address\": \"4812 Ridgemont Drive, Fort Worth, TX 76131\", \"phone\": \"Unknown\", \"license_number\": \"TX-DL-22184433\", \"condition\": \"Complaining of mild posterior neck stiffness consistent with low-speed whiplash; not administered (no legal basis). not tested. No  odors or behavioral indicators noted.; drug\", \"injuries\": \"Complaining of mild posterior neck stiffness consistent with low-speed whiplash; not administered (no legal basis). not tested. No  odors or behavioral indicators noted.\", \"substance_involvement\": \"drug\", \"transported\": false, \"transported_to\": \"N/A\", \"citations\": \"None\", \"citations_list\": []}]",
+    "witnesses": null
+  }
+}
