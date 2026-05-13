@@ -2,5 +2,37 @@
   "template_id": "acord_01",
   "version": "1.0",
   "document_type": "acord_report",
-  "fields": []
+  "auto_accept_threshold": 0.60,
+  "fields": [
+    {
+      "field_id": "agency",
+      "field_type": "text",
+      "strategies": []
+    },
+    {
+      "field_id": "carrier",
+      "field_type": "text",
+      "strategies": []
+    },
+    {
+      "field_id": "policy_number",
+      "field_type": "text",
+      "strategies": []
+    },
+    {
+      "field_id": "named_insured",
+      "field_type": "text",
+      "strategies": []
+    },
+    {
+      "field_id": "date_of_loss",
+      "field_type": "text",
+      "strategies": []
+    },
+    {
+      "field_id": "description_of_loss",
+      "field_type": "text",
+      "strategies": []
+    }
+  ]
 }

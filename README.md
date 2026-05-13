@@ -123,4 +123,5 @@ For testing and demonstration purposes, this repository includes a `sample docum
 ## ❌ What the Solution CANNOT Do
 
 * **Extract Abstract Relationships from Dense Narratives:** If a report writes out a pure narrative paragraph (e.g., *"Driver 1 hit Driver 2 who then spun into Driver 3"*), the template engine cannot parse liability logic. It relies on standard structured grids.
-* **Read Heavy Cursive:** The PyTorch OCR models are heavily optimized for printed grid text. Bad photocopies of highly cursive handwritten police notes will likely yield garbled text, which will immediately trigger the system's "Needs Review" exception handling.
+* **Read Heavy Cursive:** The OCR models are heavily optimized for printed grid text. Bad photocopies of highly cursive handwritten police notes will likely yield garbled text, which will immediately trigger the system's "Needs Review" exception handling.
+* **Bbox highlighting on Police Reports:** Bounding-box click-to-highlight works only for IA/ACORD reports processed through the Docling layout engine, which captures per-word pixel coordinates. Police reports are parsed with pdfplumber's text-mode pipeline, which does not emit spatial coordinates. All extracted police report fields display without bbox overlays; the audit trail and audit modal remain fully functional.
