@@ -3,6 +3,22 @@
     "document_type": "police_report",
     "fields": [
         {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)Investigat\\w+\\s+Officer\\s+[A-Za-z,.'\\-\\s]+Badge\\s*#\\s*\\d+\\s+Agency\\s+(?P<value>[^\\n]{5,80})",
+                            "(?im)^(?P<value>Iowa\\s+State\\s+(?:Patrol|Police))\\s*$"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
             "field_id": "report_number",
             "field_type": "text",
             "strategies": [
