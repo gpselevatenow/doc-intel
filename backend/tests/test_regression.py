@@ -7,7 +7,7 @@ import sys
 import os
 import json
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 PASS = "PASS"
 FAIL = "FAIL"
@@ -222,7 +222,7 @@ print("\n-- 4. Template merge --")
 
 import json as _json
 
-TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:

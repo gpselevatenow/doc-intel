@@ -1,5 +1,5 @@
 import sys, os, pdfplumber, json
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from core.form_classifier import classify_form
 from core.document_model import Document
 from core.orchestrator_integration import run_orchestrator
