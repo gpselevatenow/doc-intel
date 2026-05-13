@@ -58,9 +58,43 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)^Weather[ \\t]+(?P<value>(?!Condition)[^\\n]+?)(?=[ \\t]+Light\\s+Conditions|[ \\t]+Road\\s+Surface|\\s*$)",
                             "(?im)(?:WEATHER(?:\\s+CONDITIONS)?|ATMOSPHERIC\\s+CONDITIONS|WEATHER\\s+AT\\s+TIME\\s+OF\\s+CRASH|ROAD\\s+WEATHER|ENVIRONMENTAL\\s+(?:FACTOR|CONDITIONS?))[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:LIGHT(?:ING)?\\s+CONDITIONS?|ROAD(?:WAY)?\\s+(?:SURFACE\\s+)?CONDITIONS?|SURFACE\\s+CONDITIONS?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)\\b(?P<value>clear|sunny|raining|rain|snowing|snow|cloudy|fog|foggy|overcast|icy|ice|windy|hail|sleet|mist|misty|wet|dry|partly\\s+cloudy|heavy\\s+rain|light\\s+rain|freezing\\s+rain|blowing\\s+snow)\\b"
+                            "(?im)(?:LIGHT(?:ING)?\\s+CONDITIONS?|ROAD(?:WAY)?\\s+(?:SURFACE\\s+)?CONDITIONS?|SURFACE\\s+CONDITIONS?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                        ],
+                        "flags": ["IGNORECASE"]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "road_surface",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)Road\\s+Surface[ \\t]+N?(?P<value>Dry|Wet|Snow|Ice|Slush|Sand|Mud|Oil|Water|Other[^\\n]{0,20})\\b",
+                            "(?im)(?:Road(?:way)?\\s+Surface(?:\\s+Conditions?)?|Surface\\s+Conditions?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                        ],
+                        "flags": ["IGNORECASE"]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "light_condition",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)Light\\s+Conditions[ \\t]+(?P<value>.+?)(?=[ \\t]+Road\\s+Surface|\\s*$)",
+                            "(?im)(?:Lighting\\s+Conditions?|Light\\s+Conditions?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -76,6 +110,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Direction\\s+of\\s+Crash[ \\t]+(?P<value>.+?)(?=[ \\t]+Areas\\s+of\\s+Damage|\\s*$)",
                             "(?im)TYPE\\s+OF\\s+COLLISION(?:[ \\t]*/[ \\t]*VEHICLES?)?[ \\t]*:[ \\t]*(?P<value>[^\\n/]+)",
                             "(?im)(?:MANNER\\s+OF\\s+COLLISION|MANNER\\s+OF\\s+IMPACT|TYPE\\s+OF\\s+IMPACT|COLLISION\\s+MANNER)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:ACCIDENT\\s+TYPE|COLLISION\\s+TYPE|CRASH\\s+TYPE|INCIDENT\\s+TYPE|TYPE\\s+OF\\s+ACCIDENT|TYPE\\s+OF\\s+INCIDENT|TYPE\\s+OF\\s+CRASH)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
@@ -99,6 +134,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)Investigating\\s+Officer\\s+[A-Za-z\\s,.'\\-]+Badge\\s*#\\s*\\d+\\s+Agency\\s+(?P<value>[^\\n]{5,80})",
                             "(?im)(?:Responding\\s+Agency|Originating\\s+Agency|Reporting\\s+Agency|Reporting\\s+Unit|Law\\s+Enforcement\\s+Agency|AGENCY\\s+NAME|POLICE\\s+AGENCY)[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:Responding\\s+Agency|Originating\\s+Agency|Reporting\\s+Agency|Reporting\\s+Unit|Law\\s+Enforcement\\s+Agency|AGENCY\\s+NAME|POLICE\\s+AGENCY|ORI\\s+(?:CODE|NUMBER)?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:DEPARTMENT|DEPT\\.?|POLICE\\s+DEPARTMENT|SHERIFF'?S\\s+(?:OFFICE|DEPT\\.?))[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
@@ -118,6 +154,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)(?:Investig\\w*|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
                             "(?im)(?:Investigating|Reporting|Responding|Assigned|Primary|Written\\s+by|Officer\\s+of\\s+Record)\\s+Officer[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
                             "(?im)(?:Investigating\\s+Officer|Reporting\\s+Officer|Responding\\s+Officer|Officer\\s+Name|Officer\\s+of\\s+Record|Written\\s+by|Officer(?:\\s+Signature)?)[ \\t]*:[ \\t]*(?P<value>[^\\n|]+)",
                             "(?im)(?:PRIMARY\\s+OFFICER|OFFICER\\s+IN\\s+CHARGE|LEAD\\s+OFFICER|ASSIGNED\\s+OFFICER|PATROL\\s+OFFICER)[ \\t]*:[ \\t]*(?P<value>[^\\n|]{3,80})",
@@ -139,6 +176,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)REPORT\\s+(?P<value>[A-Z]{2}-\\d{4}-\\d{4,8})\\b",
+                            "(?im)OPI\\s+(?P<value>[A-Z]{2}-\\d{4}-\\d{4,8})\\b",
                             "(?im)CASE\\s*(?:NUMBER|NO\\.?|#)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
                             "(?im)(?:CRASH\\s+REPORT\\s+(?:NUMBER|NO\\.?)|HSMV\\s+CRASH\\s+REPORT\\s+(?:NUMBER|NO\\.?)|AGENCY\\s+REPORT\\s+(?:NUMBER|NO\\.?))[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-/#]+)",
                             "(?im)(?:Report\\s+No\\.?|Report\\s+Number|Incident\\s+No\\.?|Incident\\s+Number|CAD\\s+(?:No\\.?|Number|#)|CCN|Crash\\s+Case\\s+Number)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-/#]+)",

@@ -41,7 +41,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|REPORTING\\s+OFFICER|PRIMARY\\s+OFFICER|OFFICER\\s+(?:NAME|ID|BADGE)|BADGE\\s+(?:NO\\.?|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
+                            "(?im)(?:Investig\\w*|Reporting)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
+                            "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|REPORTING\\s+OFFICER|PRIMARY\\s+OFFICER|OFFICER\\s+(?:NAME|ID|BADGE)|BADGE\\s+(?:NO\\.?|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z\\s,.'\\-]{2,40}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)"
                         ]
                     }
                 }

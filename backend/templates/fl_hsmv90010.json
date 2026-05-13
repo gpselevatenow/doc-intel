@@ -41,6 +41,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)(?:Investig\\w*|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.\\'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
+                            "(?im)(?:Investigating|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.\\'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
                             "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|OFFICER\\s+(?:NAME|ID|BADGE)|BADGE\\s+(?:NO\\.?|NUMBER)|TROOP\\s+OFFICER)(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
                         ]
                     }
@@ -85,7 +87,17 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Clear", "Cloudy", "Rain", "Fog", "Sleet/Hail", "Blowing Sand/Soil/Dirt", "Severe Crosswind", "Blowing Snow", "Other"],
+                        "options": [
+                            "Clear",
+                            "Cloudy",
+                            "Rain",
+                            "Fog",
+                            "Sleet/Hail",
+                            "Blowing Sand/Soil/Dirt",
+                            "Severe Crosswind",
+                            "Blowing Snow",
+                            "Other"
+                        ],
                         "section_anchor": "WEATHER"
                     }
                 },
@@ -108,7 +120,21 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Rear-End", "Head-On", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Rear-to-Rear", "Single Vehicle", "Left Turn", "Right Turn", "Backing", "Pedestrian", "Bicycle/Pedalcycle", "Other"],
+                        "options": [
+                            "Rear-End",
+                            "Head-On",
+                            "Angle",
+                            "Sideswipe – Same Direction",
+                            "Sideswipe – Opposite Direction",
+                            "Rear-to-Rear",
+                            "Single Vehicle",
+                            "Left Turn",
+                            "Right Turn",
+                            "Backing",
+                            "Pedestrian",
+                            "Bicycle/Pedalcycle",
+                            "Other"
+                        ],
                         "section_anchor": "CRASH TYPE"
                     }
                 },

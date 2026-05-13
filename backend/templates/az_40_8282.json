@@ -41,6 +41,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)(?:Investig\\w*|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.\\'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
+                            "(?im)(?:Investigating|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.\\'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
                             "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|REPORTING\\s+OFFICER|OFFICER\\s+(?:NAME|ID|BADGE))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
                         ]
                     }
@@ -85,7 +87,17 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Clear", "Cloudy", "Rain", "Sleet/Hail", "Snow", "Fog/Smog/Smoke", "Blowing Sand/Soil/Dirt", "Severe Crosswinds", "Other"],
+                        "options": [
+                            "Clear",
+                            "Cloudy",
+                            "Rain",
+                            "Sleet/Hail",
+                            "Snow",
+                            "Fog/Smog/Smoke",
+                            "Blowing Sand/Soil/Dirt",
+                            "Severe Crosswinds",
+                            "Other"
+                        ],
                         "section_anchor": "WEATHER"
                     }
                 },
@@ -108,7 +120,16 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Not Collision Between Two Motor Vehicles", "Rear End", "Head On", "Rear to Rear", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Other"],
+                        "options": [
+                            "Not Collision Between Two Motor Vehicles",
+                            "Rear End",
+                            "Head On",
+                            "Rear to Rear",
+                            "Angle",
+                            "Sideswipe – Same Direction",
+                            "Sideswipe – Opposite Direction",
+                            "Other"
+                        ],
                         "section_anchor": "MANNER OF COLLISION"
                     }
                 },
@@ -146,7 +167,15 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Daylight", "Dark – Lighted", "Dark – Not Lighted", "Dark – Unknown Lighting", "Dawn", "Dusk", "Other"],
+                        "options": [
+                            "Daylight",
+                            "Dark – Lighted",
+                            "Dark – Not Lighted",
+                            "Dark – Unknown Lighting",
+                            "Dawn",
+                            "Dusk",
+                            "Other"
+                        ],
                         "section_anchor": "LIGHT CONDITION"
                     }
                 },
@@ -169,7 +198,14 @@
                     "strategy": "checkbox_grid",
                     "priority": 1,
                     "config": {
-                        "options": ["Dry", "Wet", "Snow/Slush", "Ice", "Sand/Mud/Dirt/Oil/Gravel", "Other"],
+                        "options": [
+                            "Dry",
+                            "Wet",
+                            "Snow/Slush",
+                            "Ice",
+                            "Sand/Mud/Dirt/Oil/Gravel",
+                            "Other"
+                        ],
                         "section_anchor": "ROAD SURFACE CONDITION"
                     }
                 },

@@ -11,7 +11,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:LOCAL\\s+REPORT\\s+(?:NUMBER|NO\\.?)|CHP\\s+REPORT\\s+(?:NUMBER|NO\\.?)|OTS\\s+555\\s+(?:REPORT\\s+)?(?:NO\\.?|NUMBER)|OFFICER(?:'S)?\\s+(?:REPORT\\s+)?(?:NUMBER|NO\\.?)|CHP\\s+(?:CASE|FILE)\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NO|NUMBER|#))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/# \\t]{3,30})",
+                            "(?im)\\bOPI\\s+(?P<value>[A-Z]{2}-\\d{4}-\\d{4,8})\\b",
+                            "(?im)(?:LOCAL\\s+REPORT\\s+(?:NUMBER|NO\\.?)|CHP\\s+REPORT\\s+(?:NUMBER|NO\\.?)|OTS\\s+555\\s+(?:REPORT\\s+)?(?:NO\\.?|NUMBER)|OFFICER(?:'S)?\\s+(?:REPORT\\s+)?(?:NUMBER|NO\\.?)|CHP\\s+(?:CASE|FILE)\\s+(?:NUMBER|NO\\.?))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/# \\t]{3,30})",
                             "(?im)(?:FORM\\s+555|CHP-555)\\s*(?:REPORT\\s+)?(?:NO\\.?|NUMBER|#)\\s*[:\\-]?\\s*(?P<value>[A-Za-z0-9\\-/#]{3,20})"
                         ]
                     }
@@ -44,6 +45,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
+                            "(?im)(?:Investig\\w*|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.\\'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
+                            "(?im)(?:Investigating|Reporting|Responding)\\s+Officer\\s+(?P<value>[A-Za-z][A-Za-z\\s,.\\'\\-]{2,50}?)(?=\\s+Badge|\\s+Agency|\\s+#\\s*\\d|\\s*$)",
                             "(?im)(?:REPORTING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|PRIMARY\\s+OFFICER|INVESTIGATING\\s+OFFICER|OFFICER\\s+(?:NAME|ID)|BADGE\\s+(?:NO\\.?|NUMBER)|EMPLOYEE\\s+(?:NO\\.?|ID|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
                         ]
                     }

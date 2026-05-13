@@ -6,6 +6,115 @@ from core.template_schema import TemplateSchema, FieldDefinition, FieldStrategy
 from core.orchestrator import extract
 from database import get_custom_fields
 
+
+def _normalize_compound_lines(text: str) -> str:
+    """
+    Police report compound lines pack multiple key-value pairs on one line without colons.
+    This function replaces those lines with proper KEY: Value lines so every template's
+    global_regex patterns can match them reliably.
+
+    Examples handled:
+      "Weather Rain Light Conditions Dark - Lighted Road Surface NWet"
+        → "Weather: Rain\nLight Conditions: Dark - Lighted\nRoad Surface: Wet"
+
+      "Road Alignment Curve & Grade Traffic Control No Controls Direction of Crash Same Direction (Chain Reaction)"
+        → "Direction of Crash: Same Direction (Chain Reaction)"
+    """
+    out_lines = []
+
+    for line in text.splitlines():
+        clean = re.sub(r'\(cid:\d+\)', '', line).strip()
+
+        # Compound weather/light/surface line
+        m = re.match(
+            r'(?i)^Weather\s+(?P<wx>.+?)\s+Light\s+Conditions\s+(?P<lc>.+?)\s+Road\s+Surface\s+N?(?P<rs>Dry|Wet|Snow|Ice|Slush|Sand|Mud|Oil|Water|Gravel|Other\S*)(?:\s|$)',
+            clean
+        )
+        if m:
+            out_lines.append(f"Weather: {m.group('wx').strip()}")
+            lc = m.group('lc').strip()
+            out_lines.append(f"Light Conditions: {lc}")
+            out_lines.append(f"Light Condition: {lc}")   # alias used by most state templates
+            out_lines.append(f"Road Surface: {m.group('rs').strip()}")
+            continue
+
+        # Partial weather line (no Road Surface match)
+        m = re.match(r'(?i)^Weather\s+(?P<wx>.+?)\s+Light\s+Conditions\s+(?P<lc>.+)$', clean)
+        if m:
+            out_lines.append(f"Weather: {m.group('wx').strip()}")
+            lc = m.group('lc').strip()
+            out_lines.append(f"Light Conditions: {lc}")
+            out_lines.append(f"Light Condition: {lc}")
+            continue
+
+        # Direction of Crash / manner of collision line — keep cleaned version and inject aliases
+        # Pattern tolerates single-letter OCR artifact between "Direction" and "of" (e.g. "Direction Eof Crash")
+        m = re.search(
+            r'(?i)Direction\s+(?:[A-Z][ \t]*)?of\s+Crash\s+(?P<doc>.+?)(?:\s+Areas\s+of\s+Damage|$)',
+            clean
+        )
+        if m:
+            val = m.group('doc').strip()
+            # Strip pdfplumber column-interleave uppercase artifacts from value
+            val = re.sub(r'(?<=[a-z])[A-Z](?=[a-z])', '', val)   # ReEaction → Reaction
+            val = re.sub(r'(?<=[a-z])[A-Z](?=\))', '', val)       # EndE) → End)
+            val = re.sub(r'[A-Z]$', '', val).strip()               # trailing letter at string end
+            # Keep a cleaned version of the original line (removes mid-word artifacts globally)
+            cleaned_line = re.sub(r'(?<=[a-z])[A-Z](?=[a-z])', '', line)
+            cleaned_line = re.sub(r'(?<=[a-z])[A-Z](?=\))', '', cleaned_line)
+            out_lines.append(cleaned_line)
+            # Inject aliases used by various state templates' accident_type patterns
+            out_lines.append(f"Direction of Crash: {val}")
+            out_lines.append(f"Manner of Collision: {val}")
+            out_lines.append(f"Type of Crash: {val}")
+            continue
+
+        # Mid-line WEATHER label (sample file format: "CASE NUMBER xxx WEATHER Value")
+        # Uppercase-only WEATHER avoids false positives in prose ("weather event", etc.)
+        if not re.search(r'(?i)\bWeather\s*:', clean):
+            m = re.search(
+                r'\bWEATHER[ \t]+(?P<wx>.+?)(?=[ \t]+TYPE\s+OF\b|[ \t]+COLLISION\s+TYPE\b|\s*$)',
+                clean
+            )
+            if m:
+                wx = m.group('wx').strip()
+                out_lines.append(line)
+                out_lines.append(f"Weather: {wx}")
+                continue
+
+        # TYPE OF CollisionType / N (sample file format: "... TYPE OF value / 2")
+        # Skips "TYPE OF COLLISION" which is a standard label handled by template patterns
+        m = re.search(
+            r'(?i)\bTYPE\s+OF\s+(?!COLLISION\b)(?P<val>.+?)(?=\s*/\s*\d|\s*$)',
+            clean
+        )
+        if m:
+            val = re.sub(r'\s*/\s*$', '', m.group('val').strip()).strip()
+            if val:
+                out_lines.append(line)
+                out_lines.append(f"Direction of Crash: {val}")
+                out_lines.append(f"Manner of Collision: {val}")
+                out_lines.append(f"Type of Crash: {val}")
+                continue
+
+        # COLLISION TYPE Value (sample file format: "COLLISION TYPE value TOTAL VEHICLES N")
+        m = re.search(
+            r'(?i)\bCOLLISION\s+TYPE\s+(?P<val>.+?)(?=\s+TOTAL\s+(?:VEHICLES?|UNITS?)|\s*$)',
+            clean
+        )
+        if m:
+            val = m.group('val').strip()
+            if val:
+                out_lines.append(line)
+                out_lines.append(f"Direction of Crash: {val}")
+                out_lines.append(f"Manner of Collision: {val}")
+                out_lines.append(f"Type of Crash: {val}")
+                continue
+
+        out_lines.append(line)
+
+    return "\n".join(out_lines)
+
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 
 # form_id → template filename (state templates live in templates/)
@@ -157,7 +266,10 @@ def run_orchestrator(
         )
         template.fields.append(dynamic_field)
 
-    # ── 5. Run the engine ────────────────────────────────────────────────────
+    # ── 5. Normalize compound lines before extraction ───────────────────────
+    canonical_doc.markdown = _normalize_compound_lines(canonical_doc.markdown or "")
+
+    # ── 6. Run the engine ────────────────────────────────────────────────────
     result = extract(canonical_doc, template)
 
     review_flags = {

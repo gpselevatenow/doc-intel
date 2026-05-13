@@ -526,12 +526,14 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             {renderFieldLabel('EMS Agency', 'ems_agency')}
             <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
           </div>
-          {data.light_condition && data.light_condition !== 'N/A' && (
-            <div>
-              {renderFieldLabel('Light Condition', 'light_condition')}
-              <div className="field-value">{data.light_condition}</div>
-            </div>
-          )}
+          <div>
+            {renderFieldLabel('Light Condition', 'light_condition')}
+            <div className="field-value">{data.light_condition && data.light_condition !== 'N/A' ? data.light_condition : '—'}</div>
+          </div>
+          <div>
+            {renderFieldLabel('Road Surface', 'road_surface')}
+            <div className="field-value">{data.road_surface && data.road_surface !== 'N/A' ? data.road_surface : '—'}</div>
+          </div>
         </div>
       </div>
 
