@@ -95,6 +95,157 @@ def _norm_list(v: str) -> frozenset[str]:
     return frozenset(_norm_string(item) for item in v.split(",") if item.strip())
 
 
+# ── Structured output flatteners ──────────────────────────────────────────────
+
+def _iget(d: dict, key: str) -> Any:
+    """Case-insensitive dict lookup."""
+    key_lo = key.lower()
+    for k, v in d.items():
+        if k.lower() == key_lo:
+            return v
+    return None
+
+
+def _parse_list_of_dicts(extracted: Any) -> list | None:
+    """Return a list of dicts if extracted is one (or JSON-parseable as one), else None."""
+    if isinstance(extracted, list):
+        return extracted
+    if not isinstance(extracted, str):
+        return None
+    s = extracted.strip()
+    if not s.startswith("["):
+        return None
+    try:
+        parsed = json.loads(s)
+        if isinstance(parsed, list):
+            return parsed
+    except (json.JSONDecodeError, ValueError):
+        pass
+    return None
+
+
+_PLATE_KEYS = ["plate", "license_plate", "license", "tag", "tag_no"]
+_NAME_KEYS  = ["name", "full_name", "operator_name", "driver_name"]
+_SKIP_ROLES = {"officer", "investigator"}
+
+
+def _flatten_vehicles(extracted: Any) -> tuple[str, bool]:
+    items = _parse_list_of_dicts(extracted)
+    if items is None:
+        return str(extracted), False
+    parts: list[str] = []
+    for item in items:
+        if not isinstance(item, dict):
+            parts.append(str(item))
+            continue
+        # Prefer plate over VIN over year+make+model+color
+        plate = None
+        for key in _PLATE_KEYS:
+            v = _iget(item, key)
+            if v and str(v).strip():
+                plate = str(v).strip()
+                break
+        if plate:
+            parts.append(plate)
+            continue
+        vin = _iget(item, "vin")
+        if vin and str(vin).strip():
+            parts.append(str(vin).strip())
+            continue
+        combo = " ".join(
+            str(item.get(k, "") or "").strip()
+            for k in ("year", "make", "model", "color")
+            if str(item.get(k, "") or "").strip()
+        )
+        parts.append(combo if combo else str(item))
+    result = ", ".join(parts)
+    if not result.strip():
+        print("  [WARN] _flatten_vehicles produced empty string", file=sys.stderr)
+    return result, True
+
+
+def _flatten_parties(extracted: Any) -> tuple[str, bool]:
+    items = _parse_list_of_dicts(extracted)
+    if items is None:
+        return str(extracted), False
+    parts: list[str] = []
+    for item in items:
+        if not isinstance(item, dict):
+            parts.append(str(item))
+            continue
+        role = (_iget(item, "role") or "").lower()
+        if any(skip in role for skip in _SKIP_ROLES):
+            continue
+        if "witness" in role:
+            continue
+        name = None
+        for key in _NAME_KEYS:
+            v = _iget(item, key)
+            if v and str(v).strip():
+                name = str(v).strip()
+                break
+        if name is None:
+            fn = str(_iget(item, "first_name") or "").strip()
+            ln = str(_iget(item, "last_name") or "").strip()
+            if fn or ln:
+                name = f"{fn} {ln}".strip()
+        if name:
+            parts.append(name)
+    result = ", ".join(parts)
+    if not result.strip():
+        print("  [WARN] _flatten_parties produced empty string", file=sys.stderr)
+    return result, True
+
+
+def _flatten_witnesses(extracted: Any) -> tuple[str, bool]:
+    items = _parse_list_of_dicts(extracted)
+    if items is None:
+        return str(extracted), False
+    parts: list[str] = []
+    for item in items:
+        if not isinstance(item, dict):
+            parts.append(str(item))
+            continue
+        role = (_iget(item, "role") or "").lower()
+        # Include only explicit witnesses or items with no role
+        if role and "witness" not in role:
+            continue
+        name = None
+        for key in _NAME_KEYS:
+            v = _iget(item, key)
+            if v and str(v).strip():
+                name = str(v).strip()
+                break
+        if name is None:
+            fn = str(_iget(item, "first_name") or "").strip()
+            ln = str(_iget(item, "last_name") or "").strip()
+            if fn or ln:
+                name = f"{fn} {ln}".strip()
+        if name:
+            parts.append(name)
+    result = ", ".join(parts)
+    if not result.strip():
+        print("  [WARN] _flatten_witnesses produced empty string", file=sys.stderr)
+    return result, True
+
+
+def _try_flatten(field_id: str, extracted: Any) -> tuple[Any, bool]:
+    """Apply field-specific flattening for list fields. Never raises."""
+    if extracted is None:
+        return extracted, False
+    try:
+        if field_id == "vehicles":
+            return _flatten_vehicles(extracted)
+        if field_id == "parties":
+            return _flatten_parties(extracted)
+        if field_id == "witnesses":
+            return _flatten_witnesses(extracted)
+    except Exception as exc:
+        print(f"  [WARN] Flattening failed for {field_id}: {exc}", file=sys.stderr)
+        return str(extracted), False
+    return extracted, False
+
+
 def values_match(field_id: str, gt: str | None, extracted: str | None) -> str | bool:
     """Return 'exact', 'trim', 'containment', or False.
 
@@ -430,6 +581,21 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
         ))
     lines.append("")
 
+    # Flattening audit
+    flattened_rows = [r for r in detail if r.get("flattening_applied")]
+    if flattened_rows:
+        lines += [f"## Flattening Applied ({len(flattened_rows)} extractions)", ""]
+        flat_table = [
+            [r["doc"], r["field"], r["status"],
+             str(r["extracted"] or "")[:55]]
+            for r in flattened_rows
+        ]
+        lines.append(_md_table(
+            ["Document", "Field", "Status", "Flattened Value"],
+            flat_table,
+        ))
+        lines.append("")
+
     return "\n".join(lines)
 
 
@@ -489,14 +655,20 @@ def main(args: argparse.Namespace) -> int:
             extracted_value = record.get(field_id)
             confidence = _best_confidence(field_id, all_candidates)
 
+            # Flatten structured output for list fields before comparison
+            flattening_applied = False
+            if field_id in _LIST_FIELD_IDS and extracted_value is not None:
+                extracted_value, flattening_applied = _try_flatten(field_id, extracted_value)
+
             classified = classify_result(field_id, gt_value, extracted_value, confidence)
             row = {
-                "doc":          filename,
-                "field":        field_id,
-                "ground_truth": gt_value,
-                "extracted":    extracted_value,
-                "status":       classified["status"],
-                "confidence":   classified["confidence"],
+                "doc":               filename,
+                "field":             field_id,
+                "ground_truth":      gt_value,
+                "extracted":         extracted_value,
+                "status":            classified["status"],
+                "confidence":        classified["confidence"],
+                "flattening_applied": flattening_applied,
             }
             detail.append(row)
 
@@ -551,6 +723,7 @@ def main(args: argparse.Namespace) -> int:
     print(f"Wrote {md_path}")
 
     # Print summary to stdout
+    flattened_count = sum(1 for r in detail if r.get("flattening_applied"))
     print(f"\nPrecision={summary['precision']:.4f}  Recall={summary['recall']:.4f}  "
           f"F1={summary['f1']:.4f}  Accuracy={summary['accuracy']:.4f}")
     print(f"TotalCorrect={summary['total_correct']}  "
@@ -558,6 +731,8 @@ def main(args: argparse.Namespace) -> int:
           f"Contain={summary['CORRECT_BY_CONTAINMENT']})  "
           f"Incorrect={summary['INCORRECT']}  Missed={summary['MISSED']}  "
           f"Spurious={summary['SPURIOUS']}  TrueNeg={summary['TRUE_NEGATIVE']}")
+    if flattened_count:
+        print(f"FlatteningApplied={flattened_count}")
     return 0
 
 
