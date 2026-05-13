@@ -1,0 +1,21 @@
+{
+    "template_id": "ri_uc1_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:UC[-\\s]*1\\b|RHODE\\s+ISLAND\\s+(?:TRAFFIC\\s+CRASH|ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|RISP\\s+(?:CASE|REPORT)|RHODE\\s+ISLAND\\s+STATE\\s+POLICE)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

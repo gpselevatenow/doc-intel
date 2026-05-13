@@ -1,0 +1,133 @@
+{
+    "template_id": "ca_chp555_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:LOCAL\\s+REPORT\\s+(?:NUMBER|NO\\.?)|CHP\\s+REPORT\\s+(?:NUMBER|NO\\.?)|OTS\\s+555\\s+(?:REPORT\\s+)?(?:NO\\.?|NUMBER)|OFFICER(?:'S)?\\s+(?:REPORT\\s+)?(?:NUMBER|NO\\.?)|CHP\\s+(?:CASE|FILE)\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NO|NUMBER|#))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/# \\t]{3,30})",
+                            "(?im)(?:FORM\\s+555|CHP-555)\\s*(?:REPORT\\s+)?(?:NO\\.?|NUMBER|#)\\s*[:\\-]?\\s*(?P<value>[A-Za-z0-9\\-/#]{3,20})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:REPORTING\\s+AGENCY|INVESTIGATING\\s+AGENCY|AGENCY\\s+NAME|BEAT|REPORTING\\s+DISTRICT)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})",
+                            "(?im)(?:CHP|CALIFORNIA\\s+HIGHWAY\\s+PATROL)\\s*[\\-–]?\\s*(?P<value>[A-Za-z][A-Za-z0-9 \\t,().\\-]{3,50})",
+                            "(?im)(?P<value>(?:[A-Z][a-z]+(?:\\s+[A-Z][a-z]+){0,4})\\s+(?:Police\\s+Department|Sheriff'?s?\\s+(?:Office|Department)|Highway\\s+Patrol|Department\\s+of\\s+Public\\s+Safety))"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "officer",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:REPORTING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|PRIMARY\\s+OFFICER|INVESTIGATING\\s+OFFICER|OFFICER\\s+(?:NAME|ID)|BADGE\\s+(?:NO\\.?|NUMBER)|EMPLOYEE\\s+(?:NO\\.?|ID|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "date_time",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:DATE(?:\\s*[/&]\\s*TIME)?\\s+OF\\s+(?:COLLISION|CRASH|ACCIDENT)|COLLISION\\s+DATE(?:\\s*/\\s*TIME)?|CRASH\\s+DATE(?:\\s*/\\s*TIME)?|DATE\\s+OF\\s+INCIDENT)(?:[:\\s]+)?(?P<value>[^\\n]{5,40})",
+                            "(?im)(?:DATE|TIME)\\s*[:\\-]\\s*(?P<value>\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{2,4}(?:\\s+\\d{1,2}:\\d{2})?)"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "location",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:LOCATION\\s+OF\\s+(?:COLLISION|CRASH)|ON\\s+(?:STREET|ROAD|HWY|HIGHWAY)|SCENE\\s+(?:LOCATION|ADDRESS)|CRASH\\s+LOCATION|ACCIDENT\\s+LOCATION|PRIMARY\\s+ROAD|HIGHWAY)(?:[:\\s]+)?(?P<value>[^\\n]{5,100})",
+                            "(?im)(?:INTERSECTION\\s+WITH|AT\\s+INTERSECTION\\s+OF|NEAREST\\s+CROSS\\s+STREET)(?:[:\\s]+)?(?P<value>[^\\n]{5,80})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WEATHER(?:\\s+CONDITION(?:S)?)?|ATMOSPHERIC\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>(?:Clear|Cloudy|Raining|Snowing|Fog(?:gy)?|Other|Wind(?:y)?|Overcast)[^\\n]{0,30})",
+                            "(?im)WEATHER\\s*[:\\-]\\s*(?P<value>[A-Za-z][^\\n]{2,30})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:TYPE\\s+OF\\s+(?:COLLISION|CRASH|ACCIDENT)|COLLISION\\s+TYPE|MANNER\\s+OF\\s+COLLISION|PRIMARY\\s+COLLISION\\s+FACTOR|PCF)(?:[:\\s]+)?(?P<value>[^\\n]{2,60})",
+                            "(?im)(?:SEVERITY)(?:[:\\s]+)?(?P<value>(?:Fatal|Injury|Property\\s+Damage\\s+Only|PDO)[^\\n]{0,30})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:PRIMARY\\s+(?:CONTRIBUTING\\s+)?(?:COLLISION\\s+)?FACTOR|OTHER\\s+ASSOCIATED\\s+FACTOR(?:S)?|ASSOCIATED\\s+FACTOR|VIOLATION\\s+(?:CODE|CATEGORY)|PCF\\s+VIOLATION\\s+(?:CODE|SECTION))(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

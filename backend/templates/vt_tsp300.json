@@ -1,0 +1,21 @@
+{
+    "template_id": "vt_tsp300_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:TSP[-\\s]*300\\b|VERMONT\\s+(?:TRAFFIC\\s+CRASH|ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|VSP\\s+(?:CASE|REPORT)|VERMONT\\s+STATE\\s+POLICE)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

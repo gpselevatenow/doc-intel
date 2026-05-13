@@ -1,5 +1,5 @@
 {
-    "template_id": "police_report_v1",
+    "template_id": "police_report_v2",
     "document_type": "police_report",
     "fields": [
         {
@@ -11,10 +11,15 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)DATE OF INCIDENT[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:Date of Incident|INCIDENT DATE|Date/Time|Date and Time)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)Date:[ \\t]*(?P<value>.+)",
-                            "(?i)Date[ \\t]+Occurred[ \\t]*:[ \\t]*(?P<value>[0-9/]+)"
+                            "(?im)DATE\\s+OF\\s+INCIDENT[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:CRASH\\s+DATE(?:/TIME)?|DATE(?:/TIME)?\\s+OF\\s+CRASH|DATE\\s+OF\\s+ACCIDENT|ACCIDENT\\s+DATE|DATE\\s+OF\\s+COLLISION|COLLISION\\s+DATE)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:INCIDENT\\s+DATE(?:/TIME)?|Date\\s+of\\s+Incident|INCIDENT\\s+DATE|Date\\s+and\\s+Time|Date/Time)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:DATE\\s+OF\\s+REPORT|Date\\s+Reported|DATE\\s+REPORTED|REPORT\\s+DATE|REPORT\\s+DATE/TIME)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:OCCURRED\\s+FROM|OCCURRED\\s+ON|Date\\s+Occurred|DATE\\s+OCCURRED|OCCURRENCE\\s+DATE)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:DATE\\s+OF\\s+LOSS|LOSS\\s+DATE|DATE\\s+LOSS\\s+OCCURRED|DATE\\s+OF\\s+EVENT)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:TIME\\s+OF\\s+CRASH|CRASH\\s+TIME|TIME\\s+OF\\s+ACCIDENT|DISPATCH\\s+TIME|TIME\\s+DISPATCHED)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)^Date:[ \\t]*(?P<value>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\.?\\s+\\d{1,2},?\\s+\\d{4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*hrs?)?)?)",
+                            "(?im)^Date:[ \\t]*(?P<value>\\d{1,2}/\\d{1,2}/\\d{2,4}(?:\\s+\\d{1,2}:\\d{2}(?:\\s*hrs?)?)?)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -30,9 +35,14 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)LOCATION[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:Location of Incident|Location|Street)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)^ADDRESS[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                            "(?im)LOCATION\\s+OF\\s+(?:INCIDENT|CRASH|ACCIDENT|COLLISION)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:CRASH\\s+LOCATION|PLACE\\s+OF\\s+CRASH|WHERE\\s+DID\\s+CRASH\\s+OCCUR|SCENE\\s+(?:LOCATION|ADDRESS))[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:ACCIDENT\\s+LOCATION|ACCIDENT\\s+SCENE|SCENE\\s+OF\\s+ACCIDENT|ACCIDENT\\s+ADDRESS)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)^LOCATION[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Location|Street|Place)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)^ADDRESS[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:ROADWAY|STREET\\s+OR\\s+ROUTE|ROAD\\s+NAME|HIGHWAY(?:\\s+NUMBER)?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:INTERSECTION\\s+OF|AT\\s+THE\\s+INTERSECTION\\s+OF|NEAREST\\s+INTERSECTION|CROSS\\s+STREET)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -48,9 +58,9 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)WEATHER[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)Weather[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)\\b(?P<value>clear|sunny|raining|rain|snowing|snow|cloudy|fog|foggy|overcast|icy|windy|hail)\\b"
+                            "(?im)(?:WEATHER(?:\\s+CONDITIONS)?|ATMOSPHERIC\\s+CONDITIONS|WEATHER\\s+AT\\s+TIME\\s+OF\\s+CRASH|ROAD\\s+WEATHER|ENVIRONMENTAL\\s+(?:FACTOR|CONDITIONS?))[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:LIGHT(?:ING)?\\s+CONDITIONS?|ROAD(?:WAY)?\\s+(?:SURFACE\\s+)?CONDITIONS?|SURFACE\\s+CONDITIONS?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)\\b(?P<value>clear|sunny|raining|rain|snowing|snow|cloudy|fog|foggy|overcast|icy|ice|windy|hail|sleet|mist|misty|wet|dry|partly\\s+cloudy|heavy\\s+rain|light\\s+rain|freezing\\s+rain|blowing\\s+snow)\\b"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -66,10 +76,14 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)TYPE OF COLLISION[ \\t]*:[ \\t]*(?P<value>[^\\n/]+)",
-                            "(?im)(?:Accident Type|COLLISION TYPE|Collision Type)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)STATUTE[ \\t]*/[ \\t]*CHARGE[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)OFFENSE[ \\t]*/[ \\t]*CLASSIFICATION[ \\t]*:[ \\t]*(?P<value>[^\\n]+)"
+                            "(?im)TYPE\\s+OF\\s+COLLISION(?:[ \\t]*/[ \\t]*VEHICLES?)?[ \\t]*:[ \\t]*(?P<value>[^\\n/]+)",
+                            "(?im)(?:MANNER\\s+OF\\s+COLLISION|MANNER\\s+OF\\s+IMPACT|TYPE\\s+OF\\s+IMPACT|COLLISION\\s+MANNER)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:ACCIDENT\\s+TYPE|COLLISION\\s+TYPE|CRASH\\s+TYPE|INCIDENT\\s+TYPE|TYPE\\s+OF\\s+ACCIDENT|TYPE\\s+OF\\s+INCIDENT|TYPE\\s+OF\\s+CRASH)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:FIRST\\s+HARMFUL\\s+EVENT|MOST\\s+HARMFUL\\s+EVENT|SEQUENCE\\s+OF\\s+EVENTS|NATURE\\s+OF\\s+CRASH|CRASH\\s+SEQUENCE)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:OFFENSE\\s*/\\s*CLASSIFICATION|CRIME\\s+TYPE|OFFENSE\\s+DESCRIPTION|CRIME\\s+DESCRIPTION)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)STATUTE[ \\t]*/[ \\t]*CHARGE[ \\t]*:[ \\t]*(?P<value>[A-Z0-9][^\\n]+)",
+                            "(?im)^(?:TRAFFIC[ \\t]+)?(?P<value>(?:COLLISION|CRASH)[ \\t]+REPORT)[ \\t]*(?:$|:)",
+                            "(?im)^(?P<value>(?:LARCENY|THEFT|BURGLARY|ROBBERY|ASSAULT|VANDALISM|HIT[ \\t]+AND[ \\t]+RUN|VEHICLE\\s+THEFT|MOTOR\\s+VEHICLE\\s+THEFT)(?:[ \\t]+REPORT)?)[ \\t]*(?:$|:)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -85,9 +99,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)Responding Agency[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:Responding Agency|AGENCY)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?i)(?P<value>[A-Za-z \\-]+\\s+(?:Police Department|Sheriff'?s Office|Highway Patrol|PD|SO))"
+                            "(?im)(?:Responding\\s+Agency|Originating\\s+Agency|Reporting\\s+Agency|Reporting\\s+Unit|Law\\s+Enforcement\\s+Agency|AGENCY\\s+NAME|POLICE\\s+AGENCY)[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Responding\\s+Agency|Originating\\s+Agency|Reporting\\s+Agency|Reporting\\s+Unit|Law\\s+Enforcement\\s+Agency|AGENCY\\s+NAME|POLICE\\s+AGENCY|ORI\\s+(?:CODE|NUMBER)?)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:DEPARTMENT|DEPT\\.?|POLICE\\s+DEPARTMENT|SHERIFF'?S\\s+(?:OFFICE|DEPT\\.?))[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
+                            "(?i)(?P<value>(?:[A-Z][a-z]+(?:\\s+[A-Z][a-z]+){0,4})\\s+(?:Police\\s+Department|Sheriff'?s(?:\\s+Office)?|Highway\\s+Patrol|Department\\s+of\\s+Public\\s+Safety|Police\\s+Dept\\.?|State\\s+Police|Transit\\s+Police|Port\\s+Authority\\s+Police|County\\s+Sheriff))"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -103,9 +118,12 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)Investigating Officer[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:Investigating Officer|Officer Name|Badge)[ \\t]*:[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)Reporting Officer[ \\t]*:[ \\t]*(?P<value>[^\\n|]+)"
+                            "(?im)(?:Investigating|Reporting|Responding|Assigned|Primary|Written\\s+by|Officer\\s+of\\s+Record)\\s+Officer[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:Investigating\\s+Officer|Reporting\\s+Officer|Responding\\s+Officer|Officer\\s+Name|Officer\\s+of\\s+Record|Written\\s+by|Officer(?:\\s+Signature)?)[ \\t]*:[ \\t]*(?P<value>[^\\n|]+)",
+                            "(?im)(?:PRIMARY\\s+OFFICER|OFFICER\\s+IN\\s+CHARGE|LEAD\\s+OFFICER|ASSIGNED\\s+OFFICER|PATROL\\s+OFFICER)[ \\t]*:[ \\t]*(?P<value>[^\\n|]{3,80})",
+                            "(?im)(?:Rank\\s+(?:and|&)\\s+Name|RANK\\s*/\\s*NAME|OFFICER\\s+RANK\\s+NAME|OFFICER\\s+ID)[ \\t]*:[ \\t]*(?P<value>[^\\n|]{3,80})",
+                            "(?im)(?:Trooper|Deputy|Sgt\\.?|Det\\.?|Cpl\\.?|Lt\\.?|Pvt\\.?|Off\\.?)[ \\t]*:[ \\t]*(?P<value>[^\\n|]{5,80})",
+                            "(?im)(?:BADGE(?:\\s+(?:NO\\.?|NUMBER|#))?|ID\\s*(?:NO\\.?|NUMBER|#))[ \\t]*:[ \\t]*(?P<value>[^\\n|]{3,60})"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -121,9 +139,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)CASE NUMBER[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
-                            "(?im)Report No\\.[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
-                            "(?im)(?:Report Number|Report No|Case Number|Case No)\\.?[ \\t]*:?[ \\t]*(?P<value>[A-Za-z0-9\\-]+)"
+                            "(?im)CASE\\s*(?:NUMBER|NO\\.?|#)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-]+)",
+                            "(?im)(?:CRASH\\s+REPORT\\s+(?:NUMBER|NO\\.?)|HSMV\\s+CRASH\\s+REPORT\\s+(?:NUMBER|NO\\.?)|AGENCY\\s+REPORT\\s+(?:NUMBER|NO\\.?))[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-/#]+)",
+                            "(?im)(?:Report\\s+No\\.?|Report\\s+Number|Incident\\s+No\\.?|Incident\\s+Number|CAD\\s+(?:No\\.?|Number|#)|CCN|Crash\\s+Case\\s+Number)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-/#]+)",
+                            "(?im)(?:File\\s*(?:No\\.?|Number|#)|Complaint\\s*(?:No\\.?|Number|#)|OCA\\s*(?:No\\.?|#)?|Event\\s*(?:No\\.?|Number|#)|Document\\s*(?:No\\.?|Number|#))[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\-/#]+)"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
@@ -139,8 +158,49 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)EMS Agency[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
-                            "(?im)(?:EMS Agency|EMS)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9 \\-,().]+)"
+                            "(?im)(?:EMS\\s+Agency|EMS|Ambulance(?:\\s+Service)?|Rescue(?:\\s+Squad)?|Medic\\s+Unit)[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)",
+                            "(?im)(?:EMS\\s+Agency|Ambulance\\s+Service|Rescue\\s+Squad|Medic\\s+Unit|Emergency\\s+Medical\\s+Services?)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\s\\-,().]+)",
+                            "(?im)(?:Fire(?:\\s+Dept\\.?|\\s+Department)?(?:\\s+EMS)?|FIRE\\s+AND\\s+RESCUE|EMERGENCY\\s+SERVICES?)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9\\s\\-,().]+)",
+                            "(?im)(?:EMS\\s+was\\s+dispatched|Ambulance\\s+transported|transported\\s+by|medic\\s+responded)(?:[^\\n]{0,60}?\\b(?P<value>[A-Z][a-z]+(?:\\s+(?:Fire|EMS|Rescue|Medic|Ambulance)[^\\n]{0,40})?))",
+                            "(?im)Tow\\s+Compan(?:y|ies)[ \\t]*\\n+[ \\t]*(?P<value>[^\\n]+)"
+                        ],
+                        "flags": ["IGNORECASE", "MULTILINE"]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)CONTRIBUTING\\s+FACTORS?[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)(?:PRIMARY\\s+CONTRIBUTING\\s+(?:FACTOR|CAUSE)|SECONDARY\\s+CONTRIBUTING\\s+(?:FACTOR|CAUSE)|HUMAN\\s+CONTRIBUTING\\s+FACTOR|CONTRIBUTING\\s+FACTOR\\s+CODE)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)DRIVER\\s+ACTION(?:S)?(?:\\s*/\\s*CONTRIBUTING\\s+FACTORS?)?[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)(?:HUMAN\\s+FACTOR|VEHICLE\\s+FACTOR|ENVIRONMENTAL\\s+FACTOR|ROADWAY\\s+FACTOR)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)SECTION[ \\t]*4[^\\n]*?(?:CONTRIBUTING|DRIVER)\\b[^\\n]*\\n+[ \\t]*(?P<value>[^\\n]{3,120})"
+                        ],
+                        "flags": ["IGNORECASE", "MULTILINE"]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "property_damage",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:NON-VEHICLE\\s+)?PROPERTY\\s+DAMAGE[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)(?:PROPERTY\\s+DAMAGED|ESTIMATED\\s+(?:PROPERTY\\s+)?DAMAGE|DAMAGE\\s+DESCRIPTION|NATURE\\s+OF\\s+DAMAGE|ESTIMATED\\s+TOTAL\\s+DAMAGE)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)SECTION[ \\t]*6[^\\n]*?PROPERTY[^\\n]*\\n+[ \\t]*(?P<value>[^\\n]{3,120})"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }

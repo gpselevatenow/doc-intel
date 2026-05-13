@@ -1,0 +1,21 @@
+{
+    "template_id": "dc_mpd_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:MPD[-\\s]*P[-\\s]*23\\b|DISTRICT\\s+OF\\s+COLUMBIA\\s+(?:TRAFFIC\\s+CRASH|ACCIDENT)\\s+REPORT|METROPOLITAN\\s+POLICE\\s+DEPARTMENT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|DC\\s+MPD\\s+(?:CASE|REPORT))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

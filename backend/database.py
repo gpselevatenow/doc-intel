@@ -47,8 +47,46 @@ def init_db():
             timestamp TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS learned_patterns (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            field_name TEXT NOT NULL,
+            pattern TEXT NOT NULL,
+            example TEXT,
+            source_doc TEXT,
+            UNIQUE(field_name, pattern)
+        )
+    ''')
     conn.commit()
     conn.close()
+
+
+def get_learned_patterns(field_name: str) -> list:
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT pattern FROM learned_patterns WHERE field_name = ?', (field_name,))
+        return [row[0] for row in cursor.fetchall()]
+    except Exception:
+        return []
+    finally:
+        conn.close()
+
+
+def save_learned_pattern(field_name: str, pattern: str, example: str = '', source_doc: str = '') -> bool:
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            'INSERT OR IGNORE INTO learned_patterns (field_name, pattern, example, source_doc) VALUES (?, ?, ?, ?)',
+            (field_name, pattern, example, source_doc)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception:
+        return False
+    finally:
+        conn.close()
 
 def log_correction(doc_id: str, field_name: str, original_value: str, new_value: str):
     conn = sqlite3.connect(DB_NAME)

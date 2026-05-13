@@ -8,9 +8,17 @@ import sqlite3
 import asyncio
 import json
 import traceback
+import threading
 
-from core.parser import parse_document, flatten_markdown_tables, find_bbox_for_text
+from core.parser import parse_document, flatten_markdown_tables, normalize_label_value_blocks, find_bbox_for_text, split_narrative_section
+from core.ner_fallback import ner_fill_unknowns
+from core.field_validator import validate_record
+from core.confidence import score_record
+from core.acroform import fill_hsmv_checkboxes
+from core.form_classifier import classify_form, state_from_form_id
+from core.code_decoder import decode_record
 from modules.acord_extractor import extract_acord_report
+from modules.hsmv_extractor import extract_hsmv_report
 from core.orchestrator_integration import run_orchestrator
 from database import init_db, log_correction, add_custom_field, get_custom_fields, delete_custom_field, save_raw_document
 from pydantic import BaseModel
@@ -38,7 +46,9 @@ def get_error_fallback(message):
         "audit_trail": [],
         "vehicles": [],
         "parties": [],
-        "witnesses": []
+        "witnesses": [],
+        "contributing_factors": "Unknown",
+        "property_damage": "Unknown",
     }
 
 
@@ -118,6 +128,69 @@ def _format_ia_sentences(record: dict, reserve_warning: bool) -> str:
     return " ".join(sentences)
 
 
+def _format_police_narrative(record: dict, vehicles: list, parties: list, witnesses: list) -> str:
+    """
+    Convert police report extracted fields into a plain narrative paragraph.
+    Used as the File Note for police and HSMV reports.
+    """
+    sentences = []
+
+    accident_type = _na_if_none(record.get("accident_type"), "an unspecified type of collision")
+    date_time = _na_if_none(record.get("date_time"), "an unknown date and time")
+    location = _na_if_none(record.get("location"), "an unknown location")
+    sentences.append(f"A {accident_type} collision occurred on {date_time} at {location}.")
+
+    weather = record.get("weather")
+    if weather and str(weather).strip().lower() not in ("", "unknown", "n/a"):
+        sentences.append(f"Weather conditions were reported as {weather}.")
+
+    agency = _na_if_none(record.get("agency"), "the responding agency")
+    officer = _na_if_none(record.get("officer"), "an unidentified officer")
+    sentences.append(f"The incident was investigated by {agency}, reporting officer {officer}.")
+
+    report_number = record.get("report_number")
+    if report_number and str(report_number).strip().lower() not in ("", "unknown", "n/a"):
+        sentences.append(f"Report number: {report_number}.")
+
+    ems = record.get("ems_agency")
+    if ems and str(ems).strip().lower() not in ("", "unknown", "n/a"):
+        sentences.append(f"EMS responded; agency: {ems}.")
+
+    if vehicles:
+        v_count = len(vehicles)
+        sentences.append(
+            f"A total of {v_count} vehicle{'s were' if v_count != 1 else ' was'} involved."
+        )
+
+    if parties:
+        operators = [p for p in parties if p.get("role", "").lower() in ("operator", "driver")]
+        injured = [
+            p for p in parties
+            if str(p.get("injuries", "None reported")).lower()
+            not in ("none reported", "unknown", "", "n/a")
+        ]
+        if operators:
+            n = len(operators)
+            sentences.append(f"{n} operator{'s were' if n != 1 else ' was'} identified.")
+        if injured:
+            n = len(injured)
+            sentences.append(f"{n} {'parties' if n != 1 else 'party'} reported injuries.")
+
+    if witnesses:
+        n = len(witnesses)
+        sentences.append(f"{n} witness{'es were' if n != 1 else ' was'} identified at the scene.")
+
+    cf = record.get("contributing_factors")
+    if cf and str(cf).strip().lower() not in ("", "unknown", "n/a"):
+        sentences.append(f"Contributing factors noted: {cf}.")
+
+    pd = record.get("property_damage")
+    if pd and str(pd).strip().lower() not in ("", "unknown", "n/a"):
+        sentences.append(f"Non-vehicle property damage reported: {pd}.")
+
+    return " ".join(sentences)
+
+
 @app.post("/api/extract/ia-report")
 async def extract_ia(file: UploadFile = File(...)):
     file_path = f"temp_{file.filename}"
@@ -141,15 +214,24 @@ async def extract_ia(file: UploadFile = File(...)):
 
         reserve_warning = _check_reserve_warning(markdown_text)
 
-        markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
+        normalized = normalize_label_value_blocks(markdown_text)
+        full_tables = flatten_markdown_tables(normalized)
+        pre_narrative, _ = split_narrative_section(normalized)
+        full_text = normalized + "\n\n" + full_tables
+
         if canonical_doc:
-            canonical_doc.markdown = markdown_text
-            save_raw_document(file.filename, markdown_text)
+            canonical_doc.markdown = pre_narrative + "\n\n" + full_tables
+            save_raw_document(file.filename, full_text)
 
             orchestrator_output = run_orchestrator(canonical_doc, file.filename, "ia_report")
             orchestrator_record = orchestrator_output["record"]
+            orchestrator_record = ner_fill_unknowns(full_text, orchestrator_record, doc_type="ia")
+            orchestrator_record = validate_record(orchestrator_record, doc_type="ia")
             review_flags = orchestrator_output["review_flags"]
             all_candidates = orchestrator_output.get("all_candidates", [])
+            accuracy_score, field_scores, accuracy_reasons = score_record(
+                orchestrator_record, doc_type="ia", all_candidates=all_candidates
+            )
 
             duplicate_insights = []
             candidates_by_field = {}
@@ -167,8 +249,9 @@ async def extract_ia(file: UploadFile = File(...)):
             narrative = _format_ia_sentences(orchestrator_record, reserve_warning)
 
             result = {
-                "accuracy_score": 100.0,
-                "accuracy_reasons": ["100% Extraction via Orchestrator"],
+                "accuracy_score": accuracy_score,
+                "accuracy_reasons": accuracy_reasons,
+                "accuracy_field_scores": field_scores,
                 "summary": narrative,
                 "cause_of_loss": _na_if_none(orchestrator_record.get("cause_of_loss"), "Unknown"),
                 "inspection_date": _na_if_none(orchestrator_record.get("inspection_date"), "Unknown"),
@@ -241,15 +324,36 @@ async def extract_police(file: UploadFile = File(...)):
                     pass
             return get_error_fallback(f"Document parsing failed: {str(e)}")
 
-        markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
-        if canonical_doc:
-            canonical_doc.markdown = markdown_text
-            save_raw_document(file.filename, markdown_text)
+        normalized = normalize_label_value_blocks(markdown_text)
+        full_tables = flatten_markdown_tables(normalized)
+        pre_narrative, _ = split_narrative_section(normalized)
+        full_text = normalized + "\n\n" + full_tables
 
-            orchestrator_output = run_orchestrator(canonical_doc, file.filename, "police_report")
+        if canonical_doc:
+            canonical_doc.markdown = pre_narrative + "\n\n" + full_tables
+            save_raw_document(file.filename, full_text)
+
+            # Classify the state/form so the right template overlay is applied
+            form_id, form_confidence = classify_form(full_text)
+
+            orchestrator_output = run_orchestrator(
+                canonical_doc, file.filename, "police_report", form_id=form_id
+            )
             orchestrator_record = orchestrator_output["record"]
+
+            # NER fallback — use "hsmv" doc_type for FL forms, "police" for all others
+            ner_doc_type = "hsmv" if form_id == "fl_hsmv" else "police"
+            orchestrator_record = ner_fill_unknowns(pre_narrative, orchestrator_record, doc_type=ner_doc_type)
+
+            # Decode numeric/alpha state-specific codes to human-readable values
+            orchestrator_record = decode_record(orchestrator_record, form_id)
+
+            orchestrator_record = validate_record(orchestrator_record, doc_type="police")
             review_flags = orchestrator_output["review_flags"]
             all_candidates = orchestrator_output.get("all_candidates", [])
+            accuracy_score, field_scores, accuracy_reasons = score_record(
+                orchestrator_record, doc_type="police", all_candidates=all_candidates
+            )
 
             duplicate_insights = []
             candidates_by_field = {}
@@ -264,10 +368,36 @@ async def extract_police(file: UploadFile = File(...)):
                         f"Duplicate data found for '{fid}'. Selected highest confidence value: '{best_val}'."
                     )
 
+            vehicles_list: list = []
+            parties_list: list = []
+            witnesses_list: list = []
+            for key, target in [("vehicles", vehicles_list), ("parties", parties_list), ("witnesses", witnesses_list)]:
+                try:
+                    parsed = json.loads(orchestrator_record.get(key) or "[]")
+                    target.extend(parsed)
+                except Exception:
+                    pass
+
+            # Resolve "Same as driver/operator" vehicle owner references
+            operators = [p for p in parties_list if p.get("role", "").lower() in ("operator", "driver")]
+            for v in vehicles_list:
+                if v.pop("_owner_same_as_driver", False) and operators:
+                    v["owner_name"] = operators[0].get("name", v.get("owner_name", "Unknown"))
+                    if v.get("owner_address", "Unknown") in ("Unknown", "", "Same as driver"):
+                        v["owner_address"] = operators[0].get("address", "Unknown")
+
+            narrative = _format_police_narrative(
+                orchestrator_record, vehicles_list, parties_list, witnesses_list
+            )
+
             result = {
-                "accuracy_score": 100.0,
-                "accuracy_reasons": ["100% Extraction via Orchestrator"],
-                "summary": "Data extracted successfully via Orchestrator.",
+                "accuracy_score": accuracy_score,
+                "accuracy_reasons": accuracy_reasons,
+                "accuracy_field_scores": field_scores,
+                "summary": narrative,
+                "form_id": form_id,
+                "form_state": state_from_form_id(form_id),
+                "form_confidence": round(form_confidence, 2),
                 "date_time": _na_if_none(orchestrator_record.get("date_time"), "Unknown"),
                 "location": _na_if_none(orchestrator_record.get("location"), "Unknown"),
                 "weather": _na_if_none(orchestrator_record.get("weather"), "Unknown"),
@@ -276,17 +406,18 @@ async def extract_police(file: UploadFile = File(...)):
                 "officer": _na_if_none(orchestrator_record.get("officer"), "Unknown"),
                 "report_number": _na_if_none(orchestrator_record.get("report_number"), "Unknown"),
                 "ems_agency": _na_if_none(orchestrator_record.get("ems_agency"), "Unknown"),
+                "contributing_factors": _na_if_none(orchestrator_record.get("contributing_factors"), "Unknown"),
+                "property_damage": _na_if_none(orchestrator_record.get("property_damage"), "Unknown"),
+                "light_condition": _na_if_none(orchestrator_record.get("light_condition")),
+                "road_surface": _na_if_none(orchestrator_record.get("road_surface")),
+                "vehicles": vehicles_list,
+                "parties": parties_list,
+                "witnesses": witnesses_list,
                 "dynamic_fields": {},
                 "review_flags": review_flags,
                 "duplicate_insights": duplicate_insights,
                 "audit_trail": [c.to_dict() for c in all_candidates]
             }
-
-            for key in ["vehicles", "parties", "witnesses"]:
-                try:
-                    result[key] = json.loads(orchestrator_record.get(key) or "[]")
-                except Exception:
-                    result[key] = []
 
             for key, val in orchestrator_record.items():
                 if key.startswith("dynamic_"):
@@ -341,6 +472,7 @@ async def extract_acord(file: UploadFile = File(...)):
                     pass
             return get_error_fallback(f"Document parsing failed: {str(e)}")
 
+        markdown_text = normalize_label_value_blocks(markdown_text)
         markdown_text += "\n\n" + flatten_markdown_tables(markdown_text)
         if canonical_doc:
             canonical_doc.markdown = markdown_text
@@ -395,11 +527,119 @@ async def extract_acord(file: UploadFile = File(...)):
                 pass
 
 
+@app.post("/api/extract/hsmv-report")
+async def extract_hsmv(file: UploadFile = File(...)):
+    file_path = f"temp_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    try:
+        try:
+            markdown_text, canonical_doc = await asyncio.wait_for(
+                asyncio.to_thread(parse_document, file_path),
+                timeout=60.0
+            )
+        except Exception as e:
+            print(f"Docling failed: {e}")
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except Exception:
+                    pass
+            return get_error_fallback(f"Document parsing failed: {str(e)}")
+
+        normalized = normalize_label_value_blocks(markdown_text)
+        full_tables = flatten_markdown_tables(normalized)
+        pre_narrative, _ = split_narrative_section(normalized)
+        full_text = normalized + "\n\n" + full_tables
+
+        if canonical_doc:
+            canonical_doc.markdown = pre_narrative + "\n\n" + full_tables
+            save_raw_document(file.filename, full_text)
+
+        hsmv_data = extract_hsmv_report(full_text)
+        hsmv_data = fill_hsmv_checkboxes(file_path, hsmv_data)
+        hsmv_data = ner_fill_unknowns(pre_narrative, hsmv_data, doc_type="hsmv")
+        hsmv_data = validate_record(hsmv_data, doc_type="hsmv")
+
+        # Run police_report orchestrator as a secondary pass to fill Unknown fields
+        review_flags = {}
+        all_candidates = []
+        if canonical_doc:
+            try:
+                orchestrator_output = run_orchestrator(canonical_doc, file.filename, "police_report")
+                orch_record = orchestrator_output["record"]
+                review_flags = orchestrator_output["review_flags"]
+                all_candidates = orchestrator_output.get("all_candidates", [])
+                for field in ("date_time", "location", "weather", "accident_type",
+                              "agency", "officer", "report_number", "ems_agency"):
+                    if hsmv_data.get(field, "Unknown") == "Unknown":
+                        orch_val = orch_record.get(field)
+                        if orch_val and str(orch_val).strip() not in ("", "Unknown"):
+                            hsmv_data[field] = orch_val
+            except Exception:
+                pass
+
+        accuracy_score, field_scores, accuracy_reasons = score_record(
+            hsmv_data, doc_type="hsmv", all_candidates=all_candidates
+        )
+
+        result = {
+            "accuracy_score": accuracy_score,
+            "accuracy_reasons": accuracy_reasons,
+            "accuracy_field_scores": field_scores,
+            "summary": "Florida HSMV 90010S Traffic Crash Report extracted.",
+            "date_time": _na_if_none(hsmv_data.get("date_time"), "Unknown"),
+            "location": _na_if_none(hsmv_data.get("location"), "Unknown"),
+            "weather": _na_if_none(hsmv_data.get("weather"), "Unknown"),
+            "accident_type": _na_if_none(hsmv_data.get("accident_type"), "Unknown"),
+            "agency": _na_if_none(hsmv_data.get("agency"), "Unknown"),
+            "officer": _na_if_none(hsmv_data.get("officer"), "Unknown"),
+            "report_number": _na_if_none(hsmv_data.get("report_number"), "Unknown"),
+            "ems_agency": _na_if_none(hsmv_data.get("ems_agency"), "Unknown"),
+            "dynamic_fields": {},
+            "review_flags": review_flags,
+            "duplicate_insights": [],
+            "audit_trail": [c.to_dict() for c in all_candidates],
+            "vehicles": hsmv_data.get("vehicles", []),
+            "parties": hsmv_data.get("parties", []),
+            "witnesses": hsmv_data.get("witnesses", []),
+        }
+
+        bbox_map = {}
+        if canonical_doc:
+            for key, val in result.items():
+                if isinstance(val, str) and key not in ("summary", "accuracy_reasons"):
+                    bbox_info = find_bbox_for_text(canonical_doc, val)
+                    if bbox_info:
+                        bbox_map[key] = bbox_info
+        result["bbox_map"] = bbox_map
+        return result
+
+    except Exception as e:
+        print(f"Exception in extract_hsmv: {traceback.format_exc()}")
+        return get_error_fallback(f"Internal Error: {str(e)}")
+    finally:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+
+
 class CorrectionModel(BaseModel):
     doc_id: str
     field_name: str
     original_value: str
     new_value: str
+
+def _bg_train():
+    try:
+        from train_feedback import run_all_training
+        run_all_training()
+    except Exception as e:
+        print(f"Background training error: {e}")
+
 
 @app.post("/api/feedback/correction")
 async def receive_correction(correction: CorrectionModel):
@@ -410,6 +650,7 @@ async def receive_correction(correction: CorrectionModel):
             original_value=correction.original_value,
             new_value=correction.new_value
         )
+        threading.Thread(target=_bg_train, daemon=True).start()
         return {"status": "success", "message": "Correction logged for AI fine-tuning."}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -444,6 +685,42 @@ async def submit_rating(req: RatingRequest):
     score = 1 if req.action == "up" else -1
     log_user_feedback(req.doc_id, score)
     return {"status": "success", "message": "Rating submitted."}
+
+
+@app.get("/api/benchmark/failures")
+async def benchmark_failures():
+    """Top corrected fields and recent corrections from feedback.db."""
+    from database import DB_NAME
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT field_name, COUNT(*) as cnt
+            FROM corrections
+            GROUP BY field_name
+            ORDER BY cnt DESC
+            LIMIT 10
+        """)
+        top_failures = [{"field": row[0], "correction_count": row[1]} for row in cursor.fetchall()]
+        cursor.execute("""
+            SELECT doc_id, field_name, original_value, new_value, timestamp
+            FROM corrections
+            ORDER BY timestamp DESC
+            LIMIT 20
+        """)
+        recent = [
+            {"doc_id": r[0], "field": r[1], "from": r[2], "to": r[3], "at": r[4]}
+            for r in cursor.fetchall()
+        ]
+        conn.close()
+        return {
+            "status": "success",
+            "top_failures": top_failures,
+            "recent_corrections": recent,
+            "total_corrections": sum(f["correction_count"] for f in top_failures),
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 @app.get("/api/benchmark/run")

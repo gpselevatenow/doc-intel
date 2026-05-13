@@ -15,10 +15,11 @@ from extractors.base import STRATEGY_REGISTRY, Strategy, register
 
 # Trigger strategy registration via import side-effect.
 # Each module's @register("name") populates STRATEGY_REGISTRY at import time.
-from extractors import global_regex   # noqa: F401, E402
-from extractors import nearby_text    # noqa: F401, E402
-from extractors import spatial_label  # noqa: F401, E402
-from extractors import advanced_table # noqa: F401, E402
+from extractors import global_regex    # noqa: F401, E402
+from extractors import nearby_text     # noqa: F401, E402
+from extractors import spatial_label   # noqa: F401, E402
+from extractors import advanced_table  # noqa: F401, E402
+from extractors import checkbox_grid   # noqa: F401, E402
 
 __all__ = ["Strategy", "STRATEGY_REGISTRY", "register"]
 

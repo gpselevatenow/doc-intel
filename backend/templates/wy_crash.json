@@ -1,0 +1,21 @@
+{
+    "template_id": "wy_crash_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WYOMING\\s+(?:TRAFFIC\\s+CRASH|ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|WHP\\s+(?:CASE|REPORT)|WYOMING\\s+HIGHWAY\\s+PATROL)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,142 @@
+{
+    "template_id": "fl_hsmv90010_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:HSMV\\s+(?:CRASH\\s+)?REPORT\\s+(?:NO\\.?|NUMBER)|FHP\\s+CASE\\s+(?:NUMBER|NO\\.?)|AGENCY\\s+REPORT\\s+(?:NUMBER|NO\\.?)|FLORIDA\\s+CRASH\\s+(?:REPORT\\s+)?(?:NO\\.?|NUMBER)|CRASH\\s+REPORT\\s+(?:NO\\.?|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INVESTIGATING\\s+(?:LAW\\s+ENFORCEMENT\\s+)?AGENCY|TROOP|FHP\\s+TROOP|ZONE\\s*/\\s*UNIT|AGENCY\\s+NAME|REPORTING\\s+AGENCY)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "officer",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|OFFICER\\s+(?:NAME|ID|BADGE)|BADGE\\s+(?:NO\\.?|NUMBER)|TROOP\\s+OFFICER)(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "date_time",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+DATE(?:\\s*/\\s*TIME)?|DATE(?:\\s*/\\s*TIME)?\\s+OF\\s+CRASH|DATE\\s+(?:AND\\s+TIME\\s+OF\\s+)?CRASH|INCIDENT\\s+DATE(?:\\s*/\\s*TIME)?)(?:[:\\s]+)?(?P<value>[^\\n]{5,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "location",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+(?:LOCATION|SCENE)|LOCATION\\s+OF\\s+CRASH|COUNTY(?:\\s*[/,]\\s*CITY)?|CITY(?:\\s*[/,]\\s*COUNTY)?|ON\\s+ROADWAY|STREET\\s+(?:NAME|ADDRESS)|ROAD(?:WAY)?\\s+NAME)(?:[:\\s]+)?(?P<value>[^\\n]{5,100})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Clear", "Cloudy", "Rain", "Fog", "Sleet/Hail", "Blowing Sand/Soil/Dirt", "Severe Crosswind", "Blowing Snow", "Other"],
+                        "section_anchor": "WEATHER"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WEATHER(?:\\s+CONDITION(?:S)?)?|ATMOSPHERIC\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Rear-End", "Head-On", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Rear-to-Rear", "Single Vehicle", "Left Turn", "Right Turn", "Backing", "Pedestrian", "Bicycle/Pedalcycle", "Other"],
+                        "section_anchor": "CRASH TYPE"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+TYPE|TYPE\\s+OF\\s+(?:CRASH|COLLISION)|MANNER\\s+OF\\s+COLLISION|FIRST\\s+HARMFUL\\s+EVENT|MOST\\s+HARMFUL\\s+EVENT)(?:[:\\s]+)?(?P<value>[^\\n]{2,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CONTRIBUTING\\s+(?:CAUSE|FACTOR(?:S)?)|DRIVER\\s+CONTRIBUTING\\s+(?:CAUSE|ACTION)|PEDESTRIAN\\s+CONTRIBUTING\\s+(?:CAUSE|ACTION)|VIOLATION\\s+(?:CODE|CHARGE))(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

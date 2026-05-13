@@ -1,0 +1,21 @@
+{
+    "template_id": "ia_432015_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:432015\\b|IOWA\\s+(?:CRASH|TRAFFIC\\s+ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|ISP\\s+(?:CASE|REPORT)|IOWA\\s+STATE\\s+PATROL|IOWA\\s+DOT)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

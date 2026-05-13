@@ -1,0 +1,21 @@
+{
+    "template_id": "nd_sfn2086_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:SFN[-\\s]*2086\\b|NORTH\\s+DAKOTA\\s+(?:TRAFFIC\\s+CRASH|ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|NDHP\\s+(?:CASE|REPORT)|NORTH\\s+DAKOTA\\s+HIGHWAY\\s+PATROL)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

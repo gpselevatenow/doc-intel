@@ -1,0 +1,166 @@
+{
+    "template_id": "tx_cr3_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+ID|CR[-\\s]*3\\s+(?:CASE|REPORT|NUMBER|ID)|AGENCY\\s+REPORT\\s+(?:NUMBER|NO\\.?)|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|TXDOT\\s+(?:CRASH|CASE)\\s+(?:NUMBER|NO\\.?))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INVESTIGATING\\s+AGENCY|LAW\\s+ENFORCEMENT\\s+AGENCY|AGENCY\\s+NAME|REPORTING\\s+AGENCY|DEPARTMENT\\s+NAME)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "officer",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|REPORTING\\s+OFFICER|PRIMARY\\s+OFFICER|OFFICER\\s+(?:NAME|ID|BADGE)|BADGE\\s+(?:NO\\.?|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "date_time",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+DATE(?:\\s*/\\s*TIME)?|DATE(?:\\s*/\\s*TIME)?\\s+OF\\s+CRASH|DATE\\s+OF\\s+ACCIDENT|DATE\\s+OF\\s+INCIDENT)(?:[:\\s]+)?(?P<value>[^\\n]{5,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "location",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+LOCATION|LOCATION\\s+OF\\s+CRASH|STREET\\s+NAME(?:\\s+OR\\s+HIGHWAY)?|ROADWAY\\s+NAME|CITY\\s*[/,]?\\s*COUNTY)(?:[:\\s]+)?(?P<value>[^\\n]{5,100})",
+                            "(?im)(?:AT\\s+INTERSECTION\\s+OF|MILES?\\s+(?:NORTH|SOUTH|EAST|WEST)\\s+OF|NEAREST\\s+CITY)(?:[:\\s]+)?(?P<value>[^\\n]{5,80})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Clear", "Cloudy", "Rain", "Sleet/Hail", "Snow", "Fog/Smog/Smoke", "Blowing Sand/Soil/Dirt/Snow", "Severe Crosswinds", "Other"],
+                        "section_anchor": "WEATHER"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WEATHER(?:\\s+CONDITION(?:S)?)?|ATMOSPHERIC\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Not Collision Between Two Motor Vehicles", "Rear End", "Head On", "Rear to Rear", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Other"],
+                        "section_anchor": "MANNER OF COLLISION"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:MANNER\\s+OF\\s+COLLISION|TYPE\\s+OF\\s+(?:CRASH|ACCIDENT|COLLISION)|COLLISION\\s+TYPE|FIRST\\s+HARMFUL\\s+EVENT|SEQUENCE\\s+OF\\s+EVENTS)(?:[:\\s]+)?(?P<value>[^\\n]{2,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CONTRIBUTING\\s+FACTOR(?:S)?(?:\\s+\\d+)?|PRIMARY\\s+CONTRIBUTING\\s+FACTOR|DRIVER\\s+CONTRIBUTING\\s+FACTOR|HUMAN\\s+CONTRIBUTING\\s+FACTOR)(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "light_condition",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Daylight", "Dark – Lighted", "Dark – Not Lighted", "Dark – Unknown Lighting", "Dawn", "Dusk", "Other"],
+                        "section_anchor": "LIGHT CONDITION"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:LIGHT\\s+CONDITION(?:S)?|LIGHTING|DAYLIGHT|DARK)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

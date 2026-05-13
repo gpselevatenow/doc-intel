@@ -62,6 +62,7 @@ StrategyName = Literal[
     "table_cell",
     "anchor_region",
     "advanced_table",
+    "checkbox_grid",
 ]
 
 

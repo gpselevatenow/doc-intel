@@ -74,6 +74,7 @@ function App() {
       name: file.name,
       type: file.name.replace(/[_.\-]/g, ' ').match(/\b(ia|property|adjuster)\b/i) ? 'ia'
            : file.name.replace(/[_.\-]/g, ' ').match(/\bacord\b/i) ? 'acord'
+           : /hsmv|90010/i.test(file.name) ? 'hsmv'
            : 'police',
       pdfUrl: URL.createObjectURL(file)
     }));
@@ -109,6 +110,8 @@ function App() {
         endpoint = 'http://127.0.0.1:8000/api/extract/ia-report';
       } else if (item.type === 'acord') {
         endpoint = 'http://127.0.0.1:8000/api/extract/acord-report';
+      } else if (item.type === 'hsmv') {
+        endpoint = 'http://127.0.0.1:8000/api/extract/hsmv-report';
       }
         
       try {
@@ -173,6 +176,8 @@ function App() {
         endpoint = 'http://127.0.0.1:8000/api/extract/ia-report';
       } else if (target.type === 'acord') {
         endpoint = 'http://127.0.0.1:8000/api/extract/acord-report';
+      } else if (target.type === 'hsmv') {
+        endpoint = 'http://127.0.0.1:8000/api/extract/hsmv-report';
       }
       
       const response = await fetch(endpoint, {
@@ -296,6 +301,7 @@ function App() {
                     <option value="ia">IA Report</option>
                     <option value="police">Police Report</option>
                     <option value="acord">ACORD Form</option>
+                    <option value="hsmv">FL HSMV 90010S</option>
                   </select>
                 </div>
               </div>
@@ -366,7 +372,7 @@ function App() {
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{res.timestamp}</span>
                   </div>
                   <div className="doc-item-meta">
-                    <span>{res.type === 'ia' ? 'IA Report' : res.type === 'acord' ? 'ACORD Form' : 'Police Report'}</span>
+                    <span>{res.type === 'ia' ? 'IA Report' : res.type === 'acord' ? 'ACORD Form' : res.type === 'hsmv' ? 'FL HSMV 90010S' : 'Police Report'}</span>
                     <span className={`status-badge ${res.status}`}>{res.status === 'success' ? 'Extracted' : 'Failed'}</span>
                   </div>
                 </div>

@@ -1,0 +1,143 @@
+{
+    "template_id": "ny_mv104a_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CASE\\s+(?:NO\\.?|NUMBER)|NYPD\\s+CASE\\s+(?:NO\\.?|NUMBER)|MV[-\\s]*104\\s+(?:CASE|REPORT)\\s+(?:NO\\.?|NUMBER)|POLICE\\s+REPORT\\s+(?:NO\\.?|NUMBER)|COMPLAINT\\s+(?:NO\\.?|NUMBER)|CCN|EVENT\\s+(?:NO\\.?|NUMBER|#))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:POLICE\\s+(?:PRECINCT|DEPARTMENT|AGENCY|BUREAU)|REPORTING\\s+AGENCY|INVESTIGATING\\s+DEPARTMENT|DEPT\\.|SHERIFF(?:'?S)?\\s+OFFICE)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,.()\\-]{3,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "officer",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INVESTIGATING\\s+OFFICER|REPORTING\\s+OFFICER|RANK\\s+(?:AND|&|/)\\s*NAME|OFFICER(?:'S)?(?:\\s+NAME)?|BADGE\\s+(?:NO\\.?|NUMBER)|SHIELD\\s+(?:NO\\.?|NUMBER))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "date_time",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:DATE\\s+OF\\s+(?:ACCIDENT|OCCURRENCE|INCIDENT|CRASH)|DATE(?:\\s*/\\s*TIME)?\\s+OCCURRED|WHEN\\s+DID\\s+ACCIDENT\\s+OCCUR|ACCIDENT\\s+DATE)(?:[:\\s]+)?(?P<value>[^\\n]{5,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "location",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:COUNTY\\s+OF\\s+OCCURRENCE|PLACE\\s+WHERE\\s+ACCIDENT\\s+OCCURRED|CITY(?:\\s*[/,]\\s*)?(?:VILLAGE|TOWN)?|LOCATION\\s+OF\\s+ACCIDENT|WHERE\\s+DID\\s+ACCIDENT\\s+OCCUR|SCENE\\s+(?:ADDRESS|LOCATION)|STREET(?:\\s+ADDRESS)?)(?:[:\\s]+)?(?P<value>[^\\n]{5,100})",
+                            "(?im)(?:INTERSECTION\\s+WITH|BETWEEN\\s+.{0,30}\\s+AND|FEET\\s+(?:NORTH|SOUTH|EAST|WEST)\\s+OF)(?:[:\\s]+)?(?P<value>[^\\n]{5,80})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Clear", "Cloudy", "Rain", "Snow", "Fog/Smog/Smoke", "Sleet/Hail/Freezing Rain", "Severe Crosswinds", "Blowing Sand/Soil", "Other"],
+                        "section_anchor": "WEATHER"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WEATHER(?:\\s+CONDITION(?:S)?)?|ATMOSPHERIC\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Rear-End", "Head-On", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Left Turn", "Right Turn", "Single Vehicle", "Backing", "Pedestrian", "Cyclist", "Other"],
+                        "section_anchor": "TYPE OF ACCIDENT"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:TYPE\\s+OF\\s+(?:ACCIDENT|COLLISION|CRASH)|MANNER\\s+OF\\s+COLLISION|ACCIDENT\\s+TYPE)(?:[:\\s]+)?(?P<value>[^\\n]{2,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CONTRIBUTING\\s+FACTOR(?:S)?(?:\\s+OF\\s+ACCIDENT)?|APPARENT\\s+CONTRIBUTING\\s+FACTOR|DRIVER\\s+ACTION\\s+CONTRIBUTING\\s+TO\\s+ACCIDENT|PEDESTRIAN\\s+CONTRIBUTING\\s+FACTOR)(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 {
-    "template_id": "ia_report_v1",
+    "template_id": "ia_report_v2",
     "document_type": "ia_report",
     "fields": [
         {
@@ -11,7 +11,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)cause of loss(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,/().-]{2,80})"
+                            "(?im)cause\\s+of\\s+loss(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,/().-]{2,80})",
+                            "(?im)(?:peril|origin\\s+of\\s+loss|cause\\s+of\\s+damage|loss\\s+type|type\\s+of\\s+loss|nature\\s+of\\s+loss|loss\\s+description|cause\\s+of\\s+claim)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,/().-]{2,80})",
+                            "(?im)(?:damaged\\s+by|caused\\s+by|result\\s+of|arising\\s+from|loss\\s+caused\\s+by|loss\\s+originating\\s+from)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,/().-]{2,80})",
+                            "(?im)(?:type\\s+of\\s+peril|peril\\s+type|loss\\s+peril|covered\\s+peril)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,/().-]{2,80})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -27,7 +30,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:date of inspection|inspection date)(?:[:\\s]+)?(?P<value>[\\d]{1,2}[/\\-][\\d]{1,2}[/\\-][\\d]{2,4}|[A-Za-z]+ [\\d]{1,2},? [\\d]{4}|[\\d\\-/]+)"
+                            "(?im)(?:date\\s+of\\s+inspection|inspection\\s+date|date\\s+inspected|field\\s+inspection\\s+date)(?:[:\\s]+)?(?P<value>[\\d]{1,2}[/\\-][\\d]{1,2}[/\\-][\\d]{2,4}|[A-Za-z]+\\s+[\\d]{1,2},?\\s+[\\d]{4}|[\\d\\-/]+)",
+                            "(?im)(?:date\\s+loss\\s+examined|date\\s+of\\s+survey|site\\s+inspection\\s+date|date\\s+of\\s+field\\s+inspection|date\\s+of\\s+loss\\s+inspection)(?:[:\\s]+)?(?P<value>[\\d]{1,2}[/\\-][\\d]{1,2}[/\\-][\\d]{2,4}|[A-Za-z]+\\s+[\\d]{1,2},?\\s+[\\d]{4})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -43,9 +47,10 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:inspection firm|inspecting firm|inspection company|adjusting firm|adjusting company)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,&.'\\-]{2,80})",
-                            "(?im)inspected by(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,&.'\\-]{2,80})",
-                            "(?im)adjuster[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9 ,&.'\\-]{2,60}(?:LLC|Inc|Corp|Group|Services|Adjusters)?)"
+                            "(?im)(?:inspection\\s+firm|inspecting\\s+firm|inspection\\s+company|adjusting\\s+firm|adjusting\\s+company|IA\\s+firm|independent\\s+adjuster\\s+firm|claims\\s+firm)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,&.'\\-]{2,80})",
+                            "(?im)(?:adjuster\\s+company|adjusting\\s+company|claims\\s+company|claim\\s+services|adjuster\\s+organization)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,&.'\\-]{2,80})",
+                            "(?im)(?:inspected\\s+by|prepared\\s+by|submitted\\s+by|conducted\\s+by|reported\\s+by|completed\\s+by)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,&.'\\-]{2,80})",
+                            "(?im)(?:adjuster|field\\s+adjuster|desk\\s+adjuster|senior\\s+adjuster|independent\\s+adjuster|staff\\s+adjuster|public\\s+adjuster)[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9 \\t,&.'\\-]{2,60})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -61,7 +66,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)coverage a(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
+                            "(?im)coverage\\s+a(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)",
+                            "(?im)(?:dwelling(?:\\s+coverage)?|building(?:\\s+coverage)?|structure(?:\\s+limit)?)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -77,7 +83,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)coverage b(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none|no coverage)"
+                            "(?im)coverage\\s+b(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none|no\\s+coverage)",
+                            "(?im)(?:other\\s+structures?(?:\\s+coverage)?|separate\\s+structures?(?:\\s+limit)?)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -93,7 +100,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)coverage c(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none|no coverage)"
+                            "(?im)coverage\\s+c(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none|no\\s+coverage)",
+                            "(?im)(?:personal\\s+property(?:\\s+coverage)?|contents(?:\\s+coverage)?|personal\\s+belongings(?:\\s+limit)?)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -109,7 +117,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)coverage d(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none|no coverage)"
+                            "(?im)coverage\\s+d(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none|no\\s+coverage)",
+                            "(?im)(?:additional\\s+living\\s+expense|loss\\s+of\\s+use(?:\\s+coverage)?|ALE(?:\\s+limit)?)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+|N/?A|none)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -125,7 +134,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:policy form|form number|coverage form)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,/\\-]{2,60})"
+                            "(?im)(?:policy\\s+form|form\\s+number|coverage\\s+form|policy\\s+type|policy\\s+number)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,/\\-]{2,60})",
+                            "(?im)(?:coverage\\s+analysis|applicable\\s+coverage|coverage\\s+question|coverage\\s+determination)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,/\\-]{2,80})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -141,9 +151,9 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:police report filed|fire report filed|report filed|official report)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,#.\\-]{2,80})",
-                            "(?im)(?:responding officer|fire department|police department|report number)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,#.\\-]{2,80})",
-                            "(?im)officials?(?:[:\\s]+)?(?P<value>[A-Za-z0-9 ,#.\\-]{2,80})"
+                            "(?im)(?:police\\s+report\\s+filed|fire\\s+report\\s+filed|official\\s+report|report\\s+filed)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})",
+                            "(?im)(?:responding\\s+officer|fire\\s+department|police\\s+department|report\\s+number)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})",
+                            "(?im)officials?(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -159,7 +169,9 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)subrogation(?:[:\\s]+)?(?P<value>yes|no|potential)"
+                            "(?im)subrogation(?:[:\\s]+)?(?P<value>yes|no|potential|possible|none|n/?a)",
+                            "(?im)(?:subrogation\\s+potential|subrogation\\s+opportunity|recovery\\s+opportunity|third\\s+party\\s+recovery|recovery\\s+potential|subrogation\\s+rights?)(?:[:\\s]+)?(?P<value>yes|no|potential|possible|none|[A-Za-z0-9 \\t,.-]{2,60})",
+                            "(?im)subrogation[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9 \\t,.()/\\-]{2,80})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -176,7 +188,10 @@
                     "config": {
                         "patterns": [
                             "(?im)settlement(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)",
-                            "(?im)settlement (?:is|estimated at|amount)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
+                            "(?im)settlement\\s+(?:is\\s+)?(?:estimated\\s+at|amount(?:\\s+of)?)\\s*[:\\-]?\\s*(?P<value>[\\$\\d,\\.]+)",
+                            "(?im)(?:recommended\\s+settlement|loss\\s+reserve|current\\s+reserve|total\\s+reserve|reserve\\s+amount|claim\\s+reserve)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)",
+                            "(?im)(?:total\\s+(?:settlement|claim|award|payment|payout)\\s*(?:amount|value)?|agreed\\s+settlement|final\\s+settlement|settlement\\s+value)\\s*[:\\-]?\\s*(?P<value>[\\$\\d,\\.]+)",
+                            "(?im)(?:recommended\\s+payment|total\\s+recommended|total\\s+indemnity|indemnity\\s+payment)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.]+)"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -192,7 +207,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:summary of payments?|payments? made to date|total paid|paid to date|payment summary|amounts? paid)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.A-Za-z ]{2,120})"
+                            "(?im)(?:summary\\s+of\\s+payments?|payments?\\s+made\\s+to\\s+date|total\\s+paid|paid\\s+to\\s+date|payment\\s+summary|amounts?\\s+paid)(?:[:\\s]+)?(?P<value>[\\$\\d,\\.A-Za-z \\t]{2,120})"
                         ],
                         "flags": ["IGNORECASE"]
                     }
@@ -208,7 +223,8 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?ims)(?:adjuster(?:'s)? )?recommendations?(?:[:\\s]+)(?P<value>.{2,1000}?)(?=\\n(?:[A-Z][a-z]+:|$)|\\Z)"
+                            "(?ims)(?:adjuster(?:'s)?\\s+)?recommendations?(?:[:\\s]+)(?P<value>.{2,1000}?)(?=\\n(?:[A-Z][a-z]+:|$)|\\Z)",
+                            "(?ims)(?:claim\\s+handling\\s+recommendation|reserve\\s+recommendation|coverage\\s+recommendation|conclusions?|action\\s+items?)(?:[:\\s]+)(?P<value>.{2,500}?)(?=\\n(?:[A-Z][a-z]+:|$)|\\Z)"
                         ],
                         "flags": ["IGNORECASE", "DOTALL"]
                     }

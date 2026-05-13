@@ -1,0 +1,97 @@
+{
+    "template_id": "mn_bca403_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:BCA[-\\s]*403\\b|MINNESOTA\\s+(?:TRAFFIC\\s+CRASH|ACCIDENT)\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|MN\\s+STATE\\s+PATROL)(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:REPORTING\\s+AGENCY|LAW\\s+ENFORCEMENT\\s+AGENCY|AGENCY\\s+NAME|MINNESOTA\\s+STATE\\s+PATROL|MNSP\\s+DISTRICT)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Clear", "Cloudy", "Rain", "Sleet/Hail", "Snow", "Fog/Smog/Smoke", "Blowing Sand/Soil/Dirt/Snow", "Severe Crosswinds", "Other"],
+                        "section_anchor": "WEATHER"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WEATHER(?:\\s+CONDITION(?:S)?)?|ATMOSPHERIC\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Not Collision Between Two Motor Vehicles", "Rear End", "Head On", "Rear to Rear", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Other"],
+                        "section_anchor": "MANNER OF COLLISION"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:MANNER\\s+OF\\s+COLLISION|TYPE\\s+OF\\s+(?:CRASH|ACCIDENT|COLLISION)|FIRST\\s+HARMFUL\\s+EVENT)(?:[:\\s]+)?(?P<value>[^\\n]{2,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CONTRIBUTING\\s+FACTOR(?:S)?|PRIMARY\\s+CONTRIBUTING\\s+FACTOR|DRIVER\\s+CONTRIBUTING\\s+FACTOR)(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

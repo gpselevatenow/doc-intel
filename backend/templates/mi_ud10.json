@@ -1,0 +1,188 @@
+{
+    "template_id": "mi_ud10_v1",
+    "document_type": "police_report",
+    "fields": [
+        {
+            "field_id": "report_number",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:UD[-\\s]*10\\b|MICHIGAN\\s+TRAFFIC\\s+CRASH\\s+REPORT|CASE\\s+(?:NUMBER|NO\\.?)|REPORT\\s+(?:NUMBER|NO\\.?)|MSP\\s+(?:CASE|REPORT))(?:[:\\s]+)?(?P<value>[A-Za-z0-9\\-/#]{3,25})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "agency",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:REPORTING\\s+AGENCY|LAW\\s+ENFORCEMENT\\s+AGENCY|AGENCY\\s+NAME|MICHIGAN\\s+STATE\\s+POLICE|MSP\\s+POST)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "officer",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:INVESTIGATING\\s+OFFICER(?:'S)?(?:\\s+NAME)?|REPORTING\\s+OFFICER|OFFICER\\s+(?:NAME|ID|BADGE))(?:[:\\s]+)?(?P<value>[A-Za-z][A-Za-z0-9 \\t,.\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "date_time",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+DATE(?:\\s*/\\s*TIME)?|DATE(?:\\s*/\\s*TIME)?\\s+OF\\s+(?:CRASH|ACCIDENT))(?:[:\\s]+)?(?P<value>[^\\n]{5,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "location",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CRASH\\s+LOCATION|STREET(?:\\s+NAME)?|ROADWAY|CITY\\s*[/,]?\\s*COUNTY|COUNTY)(?:[:\\s]+)?(?P<value>[^\\n]{5,100})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "weather",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Clear", "Cloudy", "Rain", "Sleet/Hail", "Snow", "Fog/Smog/Smoke", "Blowing Sand/Soil/Dirt/Snow", "Severe Crosswinds", "Other"],
+                        "section_anchor": "WEATHER"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:WEATHER(?:\\s+CONDITION(?:S)?)?|ATMOSPHERIC\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "accident_type",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Not Collision Between Two Motor Vehicles", "Rear End", "Head On", "Rear to Rear", "Angle", "Sideswipe – Same Direction", "Sideswipe – Opposite Direction", "Other"],
+                        "section_anchor": "MANNER OF COLLISION"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:MANNER\\s+OF\\s+COLLISION|TYPE\\s+OF\\s+(?:CRASH|ACCIDENT|COLLISION)|FIRST\\s+HARMFUL\\s+EVENT)(?:[:\\s]+)?(?P<value>[^\\n]{2,60})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "contributing_factors",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "global_regex",
+                    "priority": 1,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:CONTRIBUTING\\s+FACTOR(?:S)?|PRIMARY\\s+CONTRIBUTING\\s+FACTOR|DRIVER\\s+CONTRIBUTING\\s+FACTOR)(?:[:\\s]+)?(?P<value>[^\\n]{2,80})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "light_condition",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Daylight", "Dark – Lighted", "Dark – Not Lighted", "Dark – Unknown Lighting", "Dawn", "Dusk", "Other"],
+                        "section_anchor": "LIGHT CONDITION"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:LIGHT\\s+CONDITION(?:S)?|LIGHTING)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "road_surface",
+            "field_type": "text",
+            "strategies": [
+                {
+                    "strategy": "checkbox_grid",
+                    "priority": 1,
+                    "config": {
+                        "options": ["Dry", "Wet", "Snow/Slush", "Ice", "Sand/Mud/Dirt/Oil/Gravel", "Other"],
+                        "section_anchor": "ROAD SURFACE CONDITION"
+                    }
+                },
+                {
+                    "strategy": "global_regex",
+                    "priority": 2,
+                    "config": {
+                        "patterns": [
+                            "(?im)(?:ROAD(?:WAY)?\\s+SURFACE(?:\\s+CONDITION(?:S)?)?|SURFACE\\s+CONDITION(?:S)?)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t/,\\-]{2,40})"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

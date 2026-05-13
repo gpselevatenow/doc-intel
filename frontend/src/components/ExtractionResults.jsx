@@ -16,16 +16,33 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   const [feedbackGiven, setFeedbackGiven] = useState(null);
   const [auditModalField, setAuditModalField] = useState(null);
 
-  const renderFieldLabel = (label, fieldId) => (
-    <div className="field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span>{label}</span>
-      {fieldId && (
-        <button onClick={() => setAuditModalField(fieldId)} title="View Audit Trail" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)' }}>
-          <Search size={14} />
-        </button>
-      )}
-    </div>
-  );
+  const renderFieldLabel = (label, fieldId) => {
+    const fieldScores = data.accuracy_field_scores || {};
+    const conf = (fieldId && fieldId in fieldScores) ? fieldScores[fieldId] : null;
+    const confColor = conf === null ? null : conf >= 80 ? 'var(--success)' : conf >= 50 ? 'var(--warning)' : 'var(--danger)';
+    const confBg   = conf === null ? null : conf >= 80 ? 'rgba(16,185,129,0.12)' : conf >= 50 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+
+    return (
+      <div className="field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <span>{label}</span>
+          {conf !== null && (
+            <span style={{
+              fontSize: '0.68rem', padding: '0.05rem 0.38rem', borderRadius: '8px',
+              fontWeight: 700, background: confBg, color: confColor, lineHeight: 1.6,
+              title: `Extraction confidence: ${conf}%`
+            }}>{conf}%</span>
+          )}
+        </div>
+        {fieldId && (
+          <button onClick={() => setAuditModalField(fieldId)} title="View Audit Trail"
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)' }}>
+            <Search size={14} />
+          </button>
+        )}
+      </div>
+    );
+  };
 
   const renderAuditModal = () => {
     if (!auditModalField) return null;
@@ -563,6 +580,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
                 <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{p.name}</span></div>
                 <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{p.dob}</span></div>
                 <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{p.address}</span></div>
+                <div><strong>Phone:</strong> <span className="clickable-field" onClick={() => onFieldClick('phone')}>{p.phone || 'Unknown'}</span></div>
                 <div><strong>License:</strong> <span className="clickable-field" onClick={() => onFieldClick('license_number')}>{p.license_number}</span></div>
                 <div><strong>Injuries:</strong> <span className="clickable-field" onClick={() => onFieldClick('injuries')}>{p.injuries}</span></div>
                 <div><strong>Substance Involvement:</strong> <span className="clickable-field" onClick={() => onFieldClick('substance_involvement')}>{p.substance_involvement}</span></div>
@@ -581,12 +599,35 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               <div className="grid-2" style={{ gap: '0.5rem' }}>
                 <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{w.name}</span></div>
                 <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{w.dob}</span></div>
+                <div><strong>Phone:</strong> <span className="clickable-field" onClick={() => onFieldClick('phone')}>{w.phone || 'Unknown'}</span></div>
                 <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{w.address}</span></div>
               </div>
             </div>
           )) : <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>No witnesses identified in document.</div>}
         </div>
       </div>
+
+      {(data.contributing_factors && data.contributing_factors !== 'Unknown') && (
+        <div className="glass-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            Contributing Factors / Driver Action
+          </h3>
+          <div className="field-value">
+            <EditableField value={data.contributing_factors} fieldName="contributing_factors" docId="police_doc" needsReview={review_flags['contributing_factors']} />
+          </div>
+        </div>
+      )}
+
+      {(data.property_damage && data.property_damage !== 'Unknown') && (
+        <div className="glass-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            Property Damage (Non-Vehicle)
+          </h3>
+          <div className="field-value">
+            <EditableField value={data.property_damage} fieldName="property_damage" docId="police_doc" needsReview={review_flags['property_damage']} />
+          </div>
+        </div>
+      )}
 
       {data.state_codes && data.state_codes.length > 0 && (
         <div className="glass-card" style={{ marginBottom: '1rem' }}>
