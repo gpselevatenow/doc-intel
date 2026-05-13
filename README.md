@@ -2,7 +2,7 @@
 
 ClaimsIntel VPC is a deterministic, template-driven Document Intelligence platform designed to securely extract, validate, and visualize structured data from complex documents like Police Reports and Independent Adjuster (IA) property reports.
 
-By heavily leveraging Machine Learning Document Layout Analysis alongside a robust Orchestrator Template Engine, this solution guarantees 100% extraction for recognized fields without relying on unpredictable LLMs.
+By heavily leveraging Machine Learning Document Layout Analysis alongside a robust Orchestrator Template Engine, this solution delivers high-accuracy extraction for recognized fields with per-field confidence and human-in-the-loop fallback without relying on unpredictable LLMs.
 
 ---
 
@@ -20,7 +20,7 @@ The architecture is split into three main decoupled layers:
 * **SQLite (`feedback.db`)**: A lightweight local database used for storing Human-in-the-Loop custom fields and global learned patterns.
 
 ### 3. ML Layout Analysis & Template Engine
-* **Docling & RapidOCR (PyTorch)**: The Machine Learning layer that converts visual PDFs into precise Markdown tables and tracks the physical `[x,y]` coordinates of every bounding block.
+* **Docling (with EasyOCR fallback for scanned PDFs; not used on digital sample docs)**: The Machine Learning layer that converts visual PDFs into precise Markdown tables and tracks the physical `[x,y]` coordinates of every bounding block.
 * **JSON Template Engine**: Acts as the strict Orchestrator. Evaluates `templates/police_report.json` and `templates/ia_report.json` using dynamic Python regex strategies (`GlobalRegexStrategy` and `AdvancedTableStrategy`) to pull nested arrays safely.
 
 ---
@@ -30,7 +30,7 @@ The architecture is split into three main decoupled layers:
 ```mermaid
 graph TD
     A[User Uploads PDF] --> B[FastAPI Backend Endpoint]
-    B --> C[Docling & RapidOCR Engine]
+    B --> C[Docling Engine]
     C -->|Generates Markdown & Bbox Grid| D[Canonical Document Model]
     D --> E{Orchestrator Template Engine}
     
@@ -53,7 +53,7 @@ graph TD
 
 ## 🌟 Key Features of the Solution
 
-1. **Holistic Orchestrator Templates:** Uses flat JSON templates mapped to robust Python extractor strategies, guaranteeing perfectly normalized output formatting for arrays like `vehicles`, `parties`, and `witnesses`.
+1. **Holistic Orchestrator Templates:** Uses flat JSON templates mapped to robust Python extractor strategies, producing normalized output formatting for arrays like `vehicles`, `parties`, and `witnesses`.
 2. **Continuous Learning (Global Custom Fields):** Users can define Custom Fields on the fly via the database. The Orchestrator automatically learns these fields and attempts to extract them on all future documents universally.
 3. **Automated Bounding Box Linking:** Traces extracted text strings back to their originating PDF pixels for precise visual confirmation.
 4. **Insights Engine:** Automatically calculates "Next Best Actions" depending on what data was extracted (e.g. recommending Subrogation teams if third-party liability is detected).
@@ -117,7 +117,7 @@ For testing and demonstration purposes, this repository includes a `sample docum
 ## ✅ What the Solution CAN Do
 
 * **Extract Nested Arrays Robustly:** It can dynamically rip multi-row tabular data (Vehicles, Operators, Witnesses) out of unstructured PDFs and reconstruct them perfectly into JSON objects.
-* **100% Extraction Hit Rate for Known Layouts:** Due to multi-line fallback patterns inside the JSON templates, it catches 100% of required fields if they match standard industry variants.
+* **High extraction coverage for known layouts via multi-line fallback patterns and state-specific overlays:** Multi-pattern fallback strategies and 51 state-form overlays maximize field hit rates across diverse document formats.
 * **Visual Verification:** It can prove exactly where it got data from by highlighting it directly over the raw PDF.
 
 ## ❌ What the Solution CANNOT Do

@@ -7,7 +7,7 @@ This document outlines the architecture, data flows, and technical specification
 ## 1. Technology Stack
 
 ### Frontend
-- **Framework:** React 18 + Vite
+- **Framework:** React 19 + Vite
 - **UI/UX:** Vanilla CSS (Glassmorphism design system), Lucide React (Iconography)
 - **PDF Rendering:** `@react-pdf-viewer/core` with custom singleton plugins.
 - **Key Features:** Bidirectional Spatial Bounding Box highlighting, Inline Editable Fields (Human-in-the-loop).
@@ -53,8 +53,10 @@ Unlike traditional browser text-search (`ctrl+f`), which fails when the same tex
 ### 3.2. Declarative Template Engine (Orchestrator)
 Extraction logic is no longer hardcoded in Python. System administrators can define extraction targets using JSON files (e.g., `backend/templates/police_report.json`). 
 Supported Extraction Strategies:
-- **`global_regex`:** Advanced pattern matching.
-- **`spatial_label`:** Geometrically finds a label (e.g., "CASE NUMBER") on the PDF canvas and explicitly extracts the text located physically to its right or below it, making it highly resilient to OCR layout errors.
+- **`global_regex`:** Advanced pattern matching across the full document text. Used by all deployed templates.
+- **`advanced_table`:** Multi-pass structured parser for vehicles, parties, and witnesses tables. Used by `police_report.json`.
+- **`spatial_label`:** Geometrically finds a label on the PDF canvas and extracts the text physically adjacent to it. Implemented in `extractors/spatial_label.py`; available for use in custom templates but not currently active in the base police or IA report templates.
+- **`checkbox_grid`:** Detects checked/unchecked values in state-form checkbox grids. Used by select state overlay templates (e.g., TX CR-3 weather/collision type).
 
 ### 3.3. Scoring & Validation Pipeline
 The extraction engine evaluates multiple candidates for every field. JSON templates define strict `ValidatorRules` (e.g., ensuring a Report Number is exactly 5-10 digits). If the best candidate fails validation, its confidence score drops below the `auto_accept_threshold`. This triggers a `needsReview` flag in the audit payload, prompting the frontend to render an orange `<AlertTriangle>` next to the field, forcing human verification.
