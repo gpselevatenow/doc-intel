@@ -16,6 +16,8 @@ Options:
   --force-template      Use expected_form_id from ground truth instead of classifier
                         (counterfactual: isolates classifier vs template accuracy)
                         Writes to benchmark_results_forced_template.json
+  --label LABEL         Override output filename suffix: ground_truth_{LABEL}_{date}.md
+                        and benchmark_results_{LABEL}.json
   --help                Show this message and exit
 """
 from __future__ import annotations
@@ -94,7 +96,15 @@ def _norm_list(v: str) -> frozenset[str]:
 
 
 def values_match(field_id: str, gt: str | None, extracted: str | None) -> str | bool:
-    """Return 'exact', 'trim' (match only after punctuation strip), or False."""
+    """Return 'exact', 'trim', 'containment', or False.
+
+    Classification order (first match wins):
+      exact       — normalized strings are equal (or dates match)
+      trim        — equal only after leading/trailing punctuation strip
+      containment — one trimmed value is a substring of the other (min 4 chars each)
+      False       — no match
+    List fields use frozenset comparison only; containment is not applied.
+    """
     if gt is None and extracted is None:
         return "exact"
     if gt is None or extracted is None:
@@ -106,8 +116,13 @@ def values_match(field_id: str, gt: str | None, extracted: str | None) -> str | 
         return "exact" if _norm_list(gt) == _norm_list(extracted) else False
     if _norm_string(gt) == _norm_string(extracted):
         return "exact"
-    if _norm_string_trimmed(gt) == _norm_string_trimmed(extracted):
+    gt_t = _norm_string_trimmed(gt)
+    ex_t = _norm_string_trimmed(extracted)
+    if gt_t == ex_t:
         return "trim"
+    if len(gt_t) >= 4 and len(ex_t) >= 4:
+        if gt_t in ex_t or ex_t in gt_t:
+            return "containment"
     return False
 
 
@@ -131,6 +146,8 @@ def classify_result(
             status = "CORRECT"
         elif match == "trim":
             status = "CORRECT_AFTER_TRIM"
+        elif match == "containment":
+            status = "CORRECT_BY_CONTAINMENT"
         else:
             status = "INCORRECT"
     return {
@@ -211,17 +228,16 @@ def _mean(vals: list[float]) -> float | None:
 
 def compute_metrics(detail: list[dict]) -> dict:
     counts = {
-        "CORRECT": 0, "CORRECT_AFTER_TRIM": 0,
+        "CORRECT": 0, "CORRECT_AFTER_TRIM": 0, "CORRECT_BY_CONTAINMENT": 0,
         "INCORRECT": 0, "MISSED": 0, "SPURIOUS": 0, "TRUE_NEGATIVE": 0,
     }
     for row in detail:
         counts[row["status"]] += 1
 
-    # CORRECT_AFTER_TRIM counts as TP for precision/recall
-    tp  = counts["CORRECT"] + counts["CORRECT_AFTER_TRIM"]
+    # All three CORRECT variants count as TP for precision/recall
+    tp  = counts["CORRECT"] + counts["CORRECT_AFTER_TRIM"] + counts["CORRECT_BY_CONTAINMENT"]
     fp  = counts["SPURIOUS"] + counts["INCORRECT"]
     fn  = counts["MISSED"]   + counts["INCORRECT"]
-    tn  = counts["TRUE_NEGATIVE"]
 
     precision = _safe_div(tp, tp + fp)
     recall    = _safe_div(tp, tp + fn)
@@ -231,6 +247,7 @@ def compute_metrics(detail: list[dict]) -> dict:
 
     return {
         **counts,
+        "total_correct":    tp,
         "trim_corrections": counts["CORRECT_AFTER_TRIM"],
         "precision": precision,
         "recall":    recall,
@@ -245,29 +262,30 @@ def per_field_metrics(detail: list[dict]) -> dict:
         fid = row["field"]
         if fid not in fields:
             fields[fid] = {
-                "CORRECT": 0, "CORRECT_AFTER_TRIM": 0,
+                "CORRECT": 0, "CORRECT_AFTER_TRIM": 0, "CORRECT_BY_CONTAINMENT": 0,
                 "INCORRECT": 0, "MISSED": 0, "SPURIOUS": 0, "TRUE_NEGATIVE": 0,
             }
         fields[fid][row["status"]] += 1
 
     result = {}
     for fid, c in fields.items():
-        tp = c["CORRECT"] + c["CORRECT_AFTER_TRIM"]
+        tp = c["CORRECT"] + c["CORRECT_AFTER_TRIM"] + c["CORRECT_BY_CONTAINMENT"]
         fp = c["SPURIOUS"] + c["INCORRECT"]
         fn = c["MISSED"]   + c["INCORRECT"]
         precision = _safe_div(tp, tp + fp)
         recall    = _safe_div(tp, tp + fn)
         f1 = _safe_div(2 * precision * recall, precision + recall) if (precision + recall) else 0.0
         result[fid] = {
-            "correct":            c["CORRECT"],
-            "correct_after_trim": c["CORRECT_AFTER_TRIM"],
-            "incorrect":          c["INCORRECT"],
-            "missed":             c["MISSED"],
-            "spurious":           c["SPURIOUS"],
-            "true_negative":      c["TRUE_NEGATIVE"],
-            "precision":          precision,
-            "recall":             recall,
-            "f1":                 round(f1, 4),
+            "correct":                c["CORRECT"],
+            "correct_after_trim":     c["CORRECT_AFTER_TRIM"],
+            "correct_by_containment": c["CORRECT_BY_CONTAINMENT"],
+            "incorrect":              c["INCORRECT"],
+            "missed":                 c["MISSED"],
+            "spurious":               c["SPURIOUS"],
+            "true_negative":          c["TRUE_NEGATIVE"],
+            "precision":              precision,
+            "recall":                 recall,
+            "f1":                     round(f1, 4),
         }
     return result
 
@@ -284,7 +302,7 @@ def per_doc_metrics(detail: list[dict], doc_form_results: dict) -> dict:
             }
         if row["status"] not in ("TRUE_NEGATIVE",):
             docs[dn]["fields_total"] += 1
-        if row["status"] in ("CORRECT", "CORRECT_AFTER_TRIM"):
+        if row["status"] in ("CORRECT", "CORRECT_AFTER_TRIM", "CORRECT_BY_CONTAINMENT"):
             docs[dn]["fields_correct"] += 1
             docs[dn]["conf_correct"].append(row["confidence"])
         elif row["status"] in ("INCORRECT", "MISSED", "SPURIOUS"):
@@ -331,13 +349,14 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
         f"| Recall | {summary['recall']:.4f} |",
         f"| F1 | {summary['f1']:.4f} |",
         f"| Accuracy | {summary['accuracy']:.4f} |",
-        f"| Correct | {summary['CORRECT']} |",
-        f"| Correct After Trim | {summary['CORRECT_AFTER_TRIM']} |",
+        f"| Total Correct | {summary['total_correct']} |",
+        f"| — Exact | {summary['CORRECT']} |",
+        f"| — After Trim | {summary['CORRECT_AFTER_TRIM']} |",
+        f"| — By Containment | {summary['CORRECT_BY_CONTAINMENT']} |",
         f"| Incorrect | {summary['INCORRECT']} |",
         f"| Missed | {summary['MISSED']} |",
         f"| Spurious | {summary['SPURIOUS']} |",
         f"| True Negative | {summary['TRUE_NEGATIVE']} |",
-        f"| Trim Corrections | {summary['trim_corrections']} |",
         "",
     ]
 
@@ -345,12 +364,13 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
     lines += ["## Per-Field Results", ""]
     pf_rows = sorted(pf.items())
     pf_table_rows = [
-        [fid, d["correct"], d["correct_after_trim"], d["incorrect"], d["missed"], d["spurious"],
+        [fid, d["correct"], d["correct_after_trim"], d["correct_by_containment"],
+         d["incorrect"], d["missed"], d["spurious"],
          f"{d['precision']:.3f}", f"{d['recall']:.3f}", f"{d['f1']:.3f}"]
         for fid, d in pf_rows
     ]
     lines.append(_md_table(
-        ["Field", "Correct", "Trim", "Incorrect", "Missed", "Spurious", "Precision", "Recall", "F1"],
+        ["Field", "Exact", "Trim", "Contain", "Incorrect", "Missed", "Spurious", "Precision", "Recall", "F1"],
         pf_table_rows,
     ))
     lines.append("")
@@ -374,7 +394,8 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
     lines.append("")
 
     # Confidence calibration
-    correct_confs = [r["confidence"] for r in detail if r["status"] in ("CORRECT", "CORRECT_AFTER_TRIM")]
+    correct_confs = [r["confidence"] for r in detail
+                     if r["status"] in ("CORRECT", "CORRECT_AFTER_TRIM", "CORRECT_BY_CONTAINMENT")]
     incorrect_confs = [r["confidence"] for r in detail if r["status"] in ("INCORRECT", "MISSED", "SPURIOUS")]
     lines += ["## Confidence Calibration", ""]
     lines.append(
@@ -389,7 +410,7 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
     )
     lines.append("")
 
-    # Top 10 failures
+    # Top 10 failures — INCORRECT only (containment cases are not failures)
     failures = [r for r in detail if r["status"] in ("INCORRECT", "MISSED", "SPURIOUS")]
     failures.sort(key=lambda r: r["confidence"], reverse=True)
     lines += ["## Top 10 Failures (by confidence)", ""]
@@ -482,6 +503,7 @@ def main(args: argparse.Namespace) -> int:
             if args.verbose:
                 marker = {
                     "CORRECT": "OK", "CORRECT_AFTER_TRIM": "TRIM",
+                    "CORRECT_BY_CONTAINMENT": "CONT",
                     "INCORRECT": "WRONG", "MISSED": "MISS",
                     "SPURIOUS": "SPUR", "TRUE_NEGATIVE": "TN",
                 }.get(row["status"], "?")
@@ -509,7 +531,11 @@ def main(args: argparse.Namespace) -> int:
         "per_doc":                pd_,
         "detail":                 detail,
     }
-    results_path = _RESULTS_FORCED_PATH if args.force_template else _RESULTS_PATH
+    label = args.label or ("forced" if args.force_template else "")
+    if label:
+        results_path = _TESTS_DIR / f"benchmark_results_{label}.json"
+    else:
+        results_path = _RESULTS_PATH
     results_path.parent.mkdir(parents=True, exist_ok=True)
     with open(results_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, default=str)
@@ -518,17 +544,18 @@ def main(args: argparse.Namespace) -> int:
     # Write markdown report
     md = build_markdown(summary, pf, pd_, detail, run_date, forced=args.force_template)
     _BENCHMARKS_DIR.mkdir(parents=True, exist_ok=True)
-    suffix = "_forced" if args.force_template else ""
-    md_path = _BENCHMARKS_DIR / f"ground_truth_{run_date}{suffix}.md"
+    md_name = f"ground_truth_{label}_{run_date}.md" if label else f"ground_truth_{run_date}.md"
+    md_path = _BENCHMARKS_DIR / md_name
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(md)
     print(f"Wrote {md_path}")
 
     # Print summary to stdout
-    trim_note = f"  TrimCorrections={summary['trim_corrections']}" if summary['trim_corrections'] else ""
     print(f"\nPrecision={summary['precision']:.4f}  Recall={summary['recall']:.4f}  "
           f"F1={summary['f1']:.4f}  Accuracy={summary['accuracy']:.4f}")
-    print(f"Correct={summary['CORRECT']}  CorrectAfterTrim={summary['CORRECT_AFTER_TRIM']}  "
+    print(f"TotalCorrect={summary['total_correct']}  "
+          f"(Exact={summary['CORRECT']}  Trim={summary['CORRECT_AFTER_TRIM']}  "
+          f"Contain={summary['CORRECT_BY_CONTAINMENT']})  "
           f"Incorrect={summary['INCORRECT']}  Missed={summary['MISSED']}  "
           f"Spurious={summary['SPURIOUS']}  TrueNeg={summary['TRUE_NEGATIVE']}")
     return 0
@@ -557,6 +584,13 @@ def _build_parser() -> argparse.ArgumentParser:
         default=False,
         help="Bypass classifier; use expected_form_id from ground truth as the template. "
              "Writes to benchmark_results_forced_template.json.",
+    )
+    p.add_argument(
+        "--label",
+        metavar="LABEL",
+        default=None,
+        help="Override output filename: ground_truth_{LABEL}_{date}.md and "
+             "benchmark_results_{LABEL}.json (e.g. --label path1).",
     )
     return p
 
