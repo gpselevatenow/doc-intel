@@ -1,6 +1,7 @@
 {
     "template_id": "ia_report_v2",
     "document_type": "ia_report",
+    "auto_accept_threshold": 0.60,
     "fields": [
         {
             "field_id": "cause_of_loss",

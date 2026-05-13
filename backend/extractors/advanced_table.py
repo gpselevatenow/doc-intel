@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from core.candidate import Candidate
 from core.document_model import Document
 from extractors.base import Strategy, register
+from database import get_aliases_for
 
 class AdvancedTableConfig(BaseModel):
     table_type: str  # "vehicles", "parties", "witnesses"
@@ -43,6 +44,16 @@ class AdvancedTableStrategy(Strategy):
                 "towed": ["towed", "tow"],
                 "towing_company": ["towing company", "towed by", "tower"],
             }
+            # Extend vehicle aliases with any headers learned from human corrections
+            try:
+                for _canonical in list(aliases.keys()):
+                    _learned = get_aliases_for(_canonical)
+                    if _learned:
+                        aliases[_canonical] = list(dict.fromkeys(
+                            aliases[_canonical] + [a.lower() for a in _learned]
+                        ))
+            except Exception:
+                pass
             vehicles_dict = {}
             lines = text.splitlines()
             current_entity = {}
@@ -379,6 +390,19 @@ class AdvancedTableStrategy(Strategy):
                     "citations_list": citations_list
                 })
 
+            # Build lookup of DB-learned party field aliases: lowered_header → canonical_field
+            _party_learned_aliases: dict[str, str] = {}
+            _party_canonical_fields = [
+                "name", "dob", "address", "license_number",
+                "condition", "phone", "citations", "transported_to",
+            ]
+            try:
+                for _pf in _party_canonical_fields:
+                    for _alias in get_aliases_for(_pf):
+                        _party_learned_aliases[_alias.lower()] = _pf
+            except Exception:
+                pass
+
             delimiter_found = False
             past_party_sections = False  # True once we've hit SECTION 6+ / NARRATIVE — no new parties after
             for line in lines:
@@ -556,6 +580,12 @@ class AdvancedTableStrategy(Strategy):
                         current_entity["role"] = "Passenger"
                     elif "operator" in key or "driver" in key:
                         current_entity["role"] = "Operator"
+                    else:
+                        # Fall back to DB-learned aliases for non-standard column headers
+                        for _alias, _canonical in _party_learned_aliases.items():
+                            if _alias in key:
+                                current_entity[_canonical] = val
+                                break
                 else:
                     # Compound inline lines — parse keyword-anchored driver fields.
                     # Handles both packed single-line format:
