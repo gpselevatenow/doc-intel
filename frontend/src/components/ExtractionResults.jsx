@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X } from 'lucide-react';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
 import EditableField from './EditableField';
 
 const Badge = () => (
@@ -8,6 +8,180 @@ const Badge = () => (
     High Confidence
   </span>
 );
+
+// ─── Shared helpers ──────────────────────────────────────────────────────────
+
+const SectionHeader = ({ icon: Icon, title, count, color = 'var(--accent)' }) => (
+  <div style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: '1rem', paddingBottom: '0.75rem',
+    borderBottom: '1px solid var(--border-color)'
+  }}>
+    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      {Icon && <Icon size={18} color={color} />}
+      {title}
+    </h3>
+    {count != null && (
+      <span style={{
+        background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)',
+        fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem',
+        borderRadius: '12px', border: '1px solid var(--border-color)'
+      }}>{count}</span>
+    )}
+  </div>
+);
+
+const FieldRow = ({ label, value, onClick, unknown = false }) => {
+  const isEmpty = !value || value === 'Unknown' || value === 'N/A';
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+      <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</span>
+      <span
+        className={onClick ? 'clickable-field' : ''}
+        onClick={onClick}
+        style={{ fontSize: '0.88rem', color: isEmpty ? 'var(--text-muted)' : 'var(--text-main)', fontStyle: isEmpty ? 'italic' : 'normal' }}
+      >
+        {isEmpty ? '—' : value}
+      </span>
+    </div>
+  );
+};
+
+const VehicleCard = ({ vehicle, index, onFieldClick }) => {
+  const title = [vehicle.year, vehicle.make, vehicle.model].filter(x => x && x !== 'Unknown').join(' ') || 'Vehicle details';
+  return (
+    <div style={{
+      background: 'var(--secondary-bg)', borderRadius: '10px',
+      border: '1px solid var(--border-color)', overflow: 'hidden',
+      marginBottom: '0.75rem'
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.75rem',
+        padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.04)',
+        borderBottom: '1px solid var(--border-color)'
+      }}>
+        <span style={{
+          background: 'var(--accent)', color: 'white', borderRadius: '6px',
+          padding: '0.25rem 0.6rem', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap'
+        }}>V{index + 1}</span>
+        <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-main)' }}>{title}</span>
+        {vehicle.color && vehicle.color !== 'Unknown' && (
+          <span style={{
+            fontSize: '0.75rem', color: 'var(--text-muted)',
+            background: 'rgba(255,255,255,0.06)', padding: '0.15rem 0.5rem',
+            borderRadius: '8px', border: '1px solid var(--border-color)'
+          }}>{vehicle.color}</span>
+        )}
+        {vehicle.vin && vehicle.vin !== 'Unknown' && <Badge />}
+      </div>
+      <div style={{ padding: '0.875rem 1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem 1.5rem' }}>
+        <FieldRow label="VIN" value={vehicle.vin} onClick={() => onFieldClick('vin')} />
+        <FieldRow label="License Plate" value={vehicle.plate} onClick={() => onFieldClick('plate')} />
+        <FieldRow label="Owner" value={vehicle.owner_name} onClick={() => onFieldClick('owner_name')} />
+        <FieldRow label="Owner Address" value={vehicle.owner_address} onClick={() => onFieldClick('owner_address')} />
+        <FieldRow label="Insurance Company" value={vehicle.insurance_company} onClick={() => onFieldClick('insurance_company')} />
+        <FieldRow label="Policy Number" value={vehicle.policy_number} onClick={() => onFieldClick('policy_number')} />
+        <FieldRow label="Damages" value={vehicle.damages} onClick={() => onFieldClick('damages')} />
+        <FieldRow
+          label="Towed"
+          value={vehicle.towed && vehicle.towed !== 'Unknown'
+            ? (vehicle.towing_company && vehicle.towing_company !== 'Unknown'
+                ? `${vehicle.towed} — ${vehicle.towing_company}`
+                : vehicle.towed)
+            : null}
+        />
+      </div>
+    </div>
+  );
+};
+
+const roleColor = (role) => {
+  const r = (role || '').toLowerCase();
+  if (r.includes('operator') || r.includes('driver')) return { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.4)', text: '#60a5fa' };
+  if (r.includes('passenger')) return { bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.3)', text: '#9ca3af' };
+  if (r.includes('pedestrian') || r.includes('bicyclist')) return { bg: 'rgba(251,146,60,0.15)', border: 'rgba(251,146,60,0.4)', text: '#fb923c' };
+  if (r.includes('victim')) return { bg: 'rgba(167,139,250,0.15)', border: 'rgba(167,139,250,0.4)', text: '#a78bfa' };
+  return { bg: 'rgba(255,255,255,0.04)', border: 'var(--border-color)', text: 'var(--text-muted)' };
+};
+
+const injuryColor = (injuries) => {
+  const s = (injuries || '').toLowerCase();
+  if (!injuries || s === 'unknown' || s === 'none reported') return 'var(--text-muted)';
+  if (s.includes('fatal') || s.includes('serious')) return 'var(--danger)';
+  if (s.includes('possible') || s.includes('complaint')) return 'var(--warning)';
+  if (s.includes('no apparent') || s === 'none') return 'var(--success)';
+  return 'var(--text-main)';
+};
+
+const PartyCard = ({ party, index, onFieldClick }) => {
+  const colors = roleColor(party.role);
+  const injColor = injuryColor(party.injuries);
+  const hasInjury = party.injuries && party.injuries !== 'None reported' && party.injuries !== 'Unknown';
+  return (
+    <div style={{
+      background: 'var(--secondary-bg)', borderRadius: '10px',
+      border: `1px solid ${colors.border}`, overflow: 'hidden',
+      marginBottom: '0.75rem'
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '0.75rem',
+        padding: '0.75rem 1rem', background: colors.bg,
+        borderBottom: `1px solid ${colors.border}`
+      }}>
+        <span style={{
+          color: colors.text, background: colors.border, borderRadius: '6px',
+          padding: '0.25rem 0.6rem', fontSize: '0.75rem', fontWeight: 700
+        }}>{party.role || 'Person'}</span>
+        <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-main)' }}>
+          {party.name && party.name !== 'Unknown' ? party.name : `Person ${index + 1}`}
+        </span>
+        {hasInjury && (
+          <span style={{
+            marginLeft: 'auto', fontSize: '0.75rem', color: injColor,
+            background: `${injColor}20`, padding: '0.2rem 0.6rem',
+            borderRadius: '8px', border: `1px solid ${injColor}40`
+          }}>{party.injuries}</span>
+        )}
+      </div>
+      <div style={{ padding: '0.875rem 1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem 1.5rem' }}>
+        <FieldRow label="Date of Birth" value={party.dob} onClick={() => onFieldClick('dob')} />
+        <FieldRow label="Driver License #" value={party.license_number} onClick={() => onFieldClick('license_number')} />
+        <div style={{ gridColumn: '1 / -1' }}>
+          <FieldRow label="Address" value={party.address} onClick={() => onFieldClick('address')} />
+        </div>
+        <FieldRow label="Phone" value={party.phone !== 'Unknown' ? party.phone : null} />
+        <FieldRow label="Substance" value={party.substance_involvement !== 'None reported' ? party.substance_involvement : null} />
+        {party.transported && (
+          <div style={{ gridColumn: '1 / -1' }}>
+            <FieldRow label="Transported To" value={party.transported_to} onClick={() => onFieldClick('transported_to')} />
+          </div>
+        )}
+        {party.citations && party.citations !== 'None' && (
+          <div style={{ gridColumn: '1 / -1' }}>
+            <FieldRow label="Citations" value={party.citations} onClick={() => onFieldClick('citations')} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const WitnessCard = ({ witness, index, onFieldClick }) => (
+  <div style={{
+    background: 'var(--secondary-bg)', borderRadius: '10px',
+    border: '1px solid var(--border-color)', padding: '0.75rem 1rem',
+    marginBottom: '0.5rem', display: 'grid',
+    gridTemplateColumns: '1fr 1fr', gap: '0.75rem 1.5rem'
+  }}>
+    <FieldRow label={`Witness ${index + 1}`} value={witness.name} onClick={() => onFieldClick('name')} />
+    <FieldRow label="Phone" value={witness.phone !== 'Unknown' ? witness.phone : null} />
+    <div style={{ gridColumn: '1 / -1' }}>
+      <FieldRow label="Address" value={witness.address} onClick={() => onFieldClick('address')} />
+    </div>
+  </div>
+);
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, onReprocess }) => {
   const [recommendations, setRecommendations] = useState('');
@@ -21,17 +195,12 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     const conf = (fieldId && fieldId in fieldScores) ? fieldScores[fieldId] : null;
     const confColor = conf === null ? null : conf >= 80 ? 'var(--success)' : conf >= 50 ? 'var(--warning)' : 'var(--danger)';
     const confBg   = conf === null ? null : conf >= 80 ? 'rgba(16,185,129,0.12)' : conf >= 50 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
-
     return (
       <div className="field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <span>{label}</span>
           {conf !== null && (
-            <span style={{
-              fontSize: '0.68rem', padding: '0.05rem 0.38rem', borderRadius: '8px',
-              fontWeight: 700, background: confBg, color: confColor, lineHeight: 1.6,
-              title: `Extraction confidence: ${conf}%`
-            }}>{conf}%</span>
+            <span style={{ fontSize: '0.68rem', padding: '0.05rem 0.38rem', borderRadius: '8px', fontWeight: 700, background: confBg, color: confColor, lineHeight: 1.6 }}>{conf}%</span>
           )}
         </div>
         {fieldId && (
@@ -47,7 +216,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   const renderAuditModal = () => {
     if (!auditModalField) return null;
     const candidates = data.audit_trail ? data.audit_trail.filter(c => c.field_id === auditModalField) : [];
-
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '2rem', width: '80%', maxWidth: '800px', maxHeight: '80vh', overflowY: 'auto' }}>
@@ -55,36 +223,34 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Search size={24} /> Audit Trail: {auditModalField}</h2>
             <button onClick={() => setAuditModalField(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={24} /></button>
           </div>
-          
           {candidates.length === 0 ? (
-             <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No audit trail data available for this field.</p>
+            <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No audit trail data available for this field.</p>
           ) : (
-             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-               <thead>
-                 <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                   <th style={{ padding: '0.5rem' }}>Rank</th>
-                   <th style={{ padding: '0.5rem' }}>Value</th>
-                   <th style={{ padding: '0.5rem' }}>Confidence</th>
-                   <th style={{ padding: '0.5rem' }}>Strategy</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {candidates.sort((a, b) => b.confidence - a.confidence).map((c, i) => (
-                   <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i === 0 ? 'rgba(16, 185, 129, 0.1)' : 'transparent' }}>
-                     <td style={{ padding: '0.75rem 0.5rem' }}>{i + 1} {i === 0 && <CheckCircle size={14} style={{ color: 'var(--success)', verticalAlign: 'text-bottom' }} />}</td>
-                     <td style={{ padding: '0.75rem 0.5rem', fontWeight: i === 0 ? 'bold' : 'normal' }}>{c.value}</td>
-                     <td style={{ padding: '0.75rem 0.5rem' }}>{typeof c.confidence === 'number' ? c.confidence.toFixed(2) : c.confidence}</td>
-                     <td style={{ padding: '0.75rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>{c.source_strategy}</td>
-                   </tr>
-                 ))}
-               </tbody>
-             </table>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <th style={{ padding: '0.5rem' }}>Rank</th>
+                  <th style={{ padding: '0.5rem' }}>Value</th>
+                  <th style={{ padding: '0.5rem' }}>Confidence</th>
+                  <th style={{ padding: '0.5rem' }}>Strategy</th>
+                </tr>
+              </thead>
+              <tbody>
+                {candidates.sort((a, b) => b.confidence - a.confidence).map((c, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i === 0 ? 'rgba(16,185,129,0.1)' : 'transparent' }}>
+                    <td style={{ padding: '0.75rem 0.5rem' }}>{i + 1} {i === 0 && <CheckCircle size={14} style={{ color: 'var(--success)', verticalAlign: 'text-bottom' }} />}</td>
+                    <td style={{ padding: '0.75rem 0.5rem', fontWeight: i === 0 ? 'bold' : 'normal' }}>{c.value}</td>
+                    <td style={{ padding: '0.75rem 0.5rem' }}>{typeof c.confidence === 'number' ? c.confidence.toFixed(2) : c.confidence}</td>
+                    <td style={{ padding: '0.75rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>{c.source_strategy}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>
     );
   };
-
 
   if (!data) {
     return (
@@ -106,27 +272,19 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     );
   }
 
-  // Safe fallbacks to prevent crashes
   const dynamic_fields = data.dynamic_fields || {};
   const review_flags = data.review_flags || {};
 
   useEffect(() => {
-    if (docId) {
-      fetchCustomFields();
-      setFeedbackGiven(null);
-    }
+    if (docId) { fetchCustomFields(); setFeedbackGiven(null); }
   }, [docId]);
 
   const fetchCustomFields = async () => {
     try {
       const res = await fetch(`http://127.0.0.1:8000/api/settings/fields/${encodeURIComponent(docId)}`);
       const json = await res.json();
-      if (json.status === 'success') {
-        setCustomFields(json.fields);
-      }
-    } catch (e) {
-      console.error("Failed to fetch custom fields", e);
-    }
+      if (json.status === 'success') setCustomFields(json.fields);
+    } catch (e) { console.error("Failed to fetch custom fields", e); }
   };
 
   const addField = async (e) => {
@@ -134,53 +292,33 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     if (!newField.trim() || !docId) return;
     try {
       await fetch('http://127.0.0.1:8000/api/settings/fields', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId, field_name: newField.trim() })
       });
-      setNewField('');
-      fetchCustomFields();
-      // Auto-trigger reprocess or allow user to click the button if preferred.
-      // We will let the user click the button so they can add multiple fields at once.
-    } catch (e) {
-      console.error(e);
-    }
+      setNewField(''); fetchCustomFields();
+    } catch (e) { console.error(e); }
   };
 
   const deleteField = async (fieldName) => {
     try {
-      await fetch(`http://127.0.0.1:8000/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, {
-        method: 'DELETE'
-      });
+      await fetch(`http://127.0.0.1:8000/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, { method: 'DELETE' });
       fetchCustomFields();
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const submitFeedback = async (action) => {
     try {
       await fetch('http://127.0.0.1:8000/api/feedback/rate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId || 'unknown_doc', action })
       });
       setFeedbackGiven(action);
-    } catch (e) {
-      console.error("Failed to submit feedback", e);
-    }
+    } catch (e) { console.error("Failed to submit feedback", e); }
   };
 
   const score = data.accuracy_score || 0;
-  let scoreColor = "var(--success)";
-  let scoreText = "High Confidence";
-  if (score < 90 && score >= 70) {
-    scoreColor = "var(--warning)";
-    scoreText = "Review Recommended";
-  } else if (score < 70) {
-    scoreColor = "var(--danger)";
-    scoreText = "ESCALATION REQUIRED: Low Data Extraction Confidence";
-  }
+  const scoreColor = score >= 90 ? 'var(--success)' : score >= 70 ? 'var(--warning)' : 'var(--danger)';
+  const scoreText = score >= 90 ? 'High Confidence' : score >= 70 ? 'Review Recommended' : 'ESCALATION REQUIRED: Low Data Extraction Confidence';
 
   const renderAccuracyBadge = () => (
     <div style={{ marginBottom: '1rem', background: 'var(--card-bg)', border: `1px solid ${scoreColor}`, borderRadius: '8px', overflow: 'hidden' }}>
@@ -192,61 +330,36 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           </h3>
           <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{scoreText}</p>
         </div>
-        {score < 70 && (
-          <button className="btn-primary" style={{ background: 'var(--danger)', border: 'none' }}>
-            Escalate to Supervisor
-          </button>
-        )}
+        {score < 70 && <button className="btn-primary" style={{ background: 'var(--danger)', border: 'none' }}>Escalate to Supervisor</button>}
       </div>
       {data.accuracy_reasons && data.accuracy_reasons.length > 0 && (
         <details style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.2)', borderTop: `1px solid ${scoreColor}` }}>
           <summary style={{ cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Why this score?</summary>
-          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.8rem', color: 'var(--text-main)' }}>
-            {data.accuracy_reasons.map((reason, idx) => (
-              <li key={idx} style={{ color: reason.startsWith('Found') ? 'var(--success)' : 'var(--danger)', marginBottom: '0.25rem' }}>{reason}</li>
+          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
+            {data.accuracy_reasons.map((r, i) => (
+              <li key={i} style={{ color: r.startsWith('Found') ? 'var(--success)' : 'var(--danger)', marginBottom: '0.25rem' }}>{r}</li>
             ))}
           </ul>
         </details>
       )}
-      
       <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', borderTop: `1px solid ${scoreColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          {feedbackGiven ? "Thanks for your feedback! The engine will use this to improve." : "How did the system do?"}
+          {feedbackGiven ? "Thanks for your feedback!" : "How did the system do?"}
         </span>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            onClick={() => submitFeedback('up')}
-            disabled={feedbackGiven !== null}
-            style={{ 
-              background: feedbackGiven === 'up' ? 'var(--success)' : 'transparent', 
-              border: `1px solid ${feedbackGiven === 'up' ? 'var(--success)' : 'var(--text-muted)'}`, 
-              color: feedbackGiven === 'up' ? 'black' : 'var(--text-muted)', 
-              borderRadius: '4px', padding: '0.25rem 0.5rem', cursor: feedbackGiven ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-            <ThumbsUp size={16} />
-          </button>
-          <button 
-            onClick={() => submitFeedback('down')}
-            disabled={feedbackGiven !== null}
-            style={{ 
-              background: feedbackGiven === 'down' ? 'var(--danger)' : 'transparent', 
-              border: `1px solid ${feedbackGiven === 'down' ? 'var(--danger)' : 'var(--text-muted)'}`, 
-              color: feedbackGiven === 'down' ? 'white' : 'var(--text-muted)', 
-              borderRadius: '4px', padding: '0.25rem 0.5rem', cursor: feedbackGiven ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-            <ThumbsDown size={16} />
-          </button>
+          {['up', 'down'].map(dir => (
+            <button key={dir} onClick={() => submitFeedback(dir)} disabled={feedbackGiven !== null}
+              style={{ background: feedbackGiven === dir ? (dir === 'up' ? 'var(--success)' : 'var(--danger)') : 'transparent', border: `1px solid ${feedbackGiven === dir ? (dir === 'up' ? 'var(--success)' : 'var(--danger)') : 'var(--text-muted)'}`, color: feedbackGiven === dir ? (dir === 'up' ? 'black' : 'white') : 'var(--text-muted)', borderRadius: '4px', padding: '0.25rem 0.5rem', cursor: feedbackGiven ? 'default' : 'pointer', display: 'flex', alignItems: 'center' }}>
+              {dir === 'up' ? <ThumbsUp size={16} /> : <ThumbsDown size={16} />}
+            </button>
+          ))}
         </div>
       </div>
     </div>
   );
 
-  // --- Insights & Next Best Action Engine ---
-  let insights = [];
-  let nextActions = [];
-
+  // ── Insights ──────────────────────────────────────────────────────────────
+  let insights = [], nextActions = [];
   if (type === 'ia') {
     if (data.reserve_warning) {
       insights.push("High severity claim with explicit reserve request detected.");
@@ -255,7 +368,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       insights.push("Standard property claim layout detected.");
       nextActions.push("Proceed to standard settlement workflow.");
     }
-    
     if (data.subrogation && data.subrogation.toLowerCase() === 'yes') {
       insights.push("Third-party liability identified.");
       nextActions.push("Initiate subrogation investigation against third party.");
@@ -270,28 +382,16 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     }
   } else {
     const hasDui = data.state_codes && data.state_codes.some(c => c.code === '9-2' || c.description.includes('DUI'));
-    if (hasDui) {
-      insights.push("Severe traffic violation (DUI) detected in State Codes.");
-      nextActions.push("Flag claim for SIU (Special Investigation Unit) review.");
-    }
-    
-    if (data.ems && data.ems.toLowerCase() === 'yes') {
-      insights.push("Medical transport (EMS) confirmed on scene.");
-      nextActions.push("Initiate Bodily Injury (BI) workflow and request medical records.");
-    }
-    
+    if (hasDui) { insights.push("Severe traffic violation (DUI) detected."); nextActions.push("Flag claim for SIU review."); }
+    if (data.ems && data.ems.toLowerCase() === 'yes') { insights.push("Medical transport (EMS) confirmed."); nextActions.push("Initiate BI workflow and request medical records."); }
     if (data.vehicles && data.vehicles.length > 2) {
-      insights.push(`Multi-vehicle collision (${data.vehicles.length} vehicles involved).`);
+      insights.push(`Multi-vehicle collision — ${data.vehicles.length} vehicles involved.`);
       if (!hasDui) nextActions.push("Review liability apportionment across all drivers.");
     }
-    
-    if (insights.length === 0 && (!data.duplicate_insights || data.duplicate_insights.length === 0)) {
-      insights.push("Standard single or dual-vehicle incident reported with no severe flags.");
-      nextActions.push("Proceed with standard auto-damage appraisal.");
-    }
+    const injured = (data.parties || []).filter(p => p.injuries && p.injuries !== 'None reported' && p.injuries !== 'Unknown');
+    if (injured.length > 0) { insights.push(`${injured.length} ${injured.length === 1 ? 'party' : 'parties'} with reported injuries.`); nextActions.push("Obtain medical authorizations and records."); }
+    if (insights.length === 0) { insights.push("Standard incident with no severe flags."); nextActions.push("Proceed with standard auto-damage appraisal."); }
   }
-
-  // Inject Duplicate Insights from Backend
   if (data.duplicate_insights && data.duplicate_insights.length > 0) {
     insights.push(...data.duplicate_insights);
     nextActions.push("Review duplicate data fields and confirm accurate selection.");
@@ -300,212 +400,114 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   const renderInsights = () => (
     <div className="insight-container fade-in">
       <div className="insight-card">
-        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--success)' }}>
-          <Lightbulb size={20} /> Document Insights
-        </h3>
+        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--success)' }}><Lightbulb size={20} /> Document Insights</h3>
         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
-          {insights.map((ins, idx) => <li key={idx} style={{ marginBottom: '0.5rem' }}>{ins}</li>)}
+          {insights.map((ins, i) => <li key={i} style={{ marginBottom: '0.5rem' }}>{ins}</li>)}
         </ul>
       </div>
-      
       <div className="action-card">
-        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--danger)' }}>
-          <ArrowRightCircle size={20} /> Next Best Action
-        </h3>
+        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--danger)' }}><ArrowRightCircle size={20} /> Next Best Action</h3>
         <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
-          {nextActions.map((act, idx) => <li key={idx} style={{ marginBottom: '0.5rem' }}><strong>{act}</strong></li>)}
+          {nextActions.map((act, i) => <li key={i} style={{ marginBottom: '0.5rem' }}><strong>{act}</strong></li>)}
         </ul>
       </div>
     </div>
   );
 
-  // --- Render Payload ---
+  // ── ACORD render ─────────────────────────────────────────────────────────
   if (type === 'acord') {
     return (
       <div className="fade-in">
+        {renderAuditModal()}
         {renderAccuracyBadge()}
         {renderInsights()}
-
         <div className="glass-card">
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Extracted ACORD Data
-          </h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to edit it and train the NLP engine.</p>
+          <SectionHeader icon={FileText} title="Extracted ACORD Data" />
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to edit and train the NLP engine.</p>
           <div className="grid-2">
-            <div>
-              {renderFieldLabel('Agency / Producer', 'agency')}
-              <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="acord_doc" needsReview={review_flags['agency']} /></div>
-            </div>
-            <div>
-              {renderFieldLabel('Insurance Carrier', 'carrier')}
-              <div className="field-value"><EditableField value={data.carrier} fieldName="carrier" docId="acord_doc" needsReview={review_flags['carrier']} /></div>
-            </div>
-            <div>
-              {renderFieldLabel('Policy Number', 'policy_number')}
-              <div className="field-value"><EditableField value={data.policy_number} fieldName="policy_number" docId="acord_doc" needsReview={review_flags['policy_number']} /></div>
-            </div>
-            <div>
-              {renderFieldLabel('Named Insured', 'named_insured')}
-              <div className="field-value"><EditableField value={data.named_insured} fieldName="named_insured" docId="acord_doc" needsReview={review_flags['named_insured']} /></div>
-            </div>
-            <div>
-              {renderFieldLabel('Date of Loss', 'date_of_loss')}
-              <div className="field-value"><EditableField value={data.date_of_loss} fieldName="date_of_loss" docId="acord_doc" needsReview={review_flags['date_of_loss']} /></div>
-            </div>
+            {[['Agency / Producer','agency'],['Insurance Carrier','carrier'],['Policy Number','policy_number'],['Named Insured','named_insured'],['Date of Loss','date_of_loss']].map(([label, fid]) => (
+              <div key={fid}>{renderFieldLabel(label, fid)}<div className="field-value"><EditableField value={data[fid]} fieldName={fid} docId="acord_doc" needsReview={review_flags[fid]} /></div></div>
+            ))}
           </div>
           <div style={{ marginTop: '1rem' }}>
-            {renderFieldLabel('Description of Loss', 'description_of_loss')}
+            {renderFieldLabel('Description of Loss','description_of_loss')}
             <div className="field-value" style={{ whiteSpace: 'pre-wrap' }}><EditableField value={data.description_of_loss} fieldName="description_of_loss" docId="acord_doc" needsReview={review_flags['description_of_loss']} /></div>
           </div>
         </div>
-
         {dynamic_fields && Object.keys(dynamic_fields).length > 0 && (
-          <div className="glass-card" style={{ marginBottom: '1rem' }}>
-            <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-              Extracted Table Data & Custom Fields
-            </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Fields extracted automatically by the generic NLP engine.</p>
+          <div className="glass-card">
+            <SectionHeader title="Custom Fields" />
             <div className="grid-2">
-              {Object.entries(dynamic_fields).map(([key, val], idx) => (
-                <div key={idx}>
-                  {renderFieldLabel(key, key)}
-                  <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div>
-                </div>
+              {Object.entries(dynamic_fields).map(([key, val]) => (
+                <div key={key}>{renderFieldLabel(key, key)}<div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div></div>
               ))}
             </div>
           </div>
         )}
-
         <div className="glass-card">
-          <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <FileTextIcon /> File Note Preview
-          </h3>
-          <p className="field-label" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-            <span>Ready for copy-pasting.</span>
-            <span style={{ color: 'var(--text-muted)' }}><Info size={14} style={{ verticalAlign: 'text-bottom' }}/> ClaimCenter Integration Pending</span>
-          </p>
-          <textarea 
-            className="file-note" 
-            readOnly 
-            value={data.summary || ''} 
-          />
+          <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FileTextIcon /> File Note Preview</h3>
+          <textarea className="file-note" readOnly value={data.summary || ''} />
         </div>
       </div>
     );
   }
 
+  // ── IA render ────────────────────────────────────────────────────────────
   if (type === 'ia') {
     return (
       <div className="fade-in">
+        {renderAuditModal()}
         {renderAccuracyBadge()}
         {renderInsights()}
-
         <div className="glass-card">
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Extracted Coverages & Estimates
-          </h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to highlight it in the original document.</p>
+          <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
-            <div>
-              {renderFieldLabel('Cause of Loss', 'cause_of_loss')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('cause_of_loss')}>{data.cause_of_loss}</div>
-            </div>
-            <div>
-              {renderFieldLabel(<>Settlement Estimate <Badge /></>, 'settlement')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('settlement')}>{data.settlement}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Coverage A', 'coverage_a')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_a')}>{data.coverage_a}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Inspection Date', 'inspection_date')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('inspection_date')}>{data.inspection_date}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Inspection Firm', 'inspection_firm')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('inspection_firm')}>{data.inspection_firm}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Coverage B', 'coverage_b')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_b')}>{data.coverage_b}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Coverage C', 'coverage_c')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_c')}>{data.coverage_c}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Coverage D', 'coverage_d')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('coverage_d')}>{data.coverage_d}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Coverages / Policy Form', 'coverages')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('coverages')}>{data.coverages}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Subrogation Status', 'subrogation')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('subrogation')}>{data.subrogation}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Officials (Report Filed)', 'officials')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('officials')}>{data.officials}</div>
-            </div>
-            <div>
-              {renderFieldLabel('Payment Summary', 'payment_summary')}
-              <div className="field-value clickable-field" onClick={() => onFieldClick('payment_summary')}>{data.payment_summary}</div>
-            </div>
+            {[['Cause of Loss','cause_of_loss'],['Settlement Estimate','settlement'],['Coverage A','coverage_a'],['Inspection Date','inspection_date'],['Inspection Firm','inspection_firm'],['Coverage B','coverage_b'],['Coverage C','coverage_c'],['Coverage D','coverage_d'],['Coverages / Policy Form','coverages'],['Subrogation Status','subrogation'],['Officials (Report Filed)','officials'],['Payment Summary','payment_summary']].map(([label, fid]) => (
+              <div key={fid}>{renderFieldLabel(label, fid)}<div className="field-value clickable-field" onClick={() => onFieldClick(fid)}>{data[fid]}</div></div>
+            ))}
           </div>
         </div>
-
-        <div className="glass-card" style={{ marginBottom: '1rem' }}>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Adjuster Recommendations
-          </h3>
-          <textarea 
-            style={{ width: '100%', minHeight: '80px', padding: '0.75rem', borderRadius: '4px', background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid var(--border-color)' }}
-            placeholder="Type final recommendations here..."
-            value={recommendations}
-            onChange={(e) => setRecommendations(e.target.value)}
-          />
-        </div>
-
+        {Object.keys(dynamic_fields).length > 0 && (
+          <div className="glass-card">
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Custom Fields</h3>
+            <div className="grid-2">
+              {Object.entries(dynamic_fields).map(([key, val]) => (
+                <div key={key}>{renderFieldLabel(key, key)}<div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div></div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="glass-card">
-          <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <FileTextIcon /> File Note Preview
-          </h3>
-          <p className="field-label" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-            <span>Ready for copy-pasting.</span>
-            <span style={{ color: 'var(--text-muted)' }}><Info size={14} style={{ verticalAlign: 'text-bottom' }}/> ClaimCenter Integration Pending</span>
-          </p>
-          <textarea 
-            className="file-note" 
-            readOnly 
-            value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} 
-          />
-          {data.reserve_warning && (
-            <p className="warning-text">
-              <AlertTriangle size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-              Reserve trigger detected in document.
-            </p>
-          )}
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Adjuster Recommendations</h3>
+          <textarea style={{ width: '100%', minHeight: '80px', padding: '0.75rem', borderRadius: '4px', background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid var(--border-color)' }}
+            placeholder="Type final recommendations here..." value={recommendations} onChange={e => setRecommendations(e.target.value)} />
+        </div>
+        <div className="glass-card">
+          <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FileTextIcon /> File Note Preview</h3>
+          <textarea className="file-note" readOnly value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} />
+          {data.reserve_warning && <p className="warning-text"><AlertTriangle size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />Reserve trigger detected.</p>}
         </div>
       </div>
     );
   }
 
+  // ── Police / HSMV render ─────────────────────────────────────────────────
+  const vehicles  = data.vehicles  || [];
+  const parties   = data.parties   || [];
+  const witnesses = data.witnesses || [];
+
   return (
     <div className="fade-in">
+      {renderAuditModal()}
       {renderAccuracyBadge()}
       {renderInsights()}
 
+      {/* ── Incident Summary ─────────────────────────────────────────── */}
       <div className="glass-card">
-        <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-          Incident Details
-        </h3>
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to highlight it in the original document.</p>
-        <div className="grid-2">
+        <SectionHeader icon={MapPin} title="Incident Summary" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
-            {renderFieldLabel('Date/Time', 'date_time')}
+            {renderFieldLabel('Date / Time', 'date_time')}
             <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
           </div>
           <div>
@@ -513,7 +515,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
           </div>
           <div>
-            {renderFieldLabel('Weather', 'weather')}
+            {renderFieldLabel('Weather Conditions', 'weather')}
             <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
           </div>
           <div>
@@ -524,14 +526,19 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             {renderFieldLabel('EMS Agency', 'ems_agency')}
             <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
           </div>
+          {data.light_condition && data.light_condition !== 'N/A' && (
+            <div>
+              {renderFieldLabel('Light Condition', 'light_condition')}
+              <div className="field-value">{data.light_condition}</div>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* ── Agency & Investigation ───────────────────────────────────── */}
       <div className="glass-card">
-        <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-          Agency & Investigation Details
-        </h3>
-        <div className="grid-2">
+        <SectionHeader icon={Shield} title="Agency & Investigation" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
             {renderFieldLabel('Responding Agency', 'agency')}
             <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
@@ -544,202 +551,165 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             {renderFieldLabel('Report Number', 'report_number')}
             <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
           </div>
+          {data.form_id && (
+            <div>
+              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.2rem' }}>Form / State</span>
+              <span style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>
+                {data.form_id} {data.form_state ? `(${data.form_state})` : ''} — {Math.round((data.form_confidence || 0) * 100)}% confidence
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* ── Involved Vehicles ────────────────────────────────────────── */}
       <div className="glass-card">
-        <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-          Involved Vehicles & Parties
-        </h3>
-        
-        <div style={{ marginBottom: '1.5rem' }}>
-          {renderFieldLabel('Vehicles', null)}
-          {data.vehicles && data.vehicles.map((v, idx) => (
-            <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
-              <div className="grid-2" style={{ gap: '0.5rem' }}>
-                <div><strong>VIN:</strong> <span className="clickable-field" onClick={() => onFieldClick('vin')}>{v.vin}</span> {v.vin !== "No VIN Found" && v.vin !== "Unknown" && <Badge />}</div>
-                <div><strong>Plate:</strong> <span className="clickable-field" onClick={() => onFieldClick('plate')}>{v.plate}</span></div>
-                <div><strong>Make/Model/Year:</strong> <span className="clickable-field" onClick={() => onFieldClick('make')}>{v.year} {v.make} {v.model}</span></div>
-                <div><strong>Color:</strong> <span className="clickable-field" onClick={() => onFieldClick('color')}>{v.color}</span></div>
-                <div><strong>Damages:</strong> <span className="clickable-field" onClick={() => onFieldClick('damages')}>{v.damages}</span></div>
-                <div><strong>Towed/Company:</strong> <span className="clickable-field" onClick={() => onFieldClick('towed')}>{v.towed}</span> / <span className="clickable-field" onClick={() => onFieldClick('towing_company')}>{v.towing_company}</span></div>
-                <div><strong>Owner:</strong> <span className="clickable-field" onClick={() => onFieldClick('owner_name')}>{v.owner_name}</span></div>
-                <div><strong>Owner Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('owner_address')}>{v.owner_address}</span></div>
-                <div><strong>Insurance (Policy):</strong> <span className="clickable-field" onClick={() => onFieldClick('insurance_company')}>{v.insurance_company}</span> (<span className="clickable-field" onClick={() => onFieldClick('policy_number')}>{v.policy_number}</span>)</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginBottom: '1.5rem' }}>
-          {renderFieldLabel('Operators & Passengers', null)}
-          {data.parties && data.parties.length > 0 ? data.parties.map((p, idx) => (
-            <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
-              <div className="grid-2" style={{ gap: '0.5rem' }}>
-                <div><strong>Role:</strong> <span className="clickable-field" onClick={() => onFieldClick('role')}>{p.role}</span></div>
-                <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{p.name}</span></div>
-                <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{p.dob}</span></div>
-                <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{p.address}</span></div>
-                <div><strong>Phone:</strong> <span className="clickable-field" onClick={() => onFieldClick('phone')}>{p.phone || 'Unknown'}</span></div>
-                <div><strong>License:</strong> <span className="clickable-field" onClick={() => onFieldClick('license_number')}>{p.license_number}</span></div>
-                <div><strong>Injuries:</strong> <span className="clickable-field" onClick={() => onFieldClick('injuries')}>{p.injuries}</span></div>
-                <div><strong>Substance Involvement:</strong> <span className="clickable-field" onClick={() => onFieldClick('substance_involvement')}>{p.substance_involvement}</span></div>
-                <div><strong>Transported:</strong> <span>{p.transported ? 'Yes' : 'No'}</span></div>
-                <div><strong>Transported To:</strong> <span className="clickable-field" onClick={() => onFieldClick('transported_to')}>{p.transported_to}</span></div>
-                <div><strong>Citations:</strong> <span className="clickable-field" onClick={() => onFieldClick('citations')}>{p.citations}</span></div>
-              </div>
-            </div>
-          )) : <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>No parties identified in document.</div>}
-        </div>
-
-        <div>
-          {renderFieldLabel('Witnesses', null)}
-          {data.witnesses && data.witnesses.length > 0 ? data.witnesses.map((w, idx) => (
-            <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.5rem' }}>
-              <div className="grid-2" style={{ gap: '0.5rem' }}>
-                <div><strong>Name:</strong> <span className="clickable-field" onClick={() => onFieldClick('name')}>{w.name}</span></div>
-                <div><strong>DOB:</strong> <span className="clickable-field" onClick={() => onFieldClick('dob')}>{w.dob}</span></div>
-                <div><strong>Phone:</strong> <span className="clickable-field" onClick={() => onFieldClick('phone')}>{w.phone || 'Unknown'}</span></div>
-                <div><strong>Address:</strong> <span className="clickable-field" onClick={() => onFieldClick('address')}>{w.address}</span></div>
-              </div>
-            </div>
-          )) : <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>No witnesses identified in document.</div>}
-        </div>
+        <SectionHeader
+          icon={Car}
+          title="Involved Vehicles"
+          count={vehicles.length ? `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''}` : null}
+          color="#60a5fa"
+        />
+        {vehicles.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+            No vehicles extracted from this document.
+          </div>
+        ) : (
+          vehicles.map((v, i) => <VehicleCard key={i} vehicle={v} index={i} onFieldClick={onFieldClick} />)
+        )}
       </div>
 
-      {(data.contributing_factors && data.contributing_factors !== 'Unknown') && (
-        <div className="glass-card" style={{ marginBottom: '1rem' }}>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Contributing Factors / Driver Action
-          </h3>
+      {/* ── Operators & Passengers ───────────────────────────────────── */}
+      <div className="glass-card">
+        <SectionHeader
+          icon={User}
+          title="Operators & Passengers"
+          count={parties.length ? `${parties.length} ${parties.length !== 1 ? 'people' : 'person'}` : null}
+          color="#a78bfa"
+        />
+        {parties.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+            No parties identified in this document.
+          </div>
+        ) : (
+          parties.map((p, i) => <PartyCard key={i} party={p} index={i} onFieldClick={onFieldClick} />)
+        )}
+      </div>
+
+      {/* ── Witnesses ────────────────────────────────────────────────── */}
+      {witnesses.length > 0 && (
+        <div className="glass-card">
+          <SectionHeader
+            icon={Eye}
+            title="Witnesses"
+            count={`${witnesses.length} witness${witnesses.length !== 1 ? 'es' : ''}`}
+            color="#34d399"
+          />
+          {witnesses.map((w, i) => <WitnessCard key={i} witness={w} index={i} onFieldClick={onFieldClick} />)}
+        </div>
+      )}
+
+      {/* ── Contributing Factors ─────────────────────────────────────── */}
+      {data.contributing_factors && data.contributing_factors !== 'Unknown' && (
+        <div className="glass-card">
+          <SectionHeader icon={AlertCircle} title="Contributing Factors" color="var(--warning)" />
           <div className="field-value">
             <EditableField value={data.contributing_factors} fieldName="contributing_factors" docId="police_doc" needsReview={review_flags['contributing_factors']} />
           </div>
         </div>
       )}
 
-      {(data.property_damage && data.property_damage !== 'Unknown') && (
-        <div className="glass-card" style={{ marginBottom: '1rem' }}>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Property Damage (Non-Vehicle)
-          </h3>
+      {/* ── Property Damage ──────────────────────────────────────────── */}
+      {data.property_damage && data.property_damage !== 'Unknown' && (
+        <div className="glass-card">
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Property Damage (Non-Vehicle)</h3>
           <div className="field-value">
             <EditableField value={data.property_damage} fieldName="property_damage" docId="police_doc" needsReview={review_flags['property_damage']} />
           </div>
         </div>
       )}
 
+      {/* ── State Codes ──────────────────────────────────────────────── */}
       {data.state_codes && data.state_codes.length > 0 && (
-        <div className="glass-card" style={{ marginBottom: '1rem' }}>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            State Code Lookup
-          </h3>
-          {data.state_codes.map((code, idx) => (
-            <div key={idx} style={{ background: 'rgba(239, 68, 68, 0.1)', borderLeft: '4px solid var(--danger)', padding: '0.75rem', borderRadius: '4px', marginBottom: '0.5rem' }}>
+        <div className="glass-card">
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>State Code Lookup</h3>
+          {data.state_codes.map((code, i) => (
+            <div key={i} style={{ background: 'rgba(239,68,68,0.1)', borderLeft: '4px solid var(--danger)', padding: '0.75rem', borderRadius: '4px', marginBottom: '0.5rem' }}>
               <strong>Code <span className="clickable-field" onClick={() => onFieldClick('code')}>{code.code}</span>:</strong> {code.description}
             </div>
           ))}
         </div>
       )}
 
+      {/* ── Custom / Dynamic Fields ──────────────────────────────────── */}
       {Object.keys(dynamic_fields).length > 0 && (
-        <div className="glass-card" style={{ marginBottom: '1rem' }}>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            Extracted Table Data & Custom Fields
-          </h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Fields extracted automatically by the generic NLP engine.</p>
+        <div className="glass-card">
+          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Custom Fields</h3>
           <div className="grid-2">
-            {Object.entries(dynamic_fields).map(([key, val], idx) => (
-              <div key={idx}>
-                {renderFieldLabel(key, key)}
-                <div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div>
-              </div>
+            {Object.entries(dynamic_fields).map(([key, val]) => (
+              <div key={key}>{renderFieldLabel(key, key)}<div className="field-value"><EditableField value={val} fieldName={key} docId="dynamic_doc" needsReview={review_flags[`dynamic_${key}`]} /></div></div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="glass-card" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-          Adjuster Recommendations
-        </h3>
-        <textarea 
+      {/* ── Adjuster Recommendations ─────────────────────────────────── */}
+      <div className="glass-card">
+        <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Adjuster Recommendations</h3>
+        <textarea
           style={{ width: '100%', minHeight: '80px', padding: '0.75rem', borderRadius: '4px', background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid var(--border-color)' }}
           placeholder="Type final recommendations here..."
           value={recommendations}
-          onChange={(e) => setRecommendations(e.target.value)}
+          onChange={e => setRecommendations(e.target.value)}
         />
       </div>
 
+      {/* ── File Note ────────────────────────────────────────────────── */}
       <div className="glass-card">
-        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <FileTextIcon /> File Note Preview
-        </h3>
+        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FileTextIcon /> File Note Preview</h3>
         <p className="field-label" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
           <span>Ready for copy-pasting.</span>
-          <span style={{ color: 'var(--text-muted)' }}><Info size={14} style={{ verticalAlign: 'text-bottom' }}/> ClaimCenter Integration Pending</span>
+          <span style={{ color: 'var(--text-muted)' }}><Info size={14} style={{ verticalAlign: 'text-bottom' }} /> ClaimCenter Integration Pending</span>
         </p>
-        <textarea 
-          className="file-note" 
-          readOnly 
-          value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} 
-        />
+        <textarea className="file-note" readOnly
+          value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} />
       </div>
 
-      <div className="glass-card" style={{ marginTop: '1rem', border: '1px solid var(--accent)' }}>
+      {/* ── Add Custom Field ─────────────────────────────────────────── */}
+      <div className="glass-card" style={{ border: '1px solid var(--accent)' }}>
         <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)' }}>
           <Plus size={18} /> Add Custom Extraction Field
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          Force the generic NLP engine to extract a specific field (e.g. "Ambulance Arrival Time") from this document.
+          Force the engine to extract a specific field (e.g. "Ambulance Arrival Time") from this document.
         </p>
         <form onSubmit={addField} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-          <input 
-            type="text" 
-            value={newField}
-            onChange={(e) => setNewField(e.target.value)}
+          <input type="text" value={newField} onChange={e => setNewField(e.target.value)}
             placeholder="Type field name to extract..."
-            style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
-          />
-          <button type="submit" className="btn-primary" disabled={!newField.trim()} style={{ padding: '0.5rem 1rem' }}>
-            Add
-          </button>
+            style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+          <button type="submit" className="btn-primary" disabled={!newField.trim()} style={{ padding: '0.5rem 1rem' }}>Add</button>
         </form>
-
         {customFields.length > 0 && (
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {customFields.map((field, idx) => (
-                <div key={idx} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.5rem', borderRadius: '16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              {customFields.map((field, i) => (
+                <div key={i} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.5rem', borderRadius: '16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   {field}
-                  <button onClick={() => deleteField(field)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 0 }}>
-                    <Trash2 size={12} />
-                  </button>
+                  <button onClick={() => deleteField(field)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: 0 }}><Trash2 size={12} /></button>
                 </div>
               ))}
             </div>
-            
-            <button 
-              className="btn-primary" 
-              onClick={onReprocess} 
-              disabled={isReprocessing}
-              style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none' }}
-            >
-              {isReprocessing ? (
-                <><div className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }}></div> Rerunning Extraction...</>
-              ) : (
-                <><RefreshCw size={16} /> Rerun Extraction with Custom Fields</>
-              )}
+            <button className="btn-primary" onClick={onReprocess} disabled={isReprocessing}
+              style={{ alignSelf: 'flex-start', background: 'var(--accent)', border: 'none' }}>
+              {isReprocessing ? <><div className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }}></div> Rerunning...</> : <><RefreshCw size={16} /> Rerun Extraction with Custom Fields</>}
             </button>
           </div>
         )}
       </div>
-
     </div>
   );
 };
 
-// Simple icon for File Note
 const FileTextIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
