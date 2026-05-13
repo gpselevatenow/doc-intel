@@ -1,0 +1,826 @@
+{
+  "run_date": "2026-05-13",
+  "forced_template": true,
+  "docs_evaluated": 5,
+  "fields_per_doc": 15,
+  "total_field_comparisons": 75,
+  "summary": {
+    "CORRECT": 11,
+    "CORRECT_AFTER_TRIM": 6,
+    "INCORRECT": 37,
+    "MISSED": 18,
+    "SPURIOUS": 0,
+    "TRUE_NEGATIVE": 3,
+    "trim_corrections": 6,
+    "precision": 0.3148,
+    "recall": 0.2361,
+    "f1": 0.2698,
+    "accuracy": 0.156
+  },
+  "per_field": {
+    "date_time": {
+      "correct": 4,
+      "correct_after_trim": 0,
+      "incorrect": 0,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889
+    },
+    "location": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 3,
+      "missed": 2,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "weather": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "incorrect": 3,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.4,
+      "recall": 0.4,
+      "f1": 0.4
+    },
+    "road_surface": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 0,
+      "missed": 5,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "light_condition": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "incorrect": 3,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.4,
+      "recall": 0.4,
+      "f1": 0.4
+    },
+    "accident_type": {
+      "correct": 0,
+      "correct_after_trim": 1,
+      "incorrect": 4,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.2,
+      "recall": 0.2,
+      "f1": 0.2
+    },
+    "agency": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 3,
+      "missed": 2,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "officer": {
+      "correct": 0,
+      "correct_after_trim": 5,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "report_number": {
+      "correct": 3,
+      "correct_after_trim": 0,
+      "incorrect": 0,
+      "missed": 2,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75
+    },
+    "ems_agency": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 1,
+      "missed": 4,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "contributing_factors": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 1,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "property_damage": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 5,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "vehicles": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 5,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "parties": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 5,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "witnesses": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "incorrect": 4,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  },
+  "per_doc": {
+    "sample_full_report.pdf": {
+      "form_id_correct": true,
+      "fields_correct": 5,
+      "fields_total": 15,
+      "confidence_when_correct_mean": 0.9568,
+      "confidence_when_incorrect_mean": 0.434
+    },
+    "sample_25_dui_wrongway_la.pdf": {
+      "form_id_correct": true,
+      "fields_correct": 2,
+      "fields_total": 15,
+      "confidence_when_correct_mean": 0.9587,
+      "confidence_when_incorrect_mean": 0.4668
+    },
+    "sample_27_tropical_moto_tampa.pdf": {
+      "form_id_correct": true,
+      "fields_correct": 1,
+      "fields_total": 14,
+      "confidence_when_correct_mean": 0.9973,
+      "confidence_when_incorrect_mean": 0.5106
+    },
+    "sample_24_rain_ped_nyc.pdf": {
+      "form_id_correct": true,
+      "fields_correct": 4,
+      "fields_total": 14,
+      "confidence_when_correct_mean": 0.9325,
+      "confidence_when_incorrect_mean": 0.5809
+    },
+    "sample_33_ice_ped_philadelphia.pdf": {
+      "form_id_correct": true,
+      "fields_correct": 5,
+      "fields_total": 14,
+      "confidence_when_correct_mean": 0.9316,
+      "confidence_when_incorrect_mean": 0.4949
+    }
+  },
+  "detail": [
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "date_time",
+      "ground_truth": "October 14, 2026 at 22:47 hrs",
+      "extracted": "October 14, 2026",
+      "status": "CORRECT",
+      "confidence": 0.92572
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "location",
+      "ground_truth": "I-35W Northbound between Exit 54A (N. Tarrant Pkwy) and Exit 54B (Western Center Blvd), Fort Worth, TX 76131 \u2014 approx. Mile Marker 54.0",
+      "extracted": "I-35W Northbound between Exit 54A",
+      "status": "INCORRECT",
+      "confidence": 0.925
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "weather",
+      "ground_truth": "Dense Fog / Light Rain",
+      "extracted": "Dense Fog / Light Rain",
+      "status": "CORRECT",
+      "confidence": 0.9295
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "road_surface",
+      "ground_truth": "Wet",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "light_condition",
+      "ground_truth": "Night",
+      "extracted": ", reduced",
+      "status": "INCORRECT",
+      "confidence": 0.6376
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "accident_type",
+      "ground_truth": "3-vehicle rear-end chain",
+      "extracted": "3-vehicle rear-end chain \u2014",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9313
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "agency",
+      "ground_truth": "Fort Worth Police Department",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Daniel R. Fuentes",
+      "extracted": "Officer Daniel R. Fuentes,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "report_number",
+      "ground_truth": "TR-2026-14-7731",
+      "extracted": "TR-2026-14-7731",
+      "status": "CORRECT",
+      "confidence": 1.0
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "ems_agency",
+      "ground_truth": "MedStar Mobile Healthcare",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "contributing_factors",
+      "ground_truth": "fog, speed, and operator alcohol impairment",
+      "extracted": "fog,",
+      "status": "INCORRECT",
+      "confidence": 0.61592
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "property_damage",
+      "ground_truth": "I-35W NB overhead guidance sign support post at MM 54.1 \u2014 minor side-panel contact from V3 trailer",
+      "extracted": "Rear bumper assembly crushed and deformed; left tail lamp assembly shattered; rear lift",
+      "status": "INCORRECT",
+      "confidence": 0.8513999999999999
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "vehicles",
+      "ground_truth": "LMK-4421 (TX), MRY-8820 (TX), CMV-3319 (TX)",
+      "extracted": "[{\"vin\": \"2T3RWRFV9NC123456\", \"plate\": \"LMK-4421\", \"make\": \"Toyota\", \"year\": \"2022\", \"model\": \"RAV4 XLE AWD\", \"color\": \"Magnetic Gray Metallic\", \"damages\": \"Unknown\", \"owner_name\": \"Karen L. Whitfield\", \"owner_address\": \"4812 Ridgemont Drive, Fort Worth, TX 76131\", \"insurance_company\": \"State Farm Mutual Automobile Insurance Company\", \"policy_number\": \"SF-TX-4421-KLW-2026\", \"towed\": \"47 hrs by registered owner's spouse\", \"towing_company\": \"Unknown\"}, {\"vin\": \"5NPEG4JA1LH234567\", \"plate\": \"MRY-8820\", \"make\": \"Hyundai\", \"year\": \"2020\", \"model\": \"Sonata SE\", \"color\": \"Quartz White Pearl\", \"damages\": \"Unknown\", \"owner_name\": \"Marcus J. Reyna\", \"owner_address\": \"2211 Sundance Court, Keller, TX 76248\", \"insurance_company\": \"Progressive Northern Insurance Company\", \"policy_number\": \"PROG-TX-8820-MJR-2026\", \"towed\": \"18 hrs; vehicle loaded and departed\", \"towing_company\": \"Star Towing & Recovery, (817) 555-0241 \\u2014 Storage Lot #4, 6800 Blue Mound Road,\"}, {\"vin\": \"3AKJGLD57KSFA3344\", \"plate\": \"CMV-3319\", \"make\": \"Freightliner\", \"year\": \"2019\", \"model\": \"Cascadia 126 \\u2014 Class 8 Tractor with 53-ft Refrigerated Trailer\", \"color\": \"CMV\", \"damages\": \"Unknown\", \"owner_name\": \"T.\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Great West Casualty Company\", \"policy_number\": \"GWC-CMV-2019-HL-TX-55182\", \"towed\": \"14 hrs\", \"towing_company\": \"Star Towing & Recovery CMV Division, (817) 555-0241 \\u2014 CMV Yard, 6800 Blue Mound\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "parties",
+      "ground_truth": "Karen L. Whitfield, Marcus J. Reyna, Bobby R. Hastings",
+      "extracted": "[{\"role\": \"Operator\", \"name\": \"Karen L. Whitfield\", \"dob\": \"07/22/1983\", \"address\": \"4812 Ridgemont Drive, Fort Worth, TX 76131\", \"phone\": \"Unknown\", \"license_number\": \"TX-DL-22184433\", \"condition\": \"Complaining of mild posterior neck stiffness consistent with low-speed whiplash; not administered (no legal basis). not tested. No  odors or behavioral indicators noted.; drug\", \"injuries\": \"Complaining of mild posterior neck stiffness consistent with low-speed whiplash; not administered (no legal basis). not tested. No  odors or behavioral indicators noted.\", \"substance_involvement\": \"drug\", \"transported\": false, \"transported_to\": \"N/A\", \"citations\": \"None\", \"citations_list\": []}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "witnesses",
+      "ground_truth": "Sandra P. Morales, Kevin D. Ostrowski, Anthony L. Brewer",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "date_time",
+      "ground_truth": "July 4, 2026 at 02:14 hrs",
+      "extracted": "July 4, 2026 LIGHT CONDITIONS Artificial",
+      "status": "CORRECT",
+      "confidence": 0.9202
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "location",
+      "ground_truth": "I-405 Northbound, Mile Marker 38.2 (near Sunset Blvd exit), Los Angeles, CA 90049",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "weather",
+      "ground_truth": "Clear",
+      "extracted": "Clear / Dry",
+      "status": "INCORRECT",
+      "confidence": 0.9948
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "road_surface",
+      "ground_truth": "Dry",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "light_condition",
+      "ground_truth": "Dark",
+      "extracted": "Artificial (freeway lighting) / Dark",
+      "status": "INCORRECT",
+      "confidence": 0.89364
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "accident_type",
+      "ground_truth": "6-vehicle pileup",
+      "extracted": "6-vehicle pileup \u2014 wrong-way DUI",
+      "status": "INCORRECT",
+      "confidence": 0.7915000000000001
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "agency",
+      "ground_truth": "Los Angeles Police Department",
+      "extracted": "UNITS\nResponding Agency Los Angeles Police Department",
+      "status": "INCORRECT",
+      "confidence": 0.7398
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Tamara L. Watkins",
+      "extracted": "Officer Tamara L. Watkins,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "report_number",
+      "ground_truth": "LAPD-26-07-04-1188",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "ems_agency",
+      "ground_truth": "LAFD \u2014 Rescue Ambulance 71 and 88",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "contributing_factors",
+      "ground_truth": "wrong-way driving, DUI",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "property_damage",
+      "ground_truth": "I-405 NB center divider \u2014 V6 struck barrier before entering northbound lanes; three panels displaced",
+      "extracted": "I-405 NB center divider \u2014 V6 struck barrier before entering northbound lanes; three panels",
+      "status": "INCORRECT",
+      "confidence": 0.6848000000000001
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "vehicles",
+      "ground_truth": "CA-7HKR441, CA-8LTX224, CA-6PKW881, CA-9MXP112, CA-4TNW773, CA-2BWK558",
+      "extracted": "[{\"vin\": \"1HGCV1F34KA081801\", \"plate\": \"CA-7HKR441\", \"make\": \"Honda\", \"year\": \"2019\", \"model\": \"Accord\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"4T1G11AK0NU081801\", \"plate\": \"CA-8LTX224\", \"make\": \"Toyota\", \"year\": \"2022\", \"model\": \"Camry\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"1FMCU0G67LUC48801\", \"plate\": \"CA-6PKW881\", \"make\": \"Ford\", \"year\": \"2020\", \"model\": \"Escape\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"5UXCR6C09M9E41801\", \"plate\": \"CA-9MXP112\", \"make\": \"BMW\", \"year\": \"2021\", \"model\": \"X5\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"2C3CDZAG3JH341801\", \"plate\": \"CA-4TNW773\", \"make\": \"Dodge\", \"year\": \"2018\", \"model\": \"Challenger\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"JTDKBRFU0H3041801\", \"plate\": \"CA-2BWK558\", \"make\": \"Toyota\", \"year\": \"2017\", \"model\": \"Prius\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "parties",
+      "ground_truth": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
+      "extracted": "[{\"role\": \"Operator\", \"name\": \"Marco A. Torres\", \"dob\": \"05/12/1990\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"CA-T44218301\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"Keiko L. Nakamura\", \"dob\": \"08/29/1985\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"CA-N88234107\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"David B. Greenberg\", \"dob\": \"03/17/1978\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"CA-G77187213\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"Ravi K. Patel\", \"dob\": \"11/04/1983\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"CA-P44219801\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"Jerome D. Wong\", \"dob\": \"07/22/1998\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"CA-W88219812\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "witnesses",
+      "ground_truth": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh",
+      "extracted": "[{\"name\": \"Felix R. Dominguez Motorist, pulled to shoulder before (310) 555-0341 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed V6 traveling\"}, {\"name\": \"Priscilla T. Wan Freeway witness, 3-4 vehicles behind (310) 555-0448 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"described V6\"}, {\"name\": \"LAPD Air-7 Crew LAPD Air Support Division LAPD Internal Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"Air-7 arrived\"}, {\"name\": \"Anthony R. Bello Gas station at Sunset Blvd exit (310) 555-0512 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed V6 enter\"}, {\"name\": \"Cynthia A. Marsh Passenger in vehicle behind V1 (310) 555-0617 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"saw V6 headlights\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "date_time",
+      "ground_truth": "September 28, 2026 at 18:33 hrs",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "location",
+      "ground_truth": "I-275 Southbound, Mile Marker 39.8 (Howard Ave exit area), Tampa, FL 33606",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "weather",
+      "ground_truth": "heavy rain",
+      "extracted": "Tropical Storm Conditions",
+      "status": "INCORRECT",
+      "confidence": 0.9295
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "road_surface",
+      "ground_truth": "Standing Water",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "light_condition",
+      "ground_truth": "Dusk",
+      "extracted": "Dusk / Storm-darkened",
+      "status": "INCORRECT",
+      "confidence": 0.89364
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "accident_type",
+      "ground_truth": "4-vehicle chain collision",
+      "extracted": "4-vehicle chain collision + motorcycle",
+      "status": "INCORRECT",
+      "confidence": 0.9313
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "agency",
+      "ground_truth": "Tampa Police Department",
+      "extracted": "C Unit 22",
+      "status": "INCORRECT",
+      "confidence": 0.5489999999999999
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Brianna T. Moss",
+      "extracted": "Officer Brianna T. Moss,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "report_number",
+      "ground_truth": "TPD-26-09-28-1441",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "ems_agency",
+      "ground_truth": "Tampa Fire Rescue \u2014 Rescue 1 and Rescue 5",
+      "extracted": "TPD \u00b7 Case TPD-26-09-28-1441 \u00b7 Santos/Walters/Kim/Patel/Moto-Garcia \u00b7 Confidential Page 2",
+      "status": "INCORRECT",
+      "confidence": 0.6852
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "contributing_factors",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "property_damage",
+      "ground_truth": "I-275 SB right shoulder crash attenuator (barrel array) at MM 39.7 \u2014 struck by V3 post-impact; 4 barrels displaced",
+      "extracted": "I-275 SB right shoulder crash attenuator (barrel array) at MM 39.7 \u2014 struck by V3",
+      "status": "INCORRECT",
+      "confidence": 0.6848000000000001
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "vehicles",
+      "ground_truth": "FL-PKT-4418, FL-QRX-8821, FL-RTW-3319, FL-SXM-7723, FL-MCY-441",
+      "extracted": "[{\"vin\": \"1FMJK1LT2PEA41801\", \"plate\": \"FL-PKT-4418\", \"make\": \"Ford\", \"year\": \"2023\", \"model\": \"Expedition\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"KM8J3CAL7MU241801\", \"plate\": \"FL-QRX-8821\", \"make\": \"Hyundai\", \"year\": \"2021\", \"model\": \"Tucson\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"JM3KFBCM5K0441801\", \"plate\": \"FL-RTW-3319\", \"make\": \"Mazda\", \"year\": \"2019\", \"model\": \"CX-5\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"4S3BWAD69N3041801\", \"plate\": \"FL-SXM-7723\", \"make\": \"Subaru\", \"year\": \"2022\", \"model\": \"Legacy\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "parties",
+      "ground_truth": "Elena B. Santos, Charles T. Walters, Yuna S. Kim, Preet A. Patel, Eduardo R. Garcia",
+      "extracted": "[{\"role\": \"Operator\", \"name\": \"Elena B. Santos\", \"dob\": \"07/14/1981\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"FL-S44218301\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"Charles T. Walters\", \"dob\": \"04/22/1976\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"FL-W88234107\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"FL FS \\u00a7316.0895 \\u2014 Following Too Close\", \"citations_list\": [\"FL FS \\u00a7316.0895 \\u2014 Following Too Close\"]}, {\"role\": \"Operator\", \"name\": \"Yuna S. Kim\", \"dob\": \"09/17/1991\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"FL-K77187213\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"FL FS \\u00a7316.0895 \\u2014 Following Too Close\", \"citations_list\": [\"FL FS \\u00a7316.0895 \\u2014 Following Too Close\"]}, {\"role\": \"Operator\", \"name\": \"Preet A. Patel\", \"dob\": \"02/28/1988\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"FL-P44219801\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"FL FS \\u00a7316.0895 \\u2014 Following Too Close\", \"citations_list\": [\"FL FS \\u00a7316.0895 \\u2014 Following Too Close\"]}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "witnesses",
+      "ground_truth": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R. Melendez #144, Kevin T. Morrison",
+      "extracted": "[{\"name\": \"Harold W. Freeman Motorist, safely stopped on right (813) 555-0341 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed motorcycle\"}, {\"name\": \"Patricia M. Cruz Passenger in car behind V4 (813) 555-0448 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"confirmed extreme\"}, {\"name\": \"FHP Trooper R. FHP Troop C, arrived 18:41 hrs FHP Internal Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"supplemental\"}, {\"name\": \"Kevin T. Morrison Howard Ave exit ramp\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"motorist who (813) 555-0519 Yes\", \"statement\": \"exiting at Howard Ave\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "date_time",
+      "ground_truth": "August 19, 2026 at 17:38 hrs",
+      "extracted": "August 19, 2026 LIGHT CONDITIONS Dayligh",
+      "status": "CORRECT",
+      "confidence": 0.919
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "location",
+      "ground_truth": "Queens Blvd & 69th Road (intersection), Woodside, Queens, NY 11377",
+      "extracted": "Police Department OFFICIAL TRAFFIC COLLISION",
+      "status": "INCORRECT",
+      "confidence": 0.6002
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "weather",
+      "ground_truth": "Thunderstorm",
+      "extracted": "Heavy Rain / Thunderstorm",
+      "status": "INCORRECT",
+      "confidence": 0.9295
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "road_surface",
+      "ground_truth": "Wet",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "light_condition",
+      "ground_truth": "Daylight / Overcast",
+      "extracted": "Daylight / Overcast",
+      "status": "CORRECT",
+      "confidence": 0.89364
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "accident_type",
+      "ground_truth": "4-vehicle collision + 2 pedestrians struck",
+      "extracted": "4-vehicle collision + 2 pedestrians",
+      "status": "INCORRECT",
+      "confidence": 0.9313
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "agency",
+      "ground_truth": "New York City Police Department",
+      "extracted": "Investigating Officer Officer Svetlana M. Borisova, Badge",
+      "status": "INCORRECT",
+      "confidence": 0.6990000000000001
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Svetlana M. Borisova",
+      "extracted": "Officer Svetlana M. Borisova,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "report_number",
+      "ground_truth": "NYPD-26-08-19-8814",
+      "extracted": "NYPD-26-08-19-8814",
+      "status": "CORRECT",
+      "confidence": 0.9202
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "ems_agency",
+      "ground_truth": "FDNY EMS \u2014 Units 44 and 51",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "contributing_factors",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "property_damage",
+      "ground_truth": "Pedestrian crosswalk signal button housing",
+      "extracted": "Pedestrian crosswalk signal button housing \u2014 struck by V1 post-collision slide; housing",
+      "status": "INCORRECT",
+      "confidence": 0.6848000000000001
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "vehicles",
+      "ground_truth": "NY-HKR-4418, NY-JLX-8821, NY-KBW-3319, NY-LCM-7723",
+      "extracted": "[{\"vin\": \"1N4BL4BV3MN341801\", \"plate\": \"NY-HKR-4418\", \"make\": \"Nissan\", \"year\": \"2021\", \"model\": \"Altima\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"5TDZZ3DC4LS241801\", \"plate\": \"NY-JLX-8821\", \"make\": \"Toyota\", \"year\": \"2020\", \"model\": \"Sienna\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"5J6RW1H85JA073801\", \"plate\": \"NY-KBW-3319\", \"make\": \"Honda\", \"year\": \"2018\", \"model\": \"CR-V\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"1GNSKRKD0PR241801\", \"plate\": \"NY-LCM-7723\", \"make\": \"Chevrolet\", \"year\": \"2023\", \"model\": \"Tahoe\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "parties",
+      "ground_truth": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
+      "extracted": "[{\"role\": \"Operator\", \"name\": \"Roberto E. Castillo\", \"dob\": \"06/15/1988\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"NY-C44218309\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"NY VTL \\u00a71111(d) \\u2014 Red Signal Violation\", \"citations_list\": [\"NY VTL \\u00a71111(d) \\u2014 Red Signal Violation\"]}, {\"role\": \"Operator\", \"name\": \"Tariq B. Ahmed\", \"dob\": \"03/07/1993\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"NY-A77187213\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"NY VTL \\u00a71129 \\u2014 Following Too Close\", \"citations_list\": [\"NY VTL \\u00a71129 \\u2014 Following Too Close\"]}, {\"role\": \"Operator\", \"name\": \"Blessing O. Okafor\", \"dob\": \"11/30/1985\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"NY-O44219801\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"NY VTL \\u00a71129 \\u2014 Following Too Close\", \"citations_list\": [\"NY VTL \\u00a71129 \\u2014 Following Too Close\"]}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "witnesses",
+      "ground_truth": "Calvin R. Moore, Maria T. Santos, David K. Lowenstein, Julia R. Marchetti, Officer T. Park",
+      "extracted": "[{\"name\": \"Calvin R. Moore 6912 Queens Blvd, Woodside NY (718) 555-0341 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"on crosswalk,\"}, {\"name\": \"Maria T. Santos Waiting at bus stop, NW corner (718) 555-0448 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed pedestrian\"}, {\"name\": \"David K. Owner, 69-12 Queens Blvd (store) (718) 555-0519 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"security camera\"}, {\"name\": \"Julia R. Marchetti Passenger in following vehicle behind (718) 555-0617 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"described rain as\"}, {\"name\": \"Officer T. Park Off-duty NYPD officer, pedestrian at NYPD Internal Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"off-duty officer\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "date_time",
+      "ground_truth": "December 28, 2026 at 8:19 hrs",
+      "extracted": "December 28, 2026 LIGHT CONDITIONS Dayli",
+      "status": "CORRECT",
+      "confidence": 0.919
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "location",
+      "ground_truth": "Broad Street & Washington Avenue (intersection), Philadelphia, PA 19148",
+      "extracted": "Street & Washington Avenue TYPE OF 5-vehicle intersection pileup + 2",
+      "status": "INCORRECT",
+      "confidence": 0.874
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "weather",
+      "ground_truth": "Freezing Rain / Ice Storm",
+      "extracted": "Freezing Rain / Ice Storm",
+      "status": "CORRECT",
+      "confidence": 0.9295
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "road_surface",
+      "ground_truth": "Glare Ice / Freezing Rain",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "light_condition",
+      "ground_truth": "Daylight / Overcast",
+      "extracted": "Daylight / Overcast",
+      "status": "CORRECT",
+      "confidence": 0.8919999999999999
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "accident_type",
+      "ground_truth": "5-vehicle intersection pileup + 2 pedestrians struck",
+      "extracted": "5-vehicle intersection pileup + 2",
+      "status": "INCORRECT",
+      "confidence": 0.9313
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "agency",
+      "ground_truth": "Philadelphia Police Department",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Darnell T. Pierce",
+      "extracted": "Officer Darnell T. Pierce,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "report_number",
+      "ground_truth": "PPD-26-12-28-1101",
+      "extracted": "PPD-26-12-28-1101",
+      "status": "CORRECT",
+      "confidence": 0.9202
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "ems_agency",
+      "ground_truth": "Philadelphia Fire Dept. \u2014 Medic 8 and Medic 19",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "contributing_factors",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "property_damage",
+      "ground_truth": "Traffic signal pole, Broad & Washington (NE corner) \u2014 V1 post-collision contact; signal head cracked",
+      "extracted": "Traffic signal pole, Broad & Washington (NE corner) \u2014 V1 post-collision contact; signal",
+      "status": "INCORRECT",
+      "confidence": 0.6848000000000001
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "vehicles",
+      "ground_truth": "PA-APX-4418, PA-BKR-8821, PA-CTX-3319, PA-DLM-7723, PA-EMT-441",
+      "extracted": "[{\"vin\": \"4S4BTACC0N3341801\", \"plate\": \"PA-APX-4418\", \"make\": \"Subaru\", \"year\": \"2022\", \"model\": \"Outback\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"1FMCU0G61LUC81801\", \"plate\": \"PA-BKR-8821\", \"make\": \"Ford\", \"year\": \"2020\", \"model\": \"Escape\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"5YFS4RCE5LP081801\", \"plate\": \"PA-CTX-3319\", \"make\": \"Toyota\", \"year\": \"2019\", \"model\": \"Corolla\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"3GCUKREC0MG318801\", \"plate\": \"PA-DLM-7723\", \"make\": \"Chevrolet\", \"year\": \"2021\", \"model\": \"Silverado\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}, {\"vin\": \"1C4SDHCT6JC241801\", \"plate\": \"PA-EMT-441\", \"make\": \"Dodge\", \"year\": \"2018\", \"model\": \"Durango\", \"color\": \"Unknown\", \"damages\": \"Unknown\", \"owner_name\": \"Unknown\", \"owner_address\": \"Unknown\", \"insurance_company\": \"Unknown\", \"policy_number\": \"Unknown\", \"towed\": \"Unknown\", \"towing_company\": \"Unknown\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "parties",
+      "ground_truth": "Eileen C. Murphy, Miguel A. Gonzalez, Sharon Y. Chen, Chukwuma P. Okafor, Tamika R. Williams",
+      "extracted": "[{\"role\": \"Operator\", \"name\": \"Eileen C. Murphy\", \"dob\": \"08/14/1983\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"PA-M44218301\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"PA 75 Pa.C.S. \\u00a73112(a)(3) \\u2014 Red Signal\", \"citations_list\": [\"PA 75 Pa.C.S. \\u00a73112(a)(3) \\u2014 Red Signal\"]}, {\"role\": \"Operator\", \"name\": \"Miguel A. Gonzalez\", \"dob\": \"03/27/1979\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"PA-G88234107\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"Sharon Y. Chen\", \"dob\": \"11/15/1991\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"PA-C77187213\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}, {\"role\": \"Operator\", \"name\": \"Chukwuma P. Okafor\", \"dob\": \"07/04/1986\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"PA-O44219801\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"PA 75 Pa.C.S. \\u00a73361 \\u2014 Speed Not\", \"citations_list\": [\"PA 75 Pa.C.S. \\u00a73361 \\u2014 Speed Not\"]}, {\"role\": \"Operator\", \"name\": \"Tamika R. Williams\", \"dob\": \"02/19/1994\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"PA-W88219812\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"PA 75 Pa.C.S. \\u00a73361 \\u2014 Speed Not\", \"citations_list\": [\"PA 75 Pa.C.S. \\u00a73361 \\u2014 Speed Not\"]}, {\"role\": \"Pedestrian\", \"name\": \"strikes; mobile\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"license_number\": \"Unknown\", \"condition\": \"Unknown\", \"injuries\": \"Unknown\", \"substance_involvement\": \"None reported\", \"transported\": false, \"transported_to\": \"Unknown\", \"citations\": \"None\", \"citations_list\": []}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "witnesses",
+      "ground_truth": "Franklin T. Booker, Denise P. Rawlins, Alonzo W. Henderson, Det. R. Kim, Officer Patricia L. Diaz",
+      "extracted": "[{\"name\": \"Franklin T. Booker Southeast corner sidewalk, Broad & (215) 555-0341 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed V1 run red\"}, {\"name\": \"Denise P. Rawlins SEPTA bus stop, NE corner (215) 555-0448 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed both\"}, {\"name\": \"Alonzo W. Coffee shop interior, 1100 S Broad St (215) 555-0512 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"observed V4 and V5\"}, {\"name\": \"Det. R. Kim #5501 PPD Traffic Unit, arrived 08:31 hrs (215) 555-0144 Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"Traffic Unit Det.; led\"}, {\"name\": \"Officer Patricia L. Off-duty PPD officer, bystander at PPD Internal Yes\", \"dob\": \"Unknown\", \"address\": \"Unknown\", \"phone\": \"Unknown\", \"statement\": \"provided emergency\"}]",
+      "status": "INCORRECT",
+      "confidence": 0.6548
+    }
+  ]
+}

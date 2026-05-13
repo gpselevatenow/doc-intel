@@ -11,9 +11,12 @@ Usage:
   python tests/benchmark_ground_truth.py [options]
 
 Options:
-  --doc FILENAME   Benchmark a single document by filename (for debugging)
-  --verbose        Print per-field detail to stdout during the run
-  --help           Show this message and exit
+  --doc FILENAME        Benchmark a single document by filename (for debugging)
+  --verbose             Print per-field detail to stdout during the run
+  --force-template      Use expected_form_id from ground truth instead of classifier
+                        (counterfactual: isolates classifier vs template accuracy)
+                        Writes to benchmark_results_forced_template.json
+  --help                Show this message and exit
 """
 from __future__ import annotations
 
@@ -42,14 +45,23 @@ from core.orchestrator_integration import run_orchestrator
 
 _GROUND_TRUTH_PATH = _TESTS_DIR / "fixtures" / "ground_truth.json"
 _RESULTS_PATH = _TESTS_DIR / "benchmark_results.json"
+_RESULTS_FORCED_PATH = _TESTS_DIR / "benchmark_results_forced_template.json"
 _BENCHMARKS_DIR = _REPO_DIR / "docs" / "benchmarks"
 
 _LIST_FIELD_IDS = {"vehicles", "parties", "witnesses"}
+
+# Characters stripped from leading/trailing edges in trim comparison
+_PUNCT_STRIP_RE = re.compile(r'^[\s,—–\-:;.!?]+|[\s,—–\-:;.!?]+$')
 
 # ── Normalization ─────────────────────────────────────────────────────────────
 
 def _norm_string(v: str) -> str:
     return re.sub(r"\s+", " ", v.lower().strip())
+
+
+def _norm_string_trimmed(v: str) -> str:
+    """Normalize then strip leading/trailing punctuation noise."""
+    return _PUNCT_STRIP_RE.sub("", _norm_string(v))
 
 
 def _parse_datetime(v: str):
@@ -81,18 +93,22 @@ def _norm_list(v: str) -> frozenset[str]:
     return frozenset(_norm_string(item) for item in v.split(",") if item.strip())
 
 
-def values_match(field_id: str, gt: str | None, extracted: str | None) -> bool:
-    """Return True if the two values are considered equal for this field."""
+def values_match(field_id: str, gt: str | None, extracted: str | None) -> str | bool:
+    """Return 'exact', 'trim' (match only after punctuation strip), or False."""
     if gt is None and extracted is None:
-        return True
+        return "exact"
     if gt is None or extracted is None:
         return False
     if field_id == "date_time":
         if _dates_equal(gt, extracted):
-            return True
+            return "exact"
     if field_id in _LIST_FIELD_IDS:
-        return _norm_list(gt) == _norm_list(extracted)
-    return _norm_string(gt) == _norm_string(extracted)
+        return "exact" if _norm_list(gt) == _norm_list(extracted) else False
+    if _norm_string(gt) == _norm_string(extracted):
+        return "exact"
+    if _norm_string_trimmed(gt) == _norm_string_trimmed(extracted):
+        return "trim"
+    return False
 
 
 # ── Status classification ─────────────────────────────────────────────────────
@@ -109,10 +125,14 @@ def classify_result(
         status = "MISSED"
     elif gt is None and extracted not in (None, ""):
         status = "SPURIOUS"
-    elif values_match(field_id, gt, extracted):
-        status = "CORRECT"
     else:
-        status = "INCORRECT"
+        match = values_match(field_id, gt, extracted)
+        if match == "exact":
+            status = "CORRECT"
+        elif match == "trim":
+            status = "CORRECT_AFTER_TRIM"
+        else:
+            status = "INCORRECT"
     return {
         "status":     status,
         "confidence": confidence,
@@ -144,15 +164,24 @@ def _resolve_doc_path(filename: str, declared_path: str | None) -> Path:
     )
 
 
-def run_extraction(doc_path: Path) -> tuple[dict, str | None]:
+def run_extraction(doc_path: Path, forced_form_id: str | None = None) -> tuple[dict, str | None]:
     """Run the full pipeline on one document.
 
-    Returns (record, form_id).
+    Args:
+        doc_path:        Path to the PDF.
+        forced_form_id:  When set, bypasses the classifier and uses this form_id directly.
+
+    Returns:
+        (record, all_candidates, form_id).
     """
     with pdfplumber.open(str(doc_path)) as pdf:
         text = "\n".join(p.extract_text() or "" for p in pdf.pages[:3])
 
-    form_id, _ = classify_form(text)
+    if forced_form_id:
+        form_id = forced_form_id
+    else:
+        form_id, _ = classify_form(text)
+
     canonical = Document(
         document_id=doc_path.name,
         source_path=str(doc_path),
@@ -181,11 +210,15 @@ def _mean(vals: list[float]) -> float | None:
 
 
 def compute_metrics(detail: list[dict]) -> dict:
-    counts = {"CORRECT": 0, "INCORRECT": 0, "MISSED": 0, "SPURIOUS": 0, "TRUE_NEGATIVE": 0}
+    counts = {
+        "CORRECT": 0, "CORRECT_AFTER_TRIM": 0,
+        "INCORRECT": 0, "MISSED": 0, "SPURIOUS": 0, "TRUE_NEGATIVE": 0,
+    }
     for row in detail:
         counts[row["status"]] += 1
 
-    tp  = counts["CORRECT"]
+    # CORRECT_AFTER_TRIM counts as TP for precision/recall
+    tp  = counts["CORRECT"] + counts["CORRECT_AFTER_TRIM"]
     fp  = counts["SPURIOUS"] + counts["INCORRECT"]
     fn  = counts["MISSED"]   + counts["INCORRECT"]
     tn  = counts["TRUE_NEGATIVE"]
@@ -193,11 +226,12 @@ def compute_metrics(detail: list[dict]) -> dict:
     precision = _safe_div(tp, tp + fp)
     recall    = _safe_div(tp, tp + fn)
     f1        = _safe_div(2 * precision * recall, precision + recall) if (precision + recall) else 0.0
-    total_ex  = tp + fp + fn  # exclude TRUE_NEGATIVE from accuracy denominator
+    total_ex  = tp + fp + fn
     accuracy  = _safe_div(tp, total_ex) if total_ex else 1.0
 
     return {
         **counts,
+        "trim_corrections": counts["CORRECT_AFTER_TRIM"],
         "precision": precision,
         "recall":    recall,
         "f1":        round(f1, 4),
@@ -210,26 +244,30 @@ def per_field_metrics(detail: list[dict]) -> dict:
     for row in detail:
         fid = row["field"]
         if fid not in fields:
-            fields[fid] = {"CORRECT": 0, "INCORRECT": 0, "MISSED": 0, "SPURIOUS": 0, "TRUE_NEGATIVE": 0}
+            fields[fid] = {
+                "CORRECT": 0, "CORRECT_AFTER_TRIM": 0,
+                "INCORRECT": 0, "MISSED": 0, "SPURIOUS": 0, "TRUE_NEGATIVE": 0,
+            }
         fields[fid][row["status"]] += 1
 
     result = {}
     for fid, c in fields.items():
-        tp = c["CORRECT"]
+        tp = c["CORRECT"] + c["CORRECT_AFTER_TRIM"]
         fp = c["SPURIOUS"] + c["INCORRECT"]
         fn = c["MISSED"]   + c["INCORRECT"]
         precision = _safe_div(tp, tp + fp)
         recall    = _safe_div(tp, tp + fn)
         f1 = _safe_div(2 * precision * recall, precision + recall) if (precision + recall) else 0.0
         result[fid] = {
-            "correct":      c["CORRECT"],
-            "incorrect":    c["INCORRECT"],
-            "missed":       c["MISSED"],
-            "spurious":     c["SPURIOUS"],
-            "true_negative":c["TRUE_NEGATIVE"],
-            "precision":    precision,
-            "recall":       recall,
-            "f1":           round(f1, 4),
+            "correct":            c["CORRECT"],
+            "correct_after_trim": c["CORRECT_AFTER_TRIM"],
+            "incorrect":          c["INCORRECT"],
+            "missed":             c["MISSED"],
+            "spurious":           c["SPURIOUS"],
+            "true_negative":      c["TRUE_NEGATIVE"],
+            "precision":          precision,
+            "recall":             recall,
+            "f1":                 round(f1, 4),
         }
     return result
 
@@ -246,7 +284,7 @@ def per_doc_metrics(detail: list[dict], doc_form_results: dict) -> dict:
             }
         if row["status"] not in ("TRUE_NEGATIVE",):
             docs[dn]["fields_total"] += 1
-        if row["status"] == "CORRECT":
+        if row["status"] in ("CORRECT", "CORRECT_AFTER_TRIM"):
             docs[dn]["fields_correct"] += 1
             docs[dn]["conf_correct"].append(row["confidence"])
         elif row["status"] in ("INCORRECT", "MISSED", "SPURIOUS"):
@@ -278,8 +316,10 @@ def _md_table(headers: list[str], rows: list[list]) -> str:
     return "\n".join([hdr, sep, body])
 
 
-def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_date: str) -> str:
-    lines = [f"# Ground Truth Benchmark — {run_date}", ""]
+def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_date: str,
+                   forced: bool = False) -> str:
+    mode = " [FORCED TEMPLATE]" if forced else ""
+    lines = [f"# Ground Truth Benchmark — {run_date}{mode}", ""]
 
     # Headline numbers
     lines += [
@@ -292,10 +332,12 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
         f"| F1 | {summary['f1']:.4f} |",
         f"| Accuracy | {summary['accuracy']:.4f} |",
         f"| Correct | {summary['CORRECT']} |",
+        f"| Correct After Trim | {summary['CORRECT_AFTER_TRIM']} |",
         f"| Incorrect | {summary['INCORRECT']} |",
         f"| Missed | {summary['MISSED']} |",
         f"| Spurious | {summary['SPURIOUS']} |",
         f"| True Negative | {summary['TRUE_NEGATIVE']} |",
+        f"| Trim Corrections | {summary['trim_corrections']} |",
         "",
     ]
 
@@ -303,12 +345,12 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
     lines += ["## Per-Field Results", ""]
     pf_rows = sorted(pf.items())
     pf_table_rows = [
-        [fid, d["correct"], d["incorrect"], d["missed"], d["spurious"],
+        [fid, d["correct"], d["correct_after_trim"], d["incorrect"], d["missed"], d["spurious"],
          f"{d['precision']:.3f}", f"{d['recall']:.3f}", f"{d['f1']:.3f}"]
         for fid, d in pf_rows
     ]
     lines.append(_md_table(
-        ["Field", "Correct", "Incorrect", "Missed", "Spurious", "Precision", "Recall", "F1"],
+        ["Field", "Correct", "Trim", "Incorrect", "Missed", "Spurious", "Precision", "Recall", "F1"],
         pf_table_rows,
     ))
     lines.append("")
@@ -332,7 +374,7 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
     lines.append("")
 
     # Confidence calibration
-    correct_confs = [r["confidence"] for r in detail if r["status"] == "CORRECT"]
+    correct_confs = [r["confidence"] for r in detail if r["status"] in ("CORRECT", "CORRECT_AFTER_TRIM")]
     incorrect_confs = [r["confidence"] for r in detail if r["status"] in ("INCORRECT", "MISSED", "SPURIOUS")]
     lines += ["## Confidence Calibration", ""]
     lines.append(
@@ -349,7 +391,7 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
 
     # Top 10 failures
     failures = [r for r in detail if r["status"] in ("INCORRECT", "MISSED", "SPURIOUS")]
-    failures.sort(key=lambda r: r["confidence"], reverse=True)  # high-confidence failures first
+    failures.sort(key=lambda r: r["confidence"], reverse=True)
     lines += ["## Top 10 Failures (by confidence)", ""]
     if not failures:
         lines.append("None.")
@@ -403,11 +445,13 @@ def main(args: argparse.Namespace) -> int:
         expected_form_id = doc_entry.get("expected_form_id")
         gt_fields: dict[str, str | None] = doc_entry.get("fields", {})
 
+        forced_form_id = expected_form_id if args.force_template else None
+
         print(f"[{filename}] ", end="", flush=True)
 
         try:
             doc_path = _resolve_doc_path(filename, declared_path)
-            record, all_candidates, actual_form_id = run_extraction(doc_path)
+            record, all_candidates, actual_form_id = run_extraction(doc_path, forced_form_id)
         except Exception as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             continue
@@ -415,7 +459,10 @@ def main(args: argparse.Namespace) -> int:
         form_correct = (actual_form_id == expected_form_id) if expected_form_id else None
         doc_form_results[filename] = form_correct
 
-        print(f"form_id={actual_form_id}" + (f" (expected {expected_form_id})" if expected_form_id else ""))
+        if args.force_template:
+            print(f"form_id={actual_form_id} [forced]")
+        else:
+            print(f"form_id={actual_form_id}" + (f" (expected {expected_form_id})" if expected_form_id else ""))
 
         for field_id, gt_value in gt_fields.items():
             extracted_value = record.get(field_id)
@@ -433,8 +480,11 @@ def main(args: argparse.Namespace) -> int:
             detail.append(row)
 
             if args.verbose:
-                marker = {"CORRECT": "OK", "INCORRECT": "WRONG", "MISSED": "MISS",
-                          "SPURIOUS": "SPUR", "TRUE_NEGATIVE": "TN"}.get(row["status"], "?")
+                marker = {
+                    "CORRECT": "OK", "CORRECT_AFTER_TRIM": "TRIM",
+                    "INCORRECT": "WRONG", "MISSED": "MISS",
+                    "SPURIOUS": "SPUR", "TRUE_NEGATIVE": "TN",
+                }.get(row["status"], "?")
                 print(f"  [{marker}] {field_id}: gt={repr(str(gt_value)[:60])} "
                       f"extracted={repr(str(extracted_value)[:60])} conf={confidence:.4f}")
 
@@ -450,6 +500,7 @@ def main(args: argparse.Namespace) -> int:
     # Write JSON result
     output = {
         "run_date":               run_date,
+        "forced_template":        args.force_template,
         "docs_evaluated":         len(set(r["doc"] for r in detail)),
         "fields_per_doc":         len(set(r["field"] for r in detail)),
         "total_field_comparisons":len(detail),
@@ -458,25 +509,28 @@ def main(args: argparse.Namespace) -> int:
         "per_doc":                pd_,
         "detail":                 detail,
     }
-    _RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(_RESULTS_PATH, "w", encoding="utf-8") as f:
+    results_path = _RESULTS_FORCED_PATH if args.force_template else _RESULTS_PATH
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(results_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, default=str)
-    print(f"\nWrote {_RESULTS_PATH}")
+    print(f"\nWrote {results_path}")
 
     # Write markdown report
-    md = build_markdown(summary, pf, pd_, detail, run_date)
+    md = build_markdown(summary, pf, pd_, detail, run_date, forced=args.force_template)
     _BENCHMARKS_DIR.mkdir(parents=True, exist_ok=True)
-    md_path = _BENCHMARKS_DIR / f"ground_truth_{run_date}.md"
+    suffix = "_forced" if args.force_template else ""
+    md_path = _BENCHMARKS_DIR / f"ground_truth_{run_date}{suffix}.md"
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(md)
     print(f"Wrote {md_path}")
 
     # Print summary to stdout
+    trim_note = f"  TrimCorrections={summary['trim_corrections']}" if summary['trim_corrections'] else ""
     print(f"\nPrecision={summary['precision']:.4f}  Recall={summary['recall']:.4f}  "
           f"F1={summary['f1']:.4f}  Accuracy={summary['accuracy']:.4f}")
-    print(f"Correct={summary['CORRECT']}  Incorrect={summary['INCORRECT']}  "
-          f"Missed={summary['MISSED']}  Spurious={summary['SPURIOUS']}  "
-          f"TrueNeg={summary['TRUE_NEGATIVE']}")
+    print(f"Correct={summary['CORRECT']}  CorrectAfterTrim={summary['CORRECT_AFTER_TRIM']}  "
+          f"Incorrect={summary['INCORRECT']}  Missed={summary['MISSED']}  "
+          f"Spurious={summary['SPURIOUS']}  TrueNeg={summary['TRUE_NEGATIVE']}")
     return 0
 
 
@@ -496,6 +550,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--verbose",
         action="store_true",
         help="Print per-field detail to stdout during the run.",
+    )
+    p.add_argument(
+        "--force-template",
+        action="store_true",
+        default=False,
+        help="Bypass classifier; use expected_form_id from ground truth as the template. "
+             "Writes to benchmark_results_forced_template.json.",
     )
     return p
 
