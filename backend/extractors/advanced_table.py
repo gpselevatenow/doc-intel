@@ -78,6 +78,8 @@ def _extract_all_parties(text: str) -> list[dict]:
     current_entity: dict = {}
     lines = text.splitlines()
     party_table_mode = False
+    veh_name_dob_mode = False
+    _pending_last_name = False
 
     def save_party():
         nonlocal current_entity
@@ -152,6 +154,7 @@ def _extract_all_parties(text: str) -> list[dict]:
             current_entity = {}
             delimiter_found = False
             party_table_mode = False
+            veh_name_dob_mode = False
             past_party_sections = True
             continue
 
@@ -166,6 +169,10 @@ def _extract_all_parties(text: str) -> list[dict]:
 
         if re.match(r'(?i)^Party\s+Name\s+DOB\s+(?:License|DL)\b', line):
             party_table_mode = True
+            continue
+
+        if re.match(r'(?i)^Veh\s+Name\s+DOB', line):
+            veh_name_dob_mode = True
             continue
 
         if party_table_mode:
@@ -194,6 +201,46 @@ def _extract_all_parties(text: str) -> list[dict]:
                 current_entity = {}
                 delimiter_found = False
                 party_table_mode = False
+
+        if veh_name_dob_mode:
+            vrow = re.match(
+                r'(?i)^(V\d+|PED-)\s+(.+?)\s+(\d{1,2}/\d{1,2}/\d{2,4})',
+                line
+            )
+            if vrow:
+                save_party()
+                prefix = vrow.group(1).upper()
+                role = "Pedestrian" if prefix.startswith("PED") else "Passenger"
+                name = vrow.group(2).strip()
+                name = re.sub(r'\s*\([^)]{2,20}\)\s*$', '', name).strip()
+                name = re.sub(r'\s*\([^)]*$', '', name).strip()
+                _pending_last_name = bool(re.search(r'\b[A-Z]\.$', name))
+                current_entity = {"role": role, "name": name, "dob": vrow.group(3)}
+                delimiter_found = True
+                remainder = line[vrow.end():].strip()
+                if remainder:
+                    t_m = re.search(r'\b(Yes|No)\b', remainder, re.IGNORECASE)
+                    if t_m:
+                        if t_m.group(1).lower() == 'yes':
+                            current_entity['_transported_flag'] = True
+                        injury_text = remainder[:t_m.start()].strip()
+                    else:
+                        injury_text = remainder.strip()
+                    if injury_text:
+                        current_entity['condition'] = injury_text
+                continue
+            elif _pending_last_name and current_entity:
+                first_word_m = re.match(r'^([A-Z][a-z]+(?:-[A-Z][a-z]+)?)\b', line)
+                if first_word_m:
+                    current_entity['name'] = current_entity['name'] + ' ' + first_word_m.group(1)
+                _pending_last_name = False
+                continue
+            elif re.match(r'(?i)^(?:SECTION\s+\d|WITNESSES?|INVESTIGATING)', line):
+                save_party()
+                current_entity = {}
+                delimiter_found = False
+                veh_name_dob_mode = False
+                _pending_last_name = False
 
         party_match = re.match(
             r'(?i)(Party\s*[#]?\s*\d*\s*:?|Person\s*[#]?\s*\d+\s*:?|Veh\s*:\s*V\d+|Operator(?=\s*(?:[^A-Za-z\s)]|$))\s*[#]?\s*\d*\s*(?:\(V\d+\))?\s*:?|Driver(?!\s+(?:Name|Information)\b)(?=[#\s]*\d|[#\s]*\(V|[#\s]*:)|Passenger\b\s*[#]?\s*\d*\s*(?:\(V\d+\))?\s*:?|Pedestrian\b\s*[#]?\s*\d*\s*:?|Bicyclist\b\s*[#]?\s*\d*\s*:?|VICTIM[\s/]*COMPLAINANT\b|VICTIM\b|COMPLAINANT\b|SUSPECT[\s/]*OFFENDER\b|SUSPECT\b|OFFENDER\b)',
