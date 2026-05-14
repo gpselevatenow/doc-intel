@@ -21,10 +21,12 @@
         "contributing_factors": "fog, speed, and operator alcohol impairment",
         "property_damage": "I-35W NB overhead guidance sign support post at MM 54.1 — minor side-panel contact from V3 trailer",
         "vehicles": "LMK-4421 (TX), MRY-8820 (TX), CMV-3319 (TX)",
-        "parties": "Karen L. Whitfield, Marcus J. Reyna, Bobby R. Hastings",
+        "operators": "Karen L. Whitfield, Marcus J. Reyna, Bobby R. Hastings",
+        "passengers": "Robert T. Whitfield, Denise A. Reyna, Tyler J. Reyna",
+        "pedestrians": null,
         "witnesses": "Sandra P. Morales, Kevin D. Ostrowski, Anthony L. Brewer"
       },
-      "_notes": "PDF distinguishes CASE NUMBER (FWPD-26-10-14-7731) from Report Number (TR-2026-14-7731). Ground truth uses Report Number. Extractor currently picks up CASE NUMBER — known issue for tx_cr3 template."
+      "_notes": "PDF distinguishes CASE NUMBER (FWPD-26-10-14-7731) from Report Number (TR-2026-14-7731). Ground truth uses Report Number. Extractor currently picks up CASE NUMBER — known issue for tx_cr3 template. Schema split 2026-05-15: parties → operators (3) + passengers (3) + pedestrians (null)."
     },
     {
       "filename": "sample_25_dui_wrongway_la.pdf",
@@ -43,9 +45,12 @@
         "contributing_factors": "wrong-way driving, DUI",
         "property_damage": "I-405 NB center divider — V6 struck barrier before entering northbound lanes; three panels displaced",
         "vehicles": "CA-7HKR441, CA-8LTX224, CA-6PKW881, CA-9MXP112, CA-4TNW773, CA-2BWK558",
-        "parties": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
+        "operators": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
+        "passengers": "Yolanda M. Torres, Hideo P. Nakamura, Rachel E. Greenberg, Noah T. Greenberg, Amber L. Wong",
+        "pedestrians": null,
         "witnesses": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh"
-      }
+      },
+      "_notes": "Schema split 2026-05-15: parties → operators (6) + passengers (5) + pedestrians (null)."
     },
     {
       "filename": "sample_27_tropical_moto_tampa.pdf",
@@ -64,9 +69,12 @@
         "contributing_factors": null,
         "property_damage": "I-275 SB right shoulder crash attenuator (barrel array) at MM 39.7 — struck by V3 post-impact; 4 barrels displaced",
         "vehicles": "FL-PKT-4418, FL-QRX-8821, FL-RTW-3319, FL-SXM-7723, FL-MCY-441",
-        "parties": "Elena B. Santos, Charles T. Walters, Yuna S. Kim, Preet A. Patel, Eduardo R. Garcia",
+        "operators": "Elena B. Santos, Charles T. Walters, Yuna S. Kim, Preet A. Patel, Eduardo R. Garcia",
+        "passengers": "Camila T. Santos, Denise M. Walters, Marcus J. Walters, Jin-Ho Kim",
+        "pedestrians": null,
         "witnesses": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R. Melendez #144, Kevin T. Morrison"
-      }
+      },
+      "_notes": "Schema split 2026-05-15: parties → operators (5, incl. motorcyclist Garcia) + passengers (4) + pedestrians (null)."
     },
     {
       "filename": "sample_24_rain_ped_nyc.pdf",
@@ -85,9 +93,12 @@
         "contributing_factors": null,
         "property_damage": "Pedestrian crosswalk signal button housing",
         "vehicles": "NY-HKR-4418, NY-JLX-8821, NY-KBW-3319, NY-LCM-7723",
-        "parties": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
+        "operators": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
+        "passengers": "Mi-Rae Kim, Jason T. Kim, Soo-Jin Kim",
+        "pedestrians": "Marcus W. Douglas, Anya B. Petrov",
         "witnesses": "Calvin R. Moore, Maria T. Santos, David K. Lowenstein, Julia R. Marchetti, Officer T. Park"
-      }
+      },
+      "_notes": "Schema split 2026-05-15: parties → operators (4) + passengers (3) + pedestrians (2). NY accident_type label was ambiguous; ground-truth count of pedestrians confirmed as 2."
     },
     {
       "filename": "sample_33_ice_ped_philadelphia.pdf",
@@ -106,9 +117,12 @@
         "contributing_factors": null,
         "property_damage": "Traffic signal pole, Broad & Washington (NE corner) — V1 post-collision contact; signal head cracked",
         "vehicles": "PA-APX-4418, PA-BKR-8821, PA-CTX-3319, PA-DLM-7723, PA-EMT-441",
-        "parties": "Eileen C. Murphy, Miguel A. Gonzalez, Sharon Y. Chen, Chukwuma P. Okafor, Tamika R. Williams",
+        "operators": "Eileen C. Murphy, Miguel A. Gonzalez, Sharon Y. Chen, Chukwuma P. Okafor, Tamika R. Williams",
+        "passengers": "Luciana T. Gonzalez, Diego F. Gonzalez, Adaeze C. Okafor, Jason K. Chen",
+        "pedestrians": "Harriet M. Walker, Lionel T. Walker",
         "witnesses": "Franklin T. Booker, Denise P. Rawlins, Alonzo W. Henderson, Det. R. Kim, Officer Patricia L. Diaz"
-      }
+      },
+      "_notes": "Schema split 2026-05-15: parties → operators (5) + passengers (4) + pedestrians (2)."
     }
   ]
 }
