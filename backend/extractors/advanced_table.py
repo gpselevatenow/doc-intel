@@ -881,14 +881,27 @@ class AdvancedTableStrategy(Strategy):
                                         if cond_a or cond_b:
                                             tokens = candidate.split()
                                             current_entity["name"] = " ".join(tokens[:-1] + [nw_m.group(1)])
-                        if len(parts) > 1:
-                            p1 = parts[1].strip()
-                            if re.search(r'[\d\(\)\-\+]{7,}', p1):
-                                current_entity["phone"] = p1
-                            else:
-                                current_entity["statement"] = p1
-                        if len(parts) > 2:
-                            current_entity.setdefault("statement", parts[2].strip())
+                        # Phone-anchor split: extract address, phone, statement from full row
+                        phone_m2 = re.search(r'\(\d{3}\)\s*\d{3}[-\s]\d{4}', rest)
+                        if phone_m2:
+                            before_phone = rest[:phone_m2.start()].strip()
+                            name_len = len(candidate) if candidate else 0
+                            raw_addr = before_phone[name_len:].strip().lstrip(',').strip()
+                            current_entity["address"] = raw_addr or "Unknown"
+                            current_entity["phone"] = phone_m2.group(0).strip()
+                            after_phone = rest[phone_m2.end():].strip()
+                            stmt = re.sub(r'^Yes\s*[—–\-]+\s*', '', after_phone, flags=re.IGNORECASE).strip()
+                            if stmt:
+                                current_entity["statement"] = stmt
+                        else:
+                            if len(parts) > 1:
+                                p1 = parts[1].strip()
+                                if re.search(r'[\d\(\)\-\+]{7,}', p1):
+                                    current_entity["phone"] = p1
+                                else:
+                                    current_entity["statement"] = p1
+                            if len(parts) > 2:
+                                current_entity.setdefault("statement", parts[2].strip())
                     continue
 
                 if not (in_witness_section or witness_table_mode or current_entity):
