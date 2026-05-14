@@ -504,10 +504,13 @@ class AdvancedTableStrategy(Strategy):
 
                 # Compact table row: "Driver V1 Carlos R. Delgado 09/11/1979 TX-D44218301 None"
                 #                    "Operator Donald R. Pruitt 03/27/1969 TX-CDL-P88241307 TX Transp. Code..."
+                #                    "Motorcyclis Eduardo R. Garcia 11/05/1985 FL-G88219812 None"  (A4: Moto\w*)
+                #                    "Driver V6 ( Brandon T. Simmons ..."                          (A3: leading paren)
+                #                    "Driver V2 Ji-Young Kim 09/22/1979 ..."                       (A2: hyphen in name)
                 if party_table_mode:
                     trow = re.match(
-                        r'(?i)^(Driver|Operator)\s+(?:V\d+\s+)?'
-                        r'([A-Z][A-Za-z\s,\.\']{3,40}?)\s+'
+                        r'(?i)^(Driver|Operator|Moto\w*)\s+(?:V\d+\s+)?(?:\(\s*)?'
+                        r'([A-Z][A-Za-z\s,\.\'\-]{3,40}?)\s+'
                         r'(\d{1,2}/\d{1,2}/\d{2,4})\s+'
                         r'([A-Z][A-Z0-9\-]{3,20})',
                         line

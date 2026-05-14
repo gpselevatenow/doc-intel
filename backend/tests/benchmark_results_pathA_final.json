@@ -1,0 +1,918 @@
+{
+  "run_date": "2026-05-13",
+  "forced_template": false,
+  "docs_evaluated": 5,
+  "fields_per_doc": 15,
+  "total_field_comparisons": 75,
+  "summary": {
+    "CORRECT": 22,
+    "CORRECT_AFTER_TRIM": 6,
+    "CORRECT_BY_CONTAINMENT": 27,
+    "INCORRECT": 11,
+    "MISSED": 6,
+    "SPURIOUS": 0,
+    "TRUE_NEGATIVE": 3,
+    "total_correct": 55,
+    "trim_corrections": 6,
+    "precision": 0.8333,
+    "recall": 0.7639,
+    "f1": 0.7971,
+    "accuracy": 0.6627
+  },
+  "per_field": {
+    "date_time": {
+      "correct": 4,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889
+    },
+    "location": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 4,
+      "incorrect": 1,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8
+    },
+    "weather": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 3,
+      "incorrect": 1,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8
+    },
+    "road_surface": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "correct_by_containment": 2,
+      "incorrect": 0,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889
+    },
+    "light_condition": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "correct_by_containment": 2,
+      "incorrect": 1,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8
+    },
+    "accident_type": {
+      "correct": 0,
+      "correct_after_trim": 1,
+      "correct_by_containment": 4,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "agency": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 2,
+      "incorrect": 0,
+      "missed": 2,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75
+    },
+    "officer": {
+      "correct": 0,
+      "correct_after_trim": 5,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "report_number": {
+      "correct": 5,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "ems_agency": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 5,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "contributing_factors": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 1,
+      "incorrect": 0,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 3,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6667
+    },
+    "property_damage": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 4,
+      "incorrect": 1,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8
+    },
+    "vehicles": {
+      "correct": 3,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 2,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.6,
+      "recall": 0.6,
+      "f1": 0.6
+    },
+    "parties": {
+      "correct": 3,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 2,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.6,
+      "recall": 0.6,
+      "f1": 0.6
+    },
+    "witnesses": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 3,
+      "missed": 1,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 0.25,
+      "recall": 0.2,
+      "f1": 0.2222
+    }
+  },
+  "per_doc": {
+    "sample_full_report.pdf": {
+      "form_id_correct": true,
+      "fields_correct": 9,
+      "fields_total": 15,
+      "confidence_when_correct_mean": 0.8808,
+      "confidence_when_incorrect_mean": 0.4728
+    },
+    "sample_25_dui_wrongway_la.pdf": {
+      "form_id_correct": false,
+      "fields_correct": 14,
+      "fields_total": 15,
+      "confidence_when_correct_mean": 0.8056,
+      "confidence_when_incorrect_mean": 0.0
+    },
+    "sample_27_tropical_moto_tampa.pdf": {
+      "form_id_correct": false,
+      "fields_correct": 7,
+      "fields_total": 14,
+      "confidence_when_correct_mean": 0.8444,
+      "confidence_when_incorrect_mean": 0.4056
+    },
+    "sample_24_rain_ped_nyc.pdf": {
+      "form_id_correct": false,
+      "fields_correct": 13,
+      "fields_total": 14,
+      "confidence_when_correct_mean": 0.828,
+      "confidence_when_incorrect_mean": 0.6548
+    },
+    "sample_33_ice_ped_philadelphia.pdf": {
+      "form_id_correct": false,
+      "fields_correct": 12,
+      "fields_total": 14,
+      "confidence_when_correct_mean": 0.8365,
+      "confidence_when_incorrect_mean": 0.6548
+    }
+  },
+  "detail": [
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "date_time",
+      "ground_truth": "October 14, 2026 at 22:47 hrs",
+      "extracted": "October 14, 2026",
+      "status": "CORRECT",
+      "confidence": 0.92572,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "location",
+      "ground_truth": "I-35W Northbound between Exit 54A (N. Tarrant Pkwy) and Exit 54B (Western Center Blvd), Fort Worth, TX 76131 \u2014 approx. Mile Marker 54.0",
+      "extracted": "I-35W Northbound between Exit 54A",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.925,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "weather",
+      "ground_truth": "Dense Fog / Light Rain",
+      "extracted": "Dense Fog / Light Rain",
+      "status": "CORRECT",
+      "confidence": 0.9295,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "road_surface",
+      "ground_truth": "Wet",
+      "extracted": "Wet / Fog-slicked",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.7119599999999999,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "light_condition",
+      "ground_truth": "Night",
+      "extracted": ", reduced",
+      "status": "INCORRECT",
+      "confidence": 0.6376,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "accident_type",
+      "ground_truth": "3-vehicle rear-end chain",
+      "extracted": "3-vehicle rear-end chain \u2014",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9313,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "agency",
+      "ground_truth": "Fort Worth Police Department",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Daniel R. Fuentes",
+      "extracted": "Officer Daniel R. Fuentes,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "report_number",
+      "ground_truth": "TR-2026-14-7731",
+      "extracted": "TR-2026-14-7731",
+      "status": "CORRECT",
+      "confidence": 1.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "ems_agency",
+      "ground_truth": "MedStar Mobile Healthcare",
+      "extracted": "MedStar Mobile Healthcare \u2014 Unit 18 and Unit 22 (transported three occupants)",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8904,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "contributing_factors",
+      "ground_truth": "fog, speed, and operator alcohol impairment",
+      "extracted": "fog,",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.61592,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "property_damage",
+      "ground_truth": "I-35W NB overhead guidance sign support post at MM 54.1 \u2014 minor side-panel contact from V3 trailer",
+      "extracted": "Rear bumper assembly crushed and deformed; left tail lamp assembly shattered; rear lift",
+      "status": "INCORRECT",
+      "confidence": 0.8898,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "vehicles",
+      "ground_truth": "LMK-4421 (TX), MRY-8820 (TX), CMV-3319 (TX)",
+      "extracted": "LMK-4421, MRY-8820, CMV-3319",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "parties",
+      "ground_truth": "Karen L. Whitfield, Marcus J. Reyna, Bobby R. Hastings",
+      "extracted": "Karen L. Whitfield, Marcus J. Reyna, Bobby R. Hastings, Robert T. Whitfield, Denise A. Reyna, Tyler J. Reyna (minor)",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_full_report.pdf",
+      "field": "witnesses",
+      "ground_truth": "Sandra P. Morales, Kevin D. Ostrowski, Anthony L. Brewer",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "date_time",
+      "ground_truth": "July 4, 2026 at 02:14 hrs",
+      "extracted": "July 4, 2026",
+      "status": "CORRECT",
+      "confidence": 0.92284,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "location",
+      "ground_truth": "I-405 Northbound, Mile Marker 38.2 (near Sunset Blvd exit), Los Angeles, CA 90049",
+      "extracted": "I-405 Northbound, Mile Marker 38.2",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.92524,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "weather",
+      "ground_truth": "Clear",
+      "extracted": "Clear / Dry",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8952,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "road_surface",
+      "ground_truth": "Dry",
+      "extracted": "Dry",
+      "status": "CORRECT",
+      "confidence": 0.75732,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "light_condition",
+      "ground_truth": "Dark",
+      "extracted": "Artificial (freeway lighting) / Dark",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.89364,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "accident_type",
+      "ground_truth": "6-vehicle pileup",
+      "extracted": "6-vehicle pileup \u2014 wrong-way DUI",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8023,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "agency",
+      "ground_truth": "Los Angeles Police Department",
+      "extracted": "UNITS\nResponding Agency Los Angeles Police Department",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.7014,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Tamara L. Watkins",
+      "extracted": "Officer Tamara L. Watkins,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.92248,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "report_number",
+      "ground_truth": "LAPD-26-07-04-1188",
+      "extracted": "LAPD-26-07-04-1188",
+      "status": "CORRECT",
+      "confidence": 0.91864,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "ems_agency",
+      "ground_truth": "LAFD \u2014 Rescue Ambulance 71 and 88",
+      "extracted": "LAFD \u2014 Rescue Ambulance 71 and 88 (transported five occupants); SigAlert issued",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8904,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "contributing_factors",
+      "ground_truth": "wrong-way driving, DUI",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "property_damage",
+      "ground_truth": "I-405 NB center divider \u2014 V6 struck barrier before entering northbound lanes; three panels displaced",
+      "extracted": "I-405 NB center divider \u2014 V6 struck barrier before entering northbound lanes; three panels",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6848000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "vehicles",
+      "ground_truth": "CA-7HKR441, CA-8LTX224, CA-6PKW881, CA-9MXP112, CA-4TNW773, CA-2BWK558",
+      "extracted": "CA-7HKR441, CA-8LTX224, CA-6PKW881, CA-9MXP112, CA-4TNW773, CA-2BWK558",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "parties",
+      "ground_truth": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
+      "extracted": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_25_dui_wrongway_la.pdf",
+      "field": "witnesses",
+      "ground_truth": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh",
+      "extracted": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "date_time",
+      "ground_truth": "September 28, 2026 at 18:33 hrs",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "location",
+      "ground_truth": "I-275 Southbound, Mile Marker 39.8 (Howard Ave exit area), Tampa, FL 33606",
+      "extracted": "Standing Water / Hydroplaning risk",
+      "status": "INCORRECT",
+      "confidence": 0.6002,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "weather",
+      "ground_truth": "heavy rain",
+      "extracted": "Tropical Storm Conditions",
+      "status": "INCORRECT",
+      "confidence": 0.9295,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "road_surface",
+      "ground_truth": "Standing Water",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "light_condition",
+      "ground_truth": "Dusk",
+      "extracted": "Dusk / Storm-darkened",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8914,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "accident_type",
+      "ground_truth": "4-vehicle chain collision",
+      "extracted": "4-vehicle chain collision + motorcycle",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.9313,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "agency",
+      "ground_truth": "Tampa Police Department",
+      "extracted": null,
+      "status": "MISSED",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Brianna T. Moss",
+      "extracted": "Officer Brianna T. Moss,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.9973,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "report_number",
+      "ground_truth": "TPD-26-09-28-1441",
+      "extracted": "TPD-26-09-28-1441",
+      "status": "CORRECT",
+      "confidence": 0.92116,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "ems_agency",
+      "ground_truth": "Tampa Fire Rescue \u2014 Rescue 1 and Rescue 5",
+      "extracted": "Tampa Fire Rescue \u2014 Rescue 1 and Rescue 5 (transported five occupants)",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8298000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "contributing_factors",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "property_damage",
+      "ground_truth": "I-275 SB right shoulder crash attenuator (barrel array) at MM 39.7 \u2014 struck by V3 post-impact; 4 barrels displaced",
+      "extracted": "I-275 SB right shoulder crash attenuator (barrel array) at MM 39.7 \u2014 struck by V3",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6848000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "vehicles",
+      "ground_truth": "FL-PKT-4418, FL-QRX-8821, FL-RTW-3319, FL-SXM-7723, FL-MCY-441",
+      "extracted": "FL-PKT-4418, FL-QRX-8821, FL-RTW-3319, FL-SXM-7723",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "parties",
+      "ground_truth": "Elena B. Santos, Charles T. Walters, Yuna S. Kim, Preet A. Patel, Eduardo R. Garcia",
+      "extracted": "Elena B. Santos, Charles T. Walters, Yuna S. Kim, Preet A. Patel, Eduardo R. Garcia",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_27_tropical_moto_tampa.pdf",
+      "field": "witnesses",
+      "ground_truth": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R. Melendez #144, Kevin T. Morrison",
+      "extracted": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R., Kevin T. Morrison",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "date_time",
+      "ground_truth": "August 19, 2026 at 17:38 hrs",
+      "extracted": "August 19, 2026",
+      "status": "CORRECT",
+      "confidence": 0.92284,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "location",
+      "ground_truth": "Queens Blvd & 69th Road (intersection), Woodside, Queens, NY 11377",
+      "extracted": "Queens Blvd & 69th Road",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.92524,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "weather",
+      "ground_truth": "Thunderstorm",
+      "extracted": "Heavy Rain / Thunderstorm",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8952,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "road_surface",
+      "ground_truth": "Wet",
+      "extracted": "Wet / Ponding",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.75732,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "light_condition",
+      "ground_truth": "Daylight / Overcast",
+      "extracted": "Daylight / Overcast",
+      "status": "CORRECT",
+      "confidence": 0.89364,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "accident_type",
+      "ground_truth": "4-vehicle collision + 2 pedestrians struck",
+      "extracted": "4-vehicle collision + 2 pedestrians",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.9423,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "agency",
+      "ground_truth": "New York City Police Department",
+      "extracted": "Responding Agency New York City Police Department",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.7014,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Svetlana M. Borisova",
+      "extracted": "Officer Svetlana M. Borisova,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.92248,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "report_number",
+      "ground_truth": "NYPD-26-08-19-8814",
+      "extracted": "NYPD-26-08-19-8814",
+      "status": "CORRECT",
+      "confidence": 0.91864,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "ems_agency",
+      "ground_truth": "FDNY EMS \u2014 Units 44 and 51",
+      "extracted": "FDNY EMS \u2014 Units 44 and 51 (transported six persons); NYPD Aviation requested",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8904,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "contributing_factors",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "property_damage",
+      "ground_truth": "Pedestrian crosswalk signal button housing",
+      "extracted": "Pedestrian crosswalk signal button housing \u2014 struck by V1 post-collision slide; housing",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6848000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "vehicles",
+      "ground_truth": "NY-HKR-4418, NY-JLX-8821, NY-KBW-3319, NY-LCM-7723",
+      "extracted": "NY-HKR-4418, NY-JLX-8821, NY-KBW-3319, NY-LCM-7723",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "parties",
+      "ground_truth": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
+      "extracted": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_24_rain_ped_nyc.pdf",
+      "field": "witnesses",
+      "ground_truth": "Calvin R. Moore, Maria T. Santos, David K. Lowenstein, Julia R. Marchetti, Officer T. Park",
+      "extracted": "Calvin R. Moore, Maria T. Santos, David K. Owner, Julia R. Marchetti, Officer T. Park",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "date_time",
+      "ground_truth": "December 28, 2026 at 8:19 hrs",
+      "extracted": "December 28, 2026",
+      "status": "CORRECT",
+      "confidence": 0.92284,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "location",
+      "ground_truth": "Broad Street & Washington Avenue (intersection), Philadelphia, PA 19148",
+      "extracted": "Broad Street & Washington Avenue",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.92524,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "weather",
+      "ground_truth": "Freezing Rain / Ice Storm",
+      "extracted": "Freezing Rain / Ice Storm (visibility",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8952,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "road_surface",
+      "ground_truth": "Glare Ice / Freezing Rain",
+      "extracted": "Glare Ice / Freezing Rain",
+      "status": "CORRECT",
+      "confidence": 0.7547999999999999,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "light_condition",
+      "ground_truth": "Daylight / Overcast",
+      "extracted": "Daylight / Overcast",
+      "status": "CORRECT",
+      "confidence": 0.89364,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "accident_type",
+      "ground_truth": "5-vehicle intersection pileup + 2 pedestrians struck",
+      "extracted": "5-vehicle intersection pileup + 2",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.9423,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "agency",
+      "ground_truth": "Philadelphia Police Department",
+      "extracted": "Philadelphia Police Department",
+      "status": "CORRECT",
+      "confidence": 0.6489,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "officer",
+      "ground_truth": "Officer Darnell T. Pierce",
+      "extracted": "Officer Darnell T. Pierce,",
+      "status": "CORRECT_AFTER_TRIM",
+      "confidence": 0.92248,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "report_number",
+      "ground_truth": "PPD-26-12-28-1101",
+      "extracted": "PPD-26-12-28-1101",
+      "status": "CORRECT",
+      "confidence": 0.91864,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "ems_agency",
+      "ground_truth": "Philadelphia Fire Dept. \u2014 Medic 8 and Medic 19",
+      "extracted": "Philadelphia Fire Dept. \u2014 Medic 8 and Medic 19 (transported six persons)",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.8748,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "contributing_factors",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "property_damage",
+      "ground_truth": "Traffic signal pole, Broad & Washington (NE corner) \u2014 V1 post-collision contact; signal head cracked",
+      "extracted": "Traffic signal pole, Broad & Washington (NE corner) \u2014 V1 post-collision contact; signal",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6848000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "vehicles",
+      "ground_truth": "PA-APX-4418, PA-BKR-8821, PA-CTX-3319, PA-DLM-7723, PA-EMT-441",
+      "extracted": "PA-APX-4418, PA-BKR-8821, PA-CTX-3319, PA-DLM-7723, PA-EMT-441",
+      "status": "CORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "parties",
+      "ground_truth": "Eileen C. Murphy, Miguel A. Gonzalez, Sharon Y. Chen, Chukwuma P. Okafor, Tamika R. Williams",
+      "extracted": "Eileen C. Murphy, Miguel A. Gonzalez, Sharon Y. Chen, Chukwuma P. Okafor, Tamika R. Williams, strikes; mobile",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    },
+    {
+      "doc": "sample_33_ice_ped_philadelphia.pdf",
+      "field": "witnesses",
+      "ground_truth": "Franklin T. Booker, Denise P. Rawlins, Alonzo W. Henderson, Det. R. Kim, Officer Patricia L. Diaz",
+      "extracted": "Franklin T. Booker, Denise P. Rawlins, Alonzo W. Coffee, Det. R. Kim, Officer Patricia L.",
+      "status": "INCORRECT",
+      "confidence": 0.6548,
+      "flattening_applied": true
+    }
+  ]
+}
