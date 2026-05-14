@@ -522,11 +522,12 @@ class AdvancedTableStrategy(Strategy):
                     continue
 
                 # Table-row vehicle format: "V1 2022 Toyota Tundra 5TFJA5DB2NX041801 TX-PJK-4418 (TX) Damage..."
+                # Also matches "Mot 2020 Harley-Davidson ..." (pdfplumber splits "Moto-1" → "Mot" + "o-1")
                 if vehicle_table_mode:
-                    trow = re.match(r'^V(\d+)\s+(\d{4})\s+(\S+)\s+(.+)$', line)
+                    trow = re.match(r'^(V\d+|Mot\w*)\s+(\d{4})\s+(\S+)\s+(.+)$', line)
                     if trow:
                         save_vehicle()
-                        current_id = f"V{trow.group(1)}"
+                        current_id = trow.group(1)
                         current_entity = {}
                         rest_row = trow.group(4).strip()
                         current_entity["year"] = trow.group(2)
