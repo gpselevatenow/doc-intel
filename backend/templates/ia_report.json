@@ -153,7 +153,8 @@
                     "config": {
                         "patterns": [
                             "(?im)(?:police\\s+report\\s+filed|fire\\s+report\\s+filed|official\\s+report|report\\s+filed)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})",
-                            "(?im)(?:responding\\s+officer|fire\\s+department|police\\s+department|report\\s+number)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})",
+                            "(?im)(?:File\\s+No\\.?|File\\s+Number|Report\\s+Number|Report\\s+No\\.?)(?:\\s*:\\s*)(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})",
+                            "(?im)(?:Responding\\s+Officer|Fire\\s+Department|Police\\s+Department)(?:\\s*:\\s*)(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})",
                             "(?im)officials?(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,#.\\-]{2,80})"
                         ],
                         "flags": ["IGNORECASE"]
