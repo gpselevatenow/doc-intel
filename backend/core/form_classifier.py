@@ -99,7 +99,10 @@ _FINGERPRINTS: list[tuple[str, list[str]]] = [
 
     # ── IL — SR-1050 (current) and SR-1 (prior) ──────────────────────────────
     ("il_sr1", [
-        r'\bSR[-\s]*1050\b',
+        # SR-1050 requires Illinois-state context within 200 chars (either direction,
+        # cross-line) to avoid firing on "FHP SR1050" in FL witness notes.
+        r'(?:Illinois|IL\s+DOT|IDOT|Cook\s+County|Chicago)[\s\S]{0,200}\bSR[-\s]*1050\b',
+        r'\bSR[-\s]*1050\b[\s\S]{0,200}(?:Illinois|IL\s+DOT|IDOT|Cook\s+County|Chicago)',
         r'\bILLINOIS\s+UNIFORM\s+CRASH\s+REPORT\b',
         r'\bSR[-\s]*1\b.{0,40}(?:ILLINOIS|IDOT|ISP)',
         r'ILLINOIS\s+TRAFFIC\s+CRASH\s+REPORT',
