@@ -419,7 +419,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         <div>
           <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: scoreColor }}>
             {score >= 90 ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
-            Extraction Accuracy: {score.toFixed(1)}%
+            Avg Extraction Confidence: {score.toFixed(1)}%
           </h3>
           <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{scoreText}</p>
         </div>
@@ -428,6 +428,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       {data.accuracy_reasons && data.accuracy_reasons.length > 0 && (
         <details style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.2)', borderTop: `1px solid ${scoreColor}` }}>
           <summary style={{ cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Why this score?</summary>
+          <p style={{ margin: '0.4rem 0 0.5rem 0', fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Average confidence score across all extracted fields. Not a comparison against ground truth.</p>
           <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
             {data.accuracy_reasons.map((r, i) => (
               <li key={i} style={{ color: r.startsWith('Found') ? 'var(--success)' : 'var(--danger)', marginBottom: '0.25rem' }}>{r}</li>
