@@ -304,7 +304,8 @@ def _extract_all_parties(text: str) -> list[dict]:
         else:
             m = re.match(r'(?i)^Name\s+(.+)$', line)
             if m and 'name' not in current_entity:
-                current_entity['name'] = m.group(1).strip()
+                name_val = re.sub(r'\s*\([^)]{2,20}\)\s*$', '', m.group(1).strip()).strip()
+                current_entity['name'] = name_val
 
             m = re.search(r'(?i)\bDriver\s+Name\s+(.+?)(?=\s+DOB[A-Z]?[\s\d]|\s+Age\s*[/|]\s*Sex|\s+DL\s+#|\s*$)', line)
             if m and 'name' not in current_entity:
