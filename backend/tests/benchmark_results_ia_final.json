@@ -1,0 +1,432 @@
+{
+  "run_date": "2026-05-14",
+  "forced_template": false,
+  "docs_evaluated": 2,
+  "fields_per_doc": 13,
+  "total_field_comparisons": 26,
+  "summary": {
+    "CORRECT": 12,
+    "CORRECT_AFTER_TRIM": 0,
+    "CORRECT_BY_CONTAINMENT": 4,
+    "INCORRECT": 0,
+    "MISSED": 0,
+    "SPURIOUS": 0,
+    "TRUE_NEGATIVE": 10,
+    "total_correct": 16,
+    "trim_corrections": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "accuracy": 1.0
+  },
+  "per_field": {
+    "cause_of_loss": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 1,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "inspection_date": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "inspection_firm": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "coverage_a": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "coverage_b": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "coverage_c": {
+      "correct": 2,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "coverage_d": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "coverages": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "officials": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 1,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "settlement": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 1,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "subrogation": {
+      "correct": 1,
+      "correct_after_trim": 0,
+      "correct_by_containment": 1,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "payment_summary": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "recommendations": {
+      "correct": 0,
+      "correct_after_trim": 0,
+      "correct_by_containment": 0,
+      "incorrect": 0,
+      "missed": 0,
+      "spurious": 0,
+      "true_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  },
+  "per_doc": {
+    "IA_Report_High_Complexity.pdf": {
+      "form_id_correct": false,
+      "fields_correct": 7,
+      "fields_total": 7,
+      "confidence_when_correct_mean": 0.6454,
+      "confidence_when_incorrect_mean": null
+    },
+    "IA_Report_Low_Complexity.pdf": {
+      "form_id_correct": false,
+      "fields_correct": 9,
+      "fields_total": 9,
+      "confidence_when_correct_mean": 0.6449,
+      "confidence_when_incorrect_mean": null
+    }
+  },
+  "detail": [
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "cause_of_loss",
+      "ground_truth": "Kitchen Fire",
+      "extracted": "Kitchen Fire. The fire department responded",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.641,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "inspection_date",
+      "ground_truth": "2026-05-11",
+      "extracted": "2026-05-11",
+      "status": "CORRECT",
+      "confidence": 0.6651199999999999,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "inspection_firm",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "coverage_a",
+      "ground_truth": "$350,000",
+      "extracted": "$350,000",
+      "status": "CORRECT",
+      "confidence": 0.64232,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "coverage_b",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "coverage_c",
+      "ground_truth": "$120,000",
+      "extracted": "$120,000",
+      "status": "CORRECT",
+      "confidence": 0.6435200000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "coverage_d",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "coverages",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "officials",
+      "ground_truth": "Fire dept, File number: 99887-HIGH",
+      "extracted": "99887-HIGH",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6422000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "settlement",
+      "ground_truth": "Please ensure we set a reserve for the upcoming living expenses. Based on contractor bids, the settlement is estimated at $85,500.",
+      "extracted": "$85,500.",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6435200000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "subrogation",
+      "ground_truth": "We are investigating the manufacturer of the toaster oven.",
+      "extracted": "Potential\nWe are investigating the manufacturer of the toaster oven.",
+      "status": "CORRECT_BY_CONTAINMENT",
+      "confidence": 0.6398,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "payment_summary",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_High_Complexity.pdf",
+      "field": "recommendations",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "cause_of_loss",
+      "ground_truth": "Hail Damage",
+      "extracted": "Hail Damage",
+      "status": "CORRECT",
+      "confidence": 0.641,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "inspection_date",
+      "ground_truth": "2026-05-10",
+      "extracted": "2026-05-10",
+      "status": "CORRECT",
+      "confidence": 0.6651199999999999,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "inspection_firm",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "coverage_a",
+      "ground_truth": "$150,000",
+      "extracted": "$150,000",
+      "status": "CORRECT",
+      "confidence": 0.64232,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "coverage_b",
+      "ground_truth": "$15,000",
+      "extracted": "$15,000",
+      "status": "CORRECT",
+      "confidence": 0.6435200000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "coverage_c",
+      "ground_truth": "$75,000",
+      "extracted": "$75,000",
+      "status": "CORRECT",
+      "confidence": 0.6435200000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "coverage_d",
+      "ground_truth": "$30,000",
+      "extracted": "$30,000",
+      "status": "CORRECT",
+      "confidence": 0.6435200000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "coverages",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "officials",
+      "ground_truth": "12345-LOW",
+      "extracted": "12345-LOW",
+      "status": "CORRECT",
+      "confidence": 0.6422000000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "settlement",
+      "ground_truth": "$45,000",
+      "extracted": "$45,000",
+      "status": "CORRECT",
+      "confidence": 0.6435200000000001,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "subrogation",
+      "ground_truth": "No\nNo third party is responsible for this weather event.",
+      "extracted": "No\nNo third party is responsible for this weather event.",
+      "status": "CORRECT",
+      "confidence": 0.6398,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "payment_summary",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    },
+    {
+      "doc": "IA_Report_Low_Complexity.pdf",
+      "field": "recommendations",
+      "ground_truth": null,
+      "extracted": null,
+      "status": "TRUE_NEGATIVE",
+      "confidence": 0.0,
+      "flattening_applied": false
+    }
+  ]
+}
