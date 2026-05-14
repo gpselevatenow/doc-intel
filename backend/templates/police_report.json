@@ -317,8 +317,8 @@
                     "config": {
                         "patterns": [
                             "(?im)(?:NON-VEHICLE\\s+)?PROPERTY\\s+DAMAGE[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
-                            "(?im)(?:PROPERTY\\s+DAMAGED|ESTIMATED\\s+(?:PROPERTY\\s+)?DAMAGE|DAMAGE\\s+DESCRIPTION|NATURE\\s+OF\\s+DAMAGE|ESTIMATED\\s+TOTAL\\s+DAMAGE)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
-                            "(?im)SECTION[ \\t]*6[^\\n]*?PROPERTY[^\\n]*\\n+[ \\t]*(?P<value>[^\\n]{3,120})"
+                            "(?im)(?:PROPERTY\\s+DAMAGED|ESTIMATED\\s+(?:PROPERTY\\s+)?DAMAGE|NATURE\\s+OF\\s+DAMAGE|ESTIMATED\\s+TOTAL\\s+DAMAGE)[ \\t]*[:\\-]?[ \\t]*(?P<value>[^\\n]{3,120})",
+                            "(?im)SECTION[ \\t]*6[^\\n]*?PROPERTY[^\\n]*\\n+[ \\t]*(?:Description\\s+)?(?P<value>[^\\n]{3,120})"
                         ],
                         "flags": ["IGNORECASE", "MULTILINE"]
                     }
