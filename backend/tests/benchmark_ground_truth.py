@@ -50,7 +50,7 @@ _RESULTS_PATH = _TESTS_DIR / "benchmark_results.json"
 _RESULTS_FORCED_PATH = _TESTS_DIR / "benchmark_results_forced_template.json"
 _BENCHMARKS_DIR = _REPO_DIR / "docs" / "benchmarks"
 
-_LIST_FIELD_IDS = {"vehicles", "parties", "witnesses"}
+_LIST_FIELD_IDS = {"vehicles", "operators", "passengers", "pedestrians", "witnesses"}
 
 # Characters stripped from leading/trailing edges in trim comparison
 _PUNCT_STRIP_RE = re.compile(r'^[\s,—–\-:;.!?]+|[\s,—–\-:;.!?]+$')
@@ -236,7 +236,7 @@ def _try_flatten(field_id: str, extracted: Any) -> tuple[Any, bool]:
     try:
         if field_id == "vehicles":
             return _flatten_vehicles(extracted)
-        if field_id == "parties":
+        if field_id in ("operators", "passengers", "pedestrians"):
             return _flatten_parties(extracted)
         if field_id == "witnesses":
             return _flatten_witnesses(extracted)
