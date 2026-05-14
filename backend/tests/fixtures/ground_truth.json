@@ -94,11 +94,11 @@
         "property_damage": "Pedestrian crosswalk signal button housing",
         "vehicles": "NY-HKR-4418, NY-JLX-8821, NY-KBW-3319, NY-LCM-7723",
         "operators": "Roberto E. Castillo, Ji-Young Kim, Tariq B. Ahmed, Blessing O. Okafor",
-        "passengers": "Mi-Rae Kim, Jason T. Kim, Soo-Jin Kim",
+        "passengers": "Mi-Rae Kim, Jason T. Kim, Soo-Jin Kim, Fatima R. Ahmed",
         "pedestrians": "Marcus W. Douglas, Anya B. Petrov",
         "witnesses": "Calvin R. Moore, Maria T. Santos, David K. Lowenstein, Julia R. Marchetti, Officer T. Park"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (4) + passengers (3) + pedestrians (2). NY accident_type label was ambiguous; ground-truth count of pedestrians confirmed as 2."
+      "_notes": "Schema split 2026-05-15: parties → operators (4) + passengers (3) + pedestrians (2). NY accident_type label was ambiguous; ground-truth count of pedestrians confirmed as 2. GT fix 2026-05-15 Phase 6e: added Fatima R. Ahmed (V3 passenger), missed in initial labeling."
     },
     {
       "filename": "sample_33_ice_ped_philadelphia.pdf",
