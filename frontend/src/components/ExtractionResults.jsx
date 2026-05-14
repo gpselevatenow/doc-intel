@@ -686,10 +686,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         <SectionHeader
           icon={User}
           title="Operators & Passengers"
-          count={parties.length ? `${parties.length} ${parties.length !== 1 ? 'people' : 'person'}` : null}
+          count={(operators.length + passengers.length + pedestrians.length) > 0 ? `${operators.length + passengers.length + pedestrians.length} ${(operators.length + passengers.length + pedestrians.length) !== 1 ? 'people' : 'person'}` : null}
           color="#a78bfa"
         />
-        {parties.length === 0 ? (
+        {operators.length === 0 && passengers.length === 0 && pedestrians.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
             No parties identified in this document.
           </div>
