@@ -332,12 +332,19 @@ def _resolve_doc_path(filename: str, declared_path: str | None) -> Path:
     )
 
 
-def run_extraction(doc_path: Path, forced_form_id: str | None = None) -> tuple[dict, str | None]:
+def run_extraction(
+    doc_path: Path,
+    forced_form_id: str | None = None,
+    doc_type: str = "police_report",
+    use_classifier: bool = True,
+) -> tuple[dict, str | None]:
     """Run the full pipeline on one document.
 
     Args:
         doc_path:        Path to the PDF.
         forced_form_id:  When set, bypasses the classifier and uses this form_id directly.
+        doc_type:        Base template type passed to run_orchestrator (e.g. "ia_report").
+        use_classifier:  When False, skips classify_form and passes form_id=None.
 
     Returns:
         (record, all_candidates, form_id).
@@ -347,8 +354,10 @@ def run_extraction(doc_path: Path, forced_form_id: str | None = None) -> tuple[d
 
     if forced_form_id:
         form_id = forced_form_id
-    else:
+    elif use_classifier:
         form_id, _ = classify_form(text)
+    else:
+        form_id = None
 
     canonical = Document(
         document_id=doc_path.name,
@@ -356,7 +365,7 @@ def run_extraction(doc_path: Path, forced_form_id: str | None = None) -> tuple[d
         n_pages=1,
         markdown=text,
     )
-    result = run_orchestrator(canonical, doc_path.name, "police_report", form_id=form_id)
+    result = run_orchestrator(canonical, doc_path.name, doc_type, form_id=form_id)
     return result["record"], result["all_candidates"], form_id
 
 
@@ -603,11 +612,14 @@ def build_markdown(summary: dict, pf: dict, pd_: dict, detail: list[dict], run_d
 
 def main(args: argparse.Namespace) -> int:
     # Load ground truth
-    if not _GROUND_TRUTH_PATH.exists():
-        print(f"ERROR: Ground truth file not found: {_GROUND_TRUTH_PATH}", file=sys.stderr)
+    gt_path = Path(args.gt) if args.gt else _GROUND_TRUTH_PATH
+    if not gt_path.is_absolute():
+        gt_path = _BACKEND_DIR / gt_path
+    if not gt_path.exists():
+        print(f"ERROR: Ground truth file not found: {gt_path}", file=sys.stderr)
         return 1
 
-    with open(_GROUND_TRUTH_PATH, encoding="utf-8") as f:
+    with open(gt_path, encoding="utf-8") as f:
         gt_data = json.load(f)
 
     documents = gt_data.get("documents", [])
@@ -638,7 +650,11 @@ def main(args: argparse.Namespace) -> int:
 
         try:
             doc_path = _resolve_doc_path(filename, declared_path)
-            record, all_candidates, actual_form_id = run_extraction(doc_path, forced_form_id)
+            record, all_candidates, actual_form_id = run_extraction(
+                doc_path, forced_form_id,
+                doc_type=args.doc_type,
+                use_classifier=not args.no_classifier,
+            )
         except Exception as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             continue
@@ -766,6 +782,27 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override output filename: ground_truth_{LABEL}_{date}.md and "
              "benchmark_results_{LABEL}.json (e.g. --label path1).",
+    )
+    p.add_argument(
+        "--gt",
+        metavar="PATH",
+        default=None,
+        help="Path to ground truth JSON file (default: tests/fixtures/ground_truth.json). "
+             "Relative paths are resolved from the backend/ directory.",
+    )
+    p.add_argument(
+        "--doc-type",
+        metavar="TYPE",
+        default="police_report",
+        help="Base template type passed to the extraction engine (default: police_report). "
+             "Use 'ia_report' for IA adjuster reports.",
+    )
+    p.add_argument(
+        "--no-classifier",
+        action="store_true",
+        default=False,
+        help="Skip the form classifier and pass form_id=None to the orchestrator. "
+             "Use for doc types without a classifier fingerprint (e.g. ia_report).",
     )
     return p
 

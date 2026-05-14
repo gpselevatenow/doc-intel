@@ -1,0 +1,48 @@
+{
+  "_schema": "ia_ground_truth_v1",
+  "_labeled_at": "2026-05-15",
+  "_labeled_by": "Raj",
+  "_note": "First IA report benchmark. 2 docs, 13 fields each = 26 comparisons. Baseline only.",
+  "documents": [
+    {
+      "filename": "IA_Report_High_Complexity.pdf",
+      "expected_form_id": "ia_report",
+      "fields": {
+        "cause_of_loss": "Kitchen Fire",
+        "inspection_date": "2026-05-11",
+        "inspection_firm": null,
+        "coverage_a": "$350,000",
+        "coverage_b": null,
+        "coverage_c": "$120,000",
+        "coverage_d": null,
+        "coverages": null,
+        "officials": "Fire dept, File number: 99887-HIGH",
+        "settlement": "Please ensure we set a reserve for the upcoming living expenses. Based on contractor bids, the settlement is estimated at $85,500.",
+        "subrogation": "We are investigating the manufacturer of the toaster oven.",
+        "payment_summary": null,
+        "recommendations": null
+      },
+      "_notes": "Kitchen fire. Smoke damage extensive. Reserve warning embedded in settlement text. File 99887-HIGH."
+    },
+    {
+      "filename": "IA_Report_Low_Complexity.pdf",
+      "expected_form_id": "ia_report",
+      "fields": {
+        "cause_of_loss": "Hail Damage",
+        "inspection_date": "2026-05-10",
+        "inspection_firm": null,
+        "coverage_a": "$150,000",
+        "coverage_b": "$15,000",
+        "coverage_c": "$75,000",
+        "coverage_d": "$30,000",
+        "coverages": null,
+        "officials": null,
+        "settlement": "$45,000",
+        "subrogation": "No. No third party is responsible for this weather event.",
+        "payment_summary": null,
+        "recommendations": null
+      },
+      "_notes": "Hail damage. All 4 coverages present. No officials — weather event. officials set to null — file number 12345-LOW present in doc but unclear whether internal claim file or external fire/police report reference."
+    }
+  ]
+}
