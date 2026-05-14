@@ -781,7 +781,10 @@ class AdvancedTableStrategy(Strategy):
                     })
                     current_entity = {}
 
-            for line in lines:
+            _w_next_guard = re.compile(
+                r'(?i)^(?:W\d+\b|Witness\s+W\d+|SECTION|NARRATIVE|SUPPLEMENT|ADDENDUM|INVESTIGAT)'
+            )
+            for idx, line in enumerate(lines):
                 line = line.strip()
                 if not line:
                     continue
@@ -833,9 +836,9 @@ class AdvancedTableStrategy(Strategy):
                         save_witness()
                         continue
 
-                # Named witness delimiter formats: "W1:", "Witness 1:"
+                # Named witness delimiter formats: "W1:", "Witness 1:", "Witness W1 —"
                 w_match = re.match(
-                    r'(?i)(?:#\s*:\s*W\d+|Witness\s*[#]?\s*\d+\s*[:\s]?|W\d+\s*[:\s])',
+                    r'(?i)(?:#\s*:\s*W\d+|Witness\s+W\d+\s*[—–\-]\s*|Witness\s*[#]?\s*\d+\s*[:\s]?|W\d+\s*[:\s])',
                     line
                 )
                 if w_match:
@@ -844,9 +847,26 @@ class AdvancedTableStrategy(Strategy):
                     rest = line[w_match.end():].strip()
                     if rest:
                         parts = re.split(r'\s*[—–]{1,2}\s*|\s+-\s+', rest)
-                        candidate = _truncate_to_name(parts[0].strip())
+                        raw_name_text = parts[0].strip()
+                        candidate = _truncate_to_name(raw_name_text)
                         if candidate:
                             current_entity["name"] = candidate
+                            # Continuation-line lookahead: recover last name cut by truncation
+                            last_token = candidate.split()[-1]
+                            pos = raw_name_text.rfind(last_token)
+                            after = raw_name_text[pos + len(last_token):] if pos >= 0 else ""
+                            next_raw = lines[idx + 1].strip() if idx + 1 < len(lines) else ""
+                            if next_raw and not _w_next_guard.match(next_raw):
+                                nw_m = re.match(r'^([A-Z][a-z]+)\b', next_raw)
+                                if nw_m:
+                                    if last_token.endswith('.'):
+                                        current_entity["name"] = candidate + " " + nw_m.group(1)
+                                    else:
+                                        cond_a = after.startswith(',')
+                                        cond_b = bool(re.match(r'^[a-z]', after.lstrip()))
+                                        if cond_a or cond_b:
+                                            tokens = candidate.split()
+                                            current_entity["name"] = " ".join(tokens[:-1] + [nw_m.group(1)])
                         if len(parts) > 1:
                             p1 = parts[1].strip()
                             if re.search(r'[\d\(\)\-\+]{7,}', p1):
