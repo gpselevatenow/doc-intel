@@ -7,6 +7,13 @@
   --text-muted: #cbd5e1;
   --danger: #ef4444;
   --success: #6ee7b7;
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.10);
+  --warning-border: rgba(245, 158, 11, 0.35);
+  --danger-bg: rgba(239, 68, 68, 0.10);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --success-bg: rgba(110, 231, 183, 0.08);
+  --success-border: rgba(110, 231, 183, 0.25);
   --border-color: rgba(255, 255, 255, 0.15);
   --card-bg: rgba(30, 21, 71, 0.6);
 }
@@ -446,4 +453,19 @@ body {
   border-radius: 2px !important;
   box-shadow: 0 0 2px rgba(254, 240, 138, 0.8) !important;
   transition: all 0.2s ease !important;
+}
+
+@keyframes fieldLand {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reservePulse {
+  0%, 100% { border-color: var(--danger-border); }
+  50%       { border-color: rgba(239, 68, 68, 0.7); }
+}
+
+@keyframes reviewPulse {
+  0%, 100% { border-color: var(--warning-border); }
+  50%       { border-color: rgba(245, 158, 11, 0.6); }
 }

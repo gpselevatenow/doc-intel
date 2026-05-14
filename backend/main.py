@@ -59,9 +59,12 @@ def _na_if_none(val, fallback="N/A"):
     return val
 
 
-def _check_reserve_warning(text: str) -> bool:
-    """Return True if the document contains the word 'reserve'."""
-    return bool(re.search(r'\breserve\b', text, re.IGNORECASE))
+def _check_reserve_warning(text: str) -> tuple:
+    """Return (True, sentence) if the document contains reserve language, else (False, None)."""
+    match = re.search(r'[^.!?\n]*\breserve\b[^.!?\n]*[.!?]?', text, re.IGNORECASE)
+    if match:
+        return True, match.group(0).strip()
+    return False, None
 
 
 def _format_ia_sentences(record: dict, reserve_warning: bool) -> str:
@@ -212,7 +215,7 @@ async def extract_ia(file: UploadFile = File(...)):
                     pass
             return get_error_fallback(f"Document parsing failed: {str(e)}")
 
-        reserve_warning = _check_reserve_warning(markdown_text)
+        reserve_warning, reserve_sentence = _check_reserve_warning(markdown_text)
 
         normalized = normalize_label_value_blocks(markdown_text)
         full_tables = flatten_markdown_tables(normalized)
@@ -267,6 +270,7 @@ async def extract_ia(file: UploadFile = File(...)):
                 "payment_summary": _na_if_none(orchestrator_record.get("payment_summary")),
                 "recommendations": _na_if_none(orchestrator_record.get("recommendations")),
                 "reserve_warning": reserve_warning,
+                "reserve_sentence": reserve_sentence,
                 "dynamic_fields": {},
                 "review_flags": review_flags,
                 "duplicate_insights": duplicate_insights,

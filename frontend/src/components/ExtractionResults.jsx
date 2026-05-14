@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
 import EditableField from './EditableField';
 
@@ -181,6 +181,54 @@ const WitnessCard = ({ witness, index, onFieldClick }) => (
   </div>
 );
 
+function ReserveWarningBanner({ reserveWarning, reserveText }) {
+  if (!reserveWarning) return null;
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.08) 100%)',
+      border: '1px solid var(--danger-border)',
+      borderLeft: '4px solid var(--danger)',
+      borderRadius: '10px',
+      padding: '16px 20px',
+      marginBottom: '20px',
+      animation: 'reservePulse 2.5s ease-in-out infinite',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <span style={{ fontSize: '18px' }}>⚠️</span>
+        <span style={{
+          fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+          fontSize: '12px',
+          fontWeight: '700',
+          letterSpacing: '0.12em',
+          color: 'var(--danger)',
+          textTransform: 'uppercase',
+        }}>Reserve Language Detected</span>
+      </div>
+      {reserveText && (
+        <p style={{
+          margin: '0 0 10px 28px',
+          fontSize: '13px',
+          color: 'var(--text-main)',
+          fontStyle: 'italic',
+          lineHeight: '1.5',
+          borderLeft: '2px solid rgba(239,68,68,0.4)',
+          paddingLeft: '12px',
+        }}>
+          "{reserveText}"
+        </p>
+      )}
+      <p style={{
+        margin: '0 0 0 28px',
+        fontSize: '12px',
+        color: 'var(--danger)',
+        fontWeight: '600',
+      }}>
+        → Escalate to Claims Manager for reserve authorization
+      </p>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, onReprocess }) => {
@@ -189,6 +237,16 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   const [newField, setNewField] = useState('');
   const [feedbackGiven, setFeedbackGiven] = useState(null);
   const [auditModalField, setAuditModalField] = useState(null);
+
+  const reserveText = useMemo(() => {
+    if (!data?.reserve_warning) return null;
+    if (data?.reserve_sentence) return data.reserve_sentence;
+    // Fallback: scan summary for sentence containing reserve
+    const summary = data?.summary || '';
+    const sentences = summary.split(/[.!?]+/);
+    const hit = sentences.find(s => /reserve/i.test(s) && s.trim().length > 10);
+    return hit ? hit.trim() : null;
+  }, [data]);
 
   const renderFieldLabel = (label, fieldId) => {
     const fieldScores = data.accuracy_field_scores || {};
@@ -362,8 +420,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   let insights = [], nextActions = [];
   if (type === 'ia') {
     if (data.reserve_warning) {
-      insights.push("High severity claim with explicit reserve request detected.");
-      nextActions.push("Escalate to Claims Manager for reserve authorization.");
+      insights.push("High severity claim — reserve language detected.");
     } else {
       insights.push("Standard property claim layout detected.");
       nextActions.push("Proceed to standard settlement workflow.");
@@ -457,6 +514,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     return (
       <div className="fade-in">
         {renderAuditModal()}
+        <ReserveWarningBanner reserveWarning={data.reserve_warning} reserveText={reserveText} />
         {renderAccuracyBadge()}
         {renderInsights()}
         <div className="glass-card">
@@ -485,7 +543,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         <div className="glass-card">
           <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FileTextIcon /> File Note Preview</h3>
           <textarea className="file-note" readOnly value={recommendations.trim() ? `${data.summary || ''} Recommendations: ${recommendations.trim()}` : (data.summary || '')} />
-          {data.reserve_warning && <p className="warning-text"><AlertTriangle size={16} style={{ verticalAlign: 'middle', marginRight: '4px' }} />Reserve trigger detected.</p>}
         </div>
       </div>
     );
