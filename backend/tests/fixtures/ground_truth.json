@@ -30,7 +30,7 @@
     },
     {
       "filename": "sample_25_dui_wrongway_la.pdf",
-      "expected_form_id": "ca_chp555",
+      "expected_form_id": "municipal_pd_collision",
       "fields": {
         "date_time": "July 4, 2026 at 02:14 hrs",
         "location": "I-405 Northbound, Mile Marker 38.2 (near Sunset Blvd exit), Los Angeles, CA 90049",
@@ -50,11 +50,11 @@
         "pedestrians": null,
         "witnesses": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (6) + passengers (5) + pedestrians (null)."
+      "_notes": "Schema split 2026-05-15: parties → operators (6) + passengers (5) + pedestrians (null). GT fix Option B.3: expected_form_id corrected to municipal_pd_collision. Doc is an LAPD city PD report, not a CHP 555 state form."
     },
     {
       "filename": "sample_27_tropical_moto_tampa.pdf",
-      "expected_form_id": "fl_hsmv",
+      "expected_form_id": "municipal_pd_collision",
       "fields": {
         "date_time": "September 28, 2026 at 18:33 hrs",
         "location": "I-275 Southbound, Mile Marker 39.8 (Howard Ave exit area), Tampa, FL 33606",
@@ -74,11 +74,11 @@
         "pedestrians": null,
         "witnesses": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R. Melendez #144, Kevin T. Morrison"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (5, incl. motorcyclist Garcia) + passengers (4) + pedestrians (null). GT fix Option A.1: FL weather corrected — 'Tropical Storm Conditions' is the field value; 'heavy rain' was parenthetical elaboration."
+      "_notes": "Schema split 2026-05-15: parties → operators (5, incl. motorcyclist Garcia) + passengers (4) + pedestrians (null). GT fix Option A.1: FL weather corrected — 'Tropical Storm Conditions' is the field value; 'heavy rain' was parenthetical elaboration. GT fix Option B.3: expected_form_id corrected to municipal_pd_collision. Doc is a Tampa PD city report, not an HSMV state form."
     },
     {
       "filename": "sample_24_rain_ped_nyc.pdf",
-      "expected_form_id": "ny_mv104a",
+      "expected_form_id": "municipal_pd_collision",
       "fields": {
         "date_time": "August 19, 2026 at 17:38 hrs",
         "location": "Queens Blvd & 69th Road (intersection), Woodside, Queens, NY 11377",
@@ -98,11 +98,11 @@
         "pedestrians": "Marcus W. Douglas, Anya B. Petrov",
         "witnesses": "Calvin R. Moore, Maria T. Santos, David K. Lowenstein, Julia R. Marchetti, Officer T. Park"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (4) + passengers (3) + pedestrians (2). NY accident_type label was ambiguous; ground-truth count of pedestrians confirmed as 2. GT fix 2026-05-15 Phase 6e: added Fatima R. Ahmed (V3 passenger), missed in initial labeling."
+      "_notes": "Schema split 2026-05-15: parties → operators (4) + passengers (3) + pedestrians (2). NY accident_type label was ambiguous; ground-truth count of pedestrians confirmed as 2. GT fix 2026-05-15 Phase 6e: added Fatima R. Ahmed (V3 passenger), missed in initial labeling. GT fix Option B.3: expected_form_id corrected to municipal_pd_collision. Doc is an NYPD city PD report, not an MV-104A state form."
     },
     {
       "filename": "sample_33_ice_ped_philadelphia.pdf",
-      "expected_form_id": "pa_aa600",
+      "expected_form_id": "municipal_pd_collision",
       "fields": {
         "date_time": "December 28, 2026 at 8:19 hrs",
         "location": "Broad Street & Washington Avenue (intersection), Philadelphia, PA 19148",
@@ -122,7 +122,7 @@
         "pedestrians": "Harriet M. Walker, Lionel T. Walker",
         "witnesses": "Franklin T. Booker, Denise P. Rawlins, Alonzo W. Henderson, Det. R. Kim, Officer Patricia L. Diaz"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (5) + passengers (4) + pedestrians (2)."
+      "_notes": "Schema split 2026-05-15: parties → operators (5) + passengers (4) + pedestrians (2). GT fix Option B.3: expected_form_id corrected to municipal_pd_collision. Doc is a Philadelphia PD city report, not an AA-600 state form."
     }
   ]
 }
