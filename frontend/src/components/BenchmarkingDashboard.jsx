@@ -131,6 +131,35 @@ export default function BenchmarkingDashboard() {
           </div>
         )}
 
+        {/* Stable Extraction Benchmarks */}
+        <div style={{ background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <CheckCircle size={18} color="var(--success)" />
+            <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>
+              Stable Extraction Benchmarks
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            {[
+              { label: 'Police Reports', f1: '1.0000', docs: 5, fields: 17, version: 'v0.7' },
+              { label: 'IA Reports', f1: '1.0000', docs: 2, fields: 13, version: 'v0.8a' },
+            ].map((row) => (
+              <div key={row.label} style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', borderLeft: '3px solid var(--success)', borderRadius: '8px', padding: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-main)' }}>{row.label}</span>
+                  <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.06)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>{row.version}</span>
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--success)', lineHeight: 1 }}>
+                  F1 = {row.f1}
+                </div>
+                <div style={{ marginTop: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  {row.docs} docs · {row.fields} fields
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Field Failure Analytics */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
 

@@ -14,18 +14,24 @@ const Badge = () => (
 const SectionHeader = ({ icon: Icon, title, count, color = 'var(--accent)' }) => (
   <div style={{
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    marginBottom: '1rem', paddingBottom: '0.75rem',
-    borderBottom: '1px solid var(--border-color)'
+    marginBottom: '1rem', paddingTop: '0.75rem',
+    borderTop: '1px solid var(--border-color)'
   }}>
-    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-      {Icon && <Icon size={18} color={color} />}
+    <h3 style={{
+      margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem',
+      fontFamily: 'var(--font-mono, monospace)', fontSize: '10px',
+      fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em',
+      color: 'var(--text-muted)'
+    }}>
+      {Icon && <Icon size={14} color={color} />}
       {title}
     </h3>
     {count != null && (
       <span style={{
-        background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)',
-        fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem',
-        borderRadius: '12px', border: '1px solid var(--border-color)'
+        background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)',
+        fontSize: '11px', fontWeight: 700, padding: '0.15rem 0.5rem',
+        borderRadius: '10px', border: '1px solid var(--border-color)',
+        fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.04em'
       }}>{count}</span>
     )}
   </div>
