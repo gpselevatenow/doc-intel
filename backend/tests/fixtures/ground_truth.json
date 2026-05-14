@@ -58,7 +58,7 @@
       "fields": {
         "date_time": "September 28, 2026 at 18:33 hrs",
         "location": "I-275 Southbound, Mile Marker 39.8 (Howard Ave exit area), Tampa, FL 33606",
-        "weather": "heavy rain",
+        "weather": "Tropical Storm Conditions",
         "road_surface": "Standing Water",
         "light_condition": "Dusk",
         "accident_type": "4-vehicle chain collision",
@@ -74,7 +74,7 @@
         "pedestrians": null,
         "witnesses": "Harold W. Freeman, Patricia M. Cruz, FHP Trooper R. Melendez #144, Kevin T. Morrison"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (5, incl. motorcyclist Garcia) + passengers (4) + pedestrians (null)."
+      "_notes": "Schema split 2026-05-15: parties → operators (5, incl. motorcyclist Garcia) + passengers (4) + pedestrians (null). GT fix Option A.1: FL weather corrected — 'Tropical Storm Conditions' is the field value; 'heavy rain' was parenthetical elaboration."
     },
     {
       "filename": "sample_24_rain_ped_nyc.pdf",
