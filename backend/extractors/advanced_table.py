@@ -72,8 +72,319 @@ def _truncate_to_name(text: str) -> str:
     return " ".join(kept)
 
 
+def _extract_all_parties(text: str) -> list[dict]:
+    """Return every party entity extracted from *text*, unfiltered by role."""
+    parties: list[dict] = []
+    current_entity: dict = {}
+    lines = text.splitlines()
+    party_table_mode = False
+
+    def save_party():
+        nonlocal current_entity
+        if not current_entity:
+            return
+        if not any(current_entity.get(k) for k in ("name", "dob", "address", "license_number", "condition")):
+            return
+
+        condition_raw = current_entity.get("condition", "Unknown")
+        substance_pattern = r'(?i)(alcohol|drug|intoxicat|dui|dwi|impair|under the influence|substance|narcotics?|cannabis|marijuana)'
+        substance_match = re.search(substance_pattern, condition_raw)
+        if substance_match:
+            substance = substance_match.group(0)
+            injuries = re.sub(substance_pattern, '', condition_raw, flags=re.IGNORECASE).strip(' ,;')
+        else:
+            substance = "None reported"
+            injuries = condition_raw
+
+        raw_citations = current_entity.get("citations", "")
+        if raw_citations and raw_citations.lower() not in ("none", "unknown", ""):
+            citations_list = [c.strip() for c in re.split(r'[,;|]', raw_citations) if c.strip()]
+        else:
+            citations_list = []
+
+        transported_to = current_entity.get("transported_to", "Unknown")
+        transported = (
+            transported_to not in ("Unknown", "None", "", "N/A")
+            or bool(current_entity.get("_transported_flag"))
+        )
+
+        citations_str = ", ".join(citations_list) if citations_list else "None"
+        condition_combined = injuries if substance == "None reported" else f"{injuries}; {substance}"
+
+        parties.append({
+            "role": current_entity.get("role", "Unknown"),
+            "name": current_entity.get("name", "Unknown"),
+            "dob": current_entity.get("dob", "Unknown"),
+            "address": current_entity.get("address", "Unknown"),
+            "phone": current_entity.get("phone", "Unknown"),
+            "license_number": current_entity.get("license_number", "Unknown"),
+            "condition": condition_combined,
+            "injuries": injuries if injuries else "None reported",
+            "substance_involvement": substance,
+            "transported": transported,
+            "transported_to": transported_to,
+            "citations": citations_str,
+            "citations_list": citations_list
+        })
+
+    _party_learned_aliases: dict[str, str] = {}
+    _party_canonical_fields = [
+        "name", "dob", "address", "license_number",
+        "condition", "phone", "citations", "transported_to",
+    ]
+    try:
+        for _pf in _party_canonical_fields:
+            for _alias in get_aliases_for(_pf):
+                _party_learned_aliases[_alias.lower()] = _pf
+    except Exception:
+        pass
+
+    delimiter_found = False
+    past_party_sections = False
+    for line in lines:
+        line = line.strip()
+        line = re.sub(r'\(cid:\d+\)', '', line).strip()
+        if not line:
+            continue
+
+        if re.match(r'(?i)^SECTION\s+(?:[6-9]|\d{2,})\b|^(?:NARRATIVE|SUPPLEMENTAL|SUPPLEMENT|ADDENDUM)\b', line):
+            save_party()
+            current_entity = {}
+            delimiter_found = False
+            party_table_mode = False
+            past_party_sections = True
+            continue
+
+        if past_party_sections:
+            continue
+
+        if re.match(r'(?i)^Driver\s+Information\b', line):
+            save_party()
+            current_entity = {"role": "Operator"}
+            delimiter_found = True
+            continue
+
+        if re.match(r'(?i)^Party\s+Name\s+DOB\s+(?:License|DL)\b', line):
+            party_table_mode = True
+            continue
+
+        if party_table_mode:
+            trow = re.match(
+                r'(?i)^(Driver|Operator|Moto\w*)\s+(?:V\d+\s+)?(?:\(\s*)?'
+                r'([A-Z][A-Za-z\s,\.\'\-]{3,40}?)\s+'
+                r'(\d{1,2}/\d{1,2}/\d{2,4})\s+'
+                r'([A-Z][A-Z0-9\-]{3,20})',
+                line
+            )
+            if trow:
+                save_party()
+                citation_after = line[trow.end():].strip()
+                current_entity = {
+                    "role": "Operator",
+                    "name": trow.group(2).strip().rstrip(','),
+                    "dob": trow.group(3),
+                    "license_number": trow.group(4),
+                }
+                if citation_after and citation_after.lower() not in ('none', 'n/a', ''):
+                    current_entity["citations"] = citation_after
+                delimiter_found = True
+                continue
+            elif re.match(r'(?i)^(?:SECTION\s+\d|PASSENGERS?|WITNESSES?)', line):
+                save_party()
+                current_entity = {}
+                delimiter_found = False
+                party_table_mode = False
+
+        party_match = re.match(
+            r'(?i)(Party\s*[#]?\s*\d*\s*:?|Person\s*[#]?\s*\d+\s*:?|Veh\s*:\s*V\d+|Operator(?=\s*(?:[^A-Za-z\s)]|$))\s*[#]?\s*\d*\s*(?:\(V\d+\))?\s*:?|Driver(?!\s+(?:Name|Information)\b)(?=[#\s]*\d|[#\s]*\(V|[#\s]*:)|Passenger\b\s*[#]?\s*\d*\s*(?:\(V\d+\))?\s*:?|Pedestrian\b\s*[#]?\s*\d*\s*:?|Bicyclist\b\s*[#]?\s*\d*\s*:?|VICTIM[\s/]*COMPLAINANT\b|VICTIM\b|COMPLAINANT\b|SUSPECT[\s/]*OFFENDER\b|SUSPECT\b|OFFENDER\b)',
+            line
+        )
+        if party_match:
+            _candidate_rest = line[party_match.end():].strip()
+            if re.search(r'(?i)\b(Statute|Violation|Disposition|Fine\s*/|Charge)\b', _candidate_rest):
+                save_party()
+                current_entity = {}
+                delimiter_found = False
+                continue
+            save_party()
+            current_entity = {}
+            delimiter_found = True
+            full_line_lower = line.lower()
+            if "victim" in full_line_lower or "complainant" in full_line_lower:
+                current_entity["role"] = "Victim"
+            elif "suspect" in full_line_lower or "offender" in full_line_lower:
+                current_entity["role"] = "Suspect"
+            elif "pedestrian" in full_line_lower:
+                current_entity["role"] = "Pedestrian"
+            elif "bicyclist" in full_line_lower or "cyclist" in full_line_lower:
+                current_entity["role"] = "Bicyclist"
+            elif "driver" in full_line_lower or "operator" in full_line_lower:
+                current_entity["role"] = "Operator"
+            elif "passenger" in full_line_lower:
+                current_entity["role"] = "Passenger"
+            elif full_line_lower.startswith("veh"):
+                current_entity["role"] = "Passenger"
+            rest = line[party_match.end():].strip().rstrip(':').strip()
+            if rest and not rest.startswith('|'):
+                name_dob = re.match(
+                    r'^([A-Za-z][A-Za-z\s,.\'-]{1,}?)(?:\s*\(DOB:\s*([^)]*)\))?\s*$',
+                    rest
+                )
+                if name_dob:
+                    name_part = name_dob.group(1).strip().rstrip(',')
+                    if name_part:
+                        current_entity["name"] = name_part
+                    if name_dob.group(2) and name_dob.group(2).strip():
+                        current_entity["dob"] = name_dob.group(2).strip()
+                elif re.match(r'^[A-Za-z][A-Za-z\s,.\'-]{2,}', rest):
+                    name_part = re.split(r'\s+(?=\d{1,2}/\d{1,2}/\d{2,4}\b)|\s+\(', rest)[0]
+                    name_part = name_part.strip().rstrip(',')
+                    if name_part:
+                        current_entity["name"] = name_part
+                    dob_inline = re.search(r'\b(\d{1,2}/\d{1,2}/\d{2,4})\b', rest)
+                    if dob_inline:
+                        current_entity.setdefault("dob", dob_inline.group(1))
+            continue
+
+        if not delimiter_found:
+            continue
+
+        if ":" in line:
+            parts = line.split(":", 1)
+            key = parts[0].strip().lower()
+            val = parts[1].strip()
+
+            if key in ("role", "party role", "party type", "person type"):
+                current_entity["role"] = val
+            elif any(k in key for k in ("name", "full name", "last name", "person name")):
+                current_entity["name"] = val
+            elif any(k in key for k in ("dob", "date of birth", "birth date", "d.o.b")):
+                dob_clean = val.strip().strip('-').strip()
+                if dob_clean:
+                    current_entity["dob"] = dob_clean
+            elif any(k in key for k in ("address", "addr", "street address", "home address", "residence")):
+                current_entity["address"] = val
+            elif any(k in key for k in ("license", "dl #", "dl#", "driver lic", "driver's lic",
+                                         "license number", "license no", "dl number", "lic #")):
+                current_entity["license_number"] = val
+            elif any(k in key for k in ("injury severity", "injury class", "injury status",
+                                         "injury", "condition", "physical condition")):
+                current_entity["condition"] = val
+            elif any(k in key for k in ("alcohol", "drug", "substance", "dui", "dwi",
+                                         "impairment", "bac", "intox")):
+                current_entity["condition"] = (current_entity.get("condition", "") + " " + val).strip()
+            elif any(k in key for k in ("phone", "tel", "cell", "mobile", "contact number")):
+                current_entity["phone"] = val
+            elif any(k in key for k in ("transport", "taken to", "hospital", "medic", "ems unit",
+                                         "transported to", "destination")):
+                current_entity["transported_to"] = val
+                current_entity["_transported_flag"] = True
+            elif any(k in key for k in ("citation", "charge", "infraction", "violation",
+                                         "statute", "ticket")):
+                existing = current_entity.get("citations", "")
+                current_entity["citations"] = (existing + ", " + val).strip(", ") if existing else val
+            elif any(k in key for k in ("physical description", "physical desc",
+                                         "safety equipment", "restraint", "airbag")):
+                current_entity["condition"] = (current_entity.get("condition", "") + " " + val).strip()
+            elif any(k in key for k in ("sex", "gender")):
+                pass
+            elif any(k in key for k in ("license state", "state of license", "dl state")):
+                pass
+            elif "pedestrian" in key:
+                current_entity["role"] = "Pedestrian"
+            elif "passenger" in key:
+                current_entity["role"] = "Passenger"
+            elif "operator" in key or "driver" in key:
+                current_entity["role"] = "Operator"
+            else:
+                for _alias, _canonical in _party_learned_aliases.items():
+                    if _alias in key:
+                        current_entity[_canonical] = val
+                        break
+        else:
+            m = re.match(r'(?i)^Name\s+(.+)$', line)
+            if m and 'name' not in current_entity:
+                current_entity['name'] = m.group(1).strip()
+
+            m = re.search(r'(?i)\bDriver\s+Name\s+(.+?)(?=\s+DOB[A-Z]?[\s\d]|\s+Age\s*[/|]\s*Sex|\s+DL\s+#|\s*$)', line)
+            if m and 'name' not in current_entity:
+                current_entity['name'] = m.group(1).strip()
+
+            m = re.match(r'(?i)^Date\s+of\s+Birth\s+(\d{1,2}/\d{1,2}/\d{2,4})', line)
+            if m:
+                current_entity.setdefault('dob', m.group(1).strip())
+
+            m = re.search(r'(?i)\bDOB[A-Z]?\s*(\d{1,2}/\d{1,2}/\d{2,4})', line)
+            if m:
+                current_entity.setdefault('dob', m.group(1).strip())
+
+            m = re.match(r'(?i)^Address\s+(.+)$', line)
+            if m:
+                current_entity.setdefault('address', m.group(1).strip())
+
+            m = re.search(r'(?i)\bAddress\s+(.+?)(?=\s+City/State/Zip|\s+Phone\s*\(|\s+DL\s+#|\s*$)', line)
+            if m:
+                current_entity.setdefault('address', m.group(1).strip())
+
+            m = re.search(r'(?i)\bCity/State/Zip\s+(.+?)(?=\s+Phone\s*\(|\s+DL\s+#|\s*$)', line)
+            if m:
+                csz = m.group(1).strip()
+                addr = current_entity.get('address', '')
+                current_entity['address'] = f"{addr}, {csz}".strip(', ') if addr else csz
+
+            m = re.search(r'(?i)\bPhone\s+(\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4})', line)
+            if m:
+                current_entity.setdefault('phone', m.group(1).strip())
+
+            m = re.match(r'(?i)^Driver\'?s?\s+License\s+No\.?\s+(.+)$', line)
+            if m:
+                current_entity.setdefault('license_number', m.group(1).strip())
+
+            m = re.search(r'(?i)\bDL\s*#\s+([A-Z0-9][A-Z0-9\-]{3,20})\b', line)
+            if m:
+                current_entity.setdefault('license_number', m.group(1).strip())
+
+            m = re.match(r'(?i)^Condition\s*/\s*Injur\w*\s+(.+)$', line)
+            if m:
+                current_entity.setdefault('condition', m.group(1).strip())
+
+            m = re.search(r'(?i)\bInjury\s+Severity\s+(.+?)(?=\s+Taken\s+To|\s+EMS\s+Run\s+#|\s*$)', line)
+            if m:
+                current_entity.setdefault('condition', m.group(1).strip())
+
+            m = re.match(r'(?i)^Transported\s+(No|Yes)\b(.*)$', line)
+            if m:
+                transported_val = m.group(1).strip()
+                if transported_val.lower() == 'yes':
+                    current_entity['_transported_flag'] = True
+
+            m = re.match(r'(?i)^Transported\s+To\s+(.+)$', line)
+            if m:
+                dest = m.group(1).strip()
+                current_entity.setdefault('transported_to', dest)
+                if dest.upper() not in ('N/A', 'NONE', 'UNKNOWN', ''):
+                    current_entity['_transported_flag'] = True
+
+            m = re.search(r'(?i)\bTaken\s+To\s+(.+?)(?=\s+EMS\s+Run\s+#|\s*$)', line)
+            if m:
+                dest = m.group(1).strip()
+                current_entity.setdefault('transported_to', dest)
+                if dest.upper() not in ('N/A', 'NONE', 'UNKNOWN', ''):
+                    current_entity['_transported_flag'] = True
+
+            m = re.match(r'(?i)^Citations?\s+Issued\s+(.+)$', line)
+            if m:
+                val = m.group(1).strip()
+                if val.lower() not in ('none', 'n/a', ''):
+                    existing = current_entity.get('citations', '')
+                    current_entity['citations'] = (existing + ', ' + val).strip(', ') if existing else val
+
+    save_party()
+    return parties
+
+
 class AdvancedTableConfig(BaseModel):
-    table_type: str  # "vehicles", "parties", "witnesses"
+    table_type: str  # "vehicles", "operators", "passengers", "pedestrians", "witnesses", "parties"
 
 @register("advanced_table")
 class AdvancedTableStrategy(Strategy):
@@ -396,360 +707,12 @@ class AdvancedTableStrategy(Strategy):
             result_list = list(vehicles_dict.values())
 
         elif cfg.table_type == "parties":
-            parties = []
-            current_entity = {}
-            lines = text.splitlines()
-            party_table_mode = False  # True when inside a compact "Driver V# NAME DOB LICENSE" table
+            result_list = _extract_all_parties(text)
 
-            def save_party():
-                nonlocal current_entity
-                if not current_entity:
-                    return
-                # Skip placeholder parties that have only a role and no identifying info
-                if not any(current_entity.get(k) for k in ("name", "dob", "address", "license_number", "condition")):
-                    return
-
-                condition_raw = current_entity.get("condition", "Unknown")
-
-                # Split injuries from substance involvement
-                substance_pattern = r'(?i)(alcohol|drug|intoxicat|dui|dwi|impair|under the influence|substance|narcotics?|cannabis|marijuana)'
-                substance_match = re.search(substance_pattern, condition_raw)
-                if substance_match:
-                    substance = substance_match.group(0)
-                    injuries = re.sub(substance_pattern, '', condition_raw, flags=re.IGNORECASE).strip(' ,;')
-                else:
-                    substance = "None reported"
-                    injuries = condition_raw
-
-                # Normalize citations to list
-                raw_citations = current_entity.get("citations", "")
-                if raw_citations and raw_citations.lower() not in ("none", "unknown", ""):
-                    citations_list = [c.strip() for c in re.split(r'[,;|]', raw_citations) if c.strip()]
-                else:
-                    citations_list = []
-
-                # Transported flag + destination
-                transported_to = current_entity.get("transported_to", "Unknown")
-                transported = (
-                    transported_to not in ("Unknown", "None", "", "N/A")
-                    or bool(current_entity.get("_transported_flag"))
-                )
-
-                citations_str = ", ".join(citations_list) if citations_list else "None"
-                condition_combined = injuries if substance == "None reported" else f"{injuries}; {substance}"
-
-                parties.append({
-                    "role": current_entity.get("role", "Unknown"),
-                    "name": current_entity.get("name", "Unknown"),
-                    "dob": current_entity.get("dob", "Unknown"),
-                    "address": current_entity.get("address", "Unknown"),
-                    "phone": current_entity.get("phone", "Unknown"),
-                    "license_number": current_entity.get("license_number", "Unknown"),
-                    "condition": condition_combined,
-                    "injuries": injuries if injuries else "None reported",
-                    "substance_involvement": substance,
-                    "transported": transported,
-                    "transported_to": transported_to,
-                    "citations": citations_str,
-                    "citations_list": citations_list
-                })
-
-            # Build lookup of DB-learned party field aliases: lowered_header → canonical_field
-            _party_learned_aliases: dict[str, str] = {}
-            _party_canonical_fields = [
-                "name", "dob", "address", "license_number",
-                "condition", "phone", "citations", "transported_to",
-            ]
-            try:
-                for _pf in _party_canonical_fields:
-                    for _alias in get_aliases_for(_pf):
-                        _party_learned_aliases[_alias.lower()] = _pf
-            except Exception:
-                pass
-
-            delimiter_found = False
-            past_party_sections = False  # True once we've hit SECTION 6+ / NARRATIVE — no new parties after
-            for line in lines:
-                line = line.strip()
-                # Strip pdfplumber CID character artifacts before parsing
-                line = re.sub(r'\(cid:\d+\)', '', line).strip()
-                if not line:
-                    continue
-
-                # Narrative/supplement sections contain no structured party data — stop accumulating.
-                # Reset current_entity after save so repeated section headers don't re-save stale data.
-                if re.match(r'(?i)^SECTION\s+(?:[6-9]|\d{2,})\b|^(?:NARRATIVE|SUPPLEMENTAL|SUPPLEMENT|ADDENDUM)\b', line):
-                    save_party()
-                    current_entity = {}
-                    delimiter_found = False
-                    party_table_mode = False
-                    past_party_sections = True
-                    continue
-
-                # Once past structured party sections, skip all party matching to avoid narrative false positives.
-                if past_party_sections:
-                    continue
-
-                # "Driver Information" section header — new Operator party, no inline name to parse
-                if re.match(r'(?i)^Driver\s+Information\b', line):
-                    save_party()
-                    current_entity = {"role": "Operator"}
-                    delimiter_found = True
-                    continue
-
-                # Compact table header: "Party Name DOB License Citation" — column labels, not a party
-                if re.match(r'(?i)^Party\s+Name\s+DOB\s+(?:License|DL)\b', line):
-                    party_table_mode = True
-                    continue
-
-                # Compact table row: "Driver V1 Carlos R. Delgado 09/11/1979 TX-D44218301 None"
-                #                    "Operator Donald R. Pruitt 03/27/1969 TX-CDL-P88241307 TX Transp. Code..."
-                #                    "Motorcyclis Eduardo R. Garcia 11/05/1985 FL-G88219812 None"  (A4: Moto\w*)
-                #                    "Driver V6 ( Brandon T. Simmons ..."                          (A3: leading paren)
-                #                    "Driver V2 Ji-Young Kim 09/22/1979 ..."                       (A2: hyphen in name)
-                if party_table_mode:
-                    trow = re.match(
-                        r'(?i)^(Driver|Operator|Moto\w*)\s+(?:V\d+\s+)?(?:\(\s*)?'
-                        r'([A-Z][A-Za-z\s,\.\'\-]{3,40}?)\s+'
-                        r'(\d{1,2}/\d{1,2}/\d{2,4})\s+'
-                        r'([A-Z][A-Z0-9\-]{3,20})',
-                        line
-                    )
-                    if trow:
-                        save_party()
-                        citation_after = line[trow.end():].strip()
-                        current_entity = {
-                            "role": "Operator",
-                            "name": trow.group(2).strip().rstrip(','),
-                            "dob": trow.group(3),
-                            "license_number": trow.group(4),
-                        }
-                        if citation_after and citation_after.lower() not in ('none', 'n/a', ''):
-                            current_entity["citations"] = citation_after
-                        delimiter_found = True
-                        continue
-                    elif re.match(r'(?i)^(?:SECTION\s+\d|PASSENGERS?|WITNESSES?)', line):
-                        save_party()
-                        current_entity = {}
-                        delimiter_found = False
-                        party_table_mode = False
-
-                # Match: Party:, Party 1:, PARTY:, Operator:, Driver:, Passenger:, Veh: V1, Person 1:
-                # Also: DRIVER 1 (V1) LAST, FIRST (CHP format — no colon, inline name)
-                # Also: VICTIM / COMPLAINANT, SUSPECT / OFFENDER (theft/incident reports)
-                # MMUCC: OPERATOR (used by NY MV-104, TX CR-2, WA WSP-3000)
-                # Driver requires digit / vehicle-ref / colon — prevents narrative "Driver of Unit..." from firing
-                # Word boundaries on SUSPECT/VICTIM/COMPLAINANT/OFFENDER prevent "suspected" etc. from matching.
-                party_match = re.match(
-                    r'(?i)(Party\s*[#]?\s*\d*\s*:?|Person\s*[#]?\s*\d+\s*:?|Veh\s*:\s*V\d+|Operator(?=\s*(?:[^A-Za-z\s)]|$))\s*[#]?\s*\d*\s*(?:\(V\d+\))?\s*:?|Driver(?!\s+(?:Name|Information)\b)(?=[#\s]*\d|[#\s]*\(V|[#\s]*:)|Passenger\b\s*[#]?\s*\d*\s*(?:\(V\d+\))?\s*:?|Pedestrian\b\s*[#]?\s*\d*\s*:?|Bicyclist\b\s*[#]?\s*\d*\s*:?|VICTIM[\s/]*COMPLAINANT\b|VICTIM\b|COMPLAINANT\b|SUSPECT[\s/]*OFFENDER\b|SUSPECT\b|OFFENDER\b)',
-                    line
-                )
-                if party_match:
-                    # Skip citation/violation table column headers (e.g. "Party Statute Violation Disposition")
-                    _candidate_rest = line[party_match.end():].strip()
-                    if re.search(r'(?i)\b(Statute|Violation|Disposition|Fine\s*/|Charge)\b', _candidate_rest):
-                        save_party()  # save any pending party first
-                        current_entity = {}
-                        delimiter_found = False
-                        continue
-                    save_party()
-                    current_entity = {}
-                    delimiter_found = True
-                    full_line_lower = line.lower()
-                    if "victim" in full_line_lower or "complainant" in full_line_lower:
-                        current_entity["role"] = "Victim"
-                    elif "suspect" in full_line_lower or "offender" in full_line_lower:
-                        current_entity["role"] = "Suspect"
-                    elif "pedestrian" in full_line_lower:
-                        current_entity["role"] = "Pedestrian"
-                    elif "bicyclist" in full_line_lower or "cyclist" in full_line_lower:
-                        current_entity["role"] = "Bicyclist"
-                    elif "driver" in full_line_lower or "operator" in full_line_lower:
-                        current_entity["role"] = "Operator"
-                    elif "passenger" in full_line_lower:
-                        current_entity["role"] = "Passenger"
-                    elif full_line_lower.startswith("veh"):
-                        current_entity["role"] = "Passenger"
-                    # Extract inline name (and optional DOB) after delimiter
-                    # CHP format: "DRIVER 1 (V1) Jameson, Robert (DOB: 04/12/1985)"
-                    rest = line[party_match.end():].strip().rstrip(':').strip()
-                    if rest and not rest.startswith('|'):
-                        # Match NAME optionally followed by (DOB: ...) — DOB may be truncated
-                        name_dob = re.match(
-                            r'^([A-Za-z][A-Za-z\s,.\'-]{1,}?)(?:\s*\(DOB:\s*([^)]*)\))?\s*$',
-                            rest
-                        )
-                        if name_dob:
-                            name_part = name_dob.group(1).strip().rstrip(',')
-                            if name_part:
-                                current_entity["name"] = name_part
-                            if name_dob.group(2) and name_dob.group(2).strip():
-                                current_entity["dob"] = name_dob.group(2).strip()
-                        elif re.match(r'^[A-Za-z][A-Za-z\s,.\'-]{2,}', rest):
-                            # Truncated: "Chang, Elena (DOB:" — extract name before open paren or date
-                            name_part = re.split(r'\s+(?=\d{1,2}/\d{1,2}/\d{2,4}\b)|\s+\(', rest)[0]
-                            name_part = name_part.strip().rstrip(',')
-                            if name_part:
-                                current_entity["name"] = name_part
-                            # Extract inline DOB if present (compact table format: "NAME DOB LICENSE")
-                            dob_inline = re.search(r'\b(\d{1,2}/\d{1,2}/\d{2,4})\b', rest)
-                            if dob_inline:
-                                current_entity.setdefault("dob", dob_inline.group(1))
-                    continue
-
-                if not delimiter_found:
-                    continue
-
-                if ":" in line:
-                    parts = line.split(":", 1)
-                    key = parts[0].strip().lower()
-                    val = parts[1].strip()
-
-                    if key in ("role", "party role", "party type", "person type"):
-                        current_entity["role"] = val
-                    elif any(k in key for k in ("name", "full name", "last name", "person name")):
-                        current_entity["name"] = val
-                    elif any(k in key for k in ("dob", "date of birth", "birth date", "d.o.b")):
-                        dob_clean = val.strip().strip('-').strip()
-                        if dob_clean:
-                            current_entity["dob"] = dob_clean
-                    elif any(k in key for k in ("address", "addr", "street address", "home address", "residence")):
-                        current_entity["address"] = val
-                    elif any(k in key for k in ("license", "dl #", "dl#", "driver lic", "driver's lic",
-                                                 "license number", "license no", "dl number", "lic #")):
-                        current_entity["license_number"] = val
-                    elif any(k in key for k in ("injury severity", "injury class", "injury status",
-                                                 "injury", "condition", "physical condition")):
-                        current_entity["condition"] = val
-                    elif any(k in key for k in ("alcohol", "drug", "substance", "dui", "dwi",
-                                                 "impairment", "bac", "intox")):
-                        current_entity["condition"] = (current_entity.get("condition", "") + " " + val).strip()
-                    elif any(k in key for k in ("phone", "tel", "cell", "mobile", "contact number")):
-                        current_entity["phone"] = val
-                    elif any(k in key for k in ("transport", "taken to", "hospital", "medic", "ems unit",
-                                                 "transported to", "destination")):
-                        current_entity["transported_to"] = val
-                        current_entity["_transported_flag"] = True
-                    elif any(k in key for k in ("citation", "charge", "infraction", "violation",
-                                                 "statute", "ticket")):
-                        existing = current_entity.get("citations", "")
-                        current_entity["citations"] = (existing + ", " + val).strip(", ") if existing else val
-                    elif any(k in key for k in ("physical description", "physical desc",
-                                                 "safety equipment", "restraint", "airbag")):
-                        current_entity["condition"] = (current_entity.get("condition", "") + " " + val).strip()
-                    elif any(k in key for k in ("sex", "gender")):
-                        pass
-                    elif any(k in key for k in ("license state", "state of license", "dl state")):
-                        pass
-                    elif "pedestrian" in key:
-                        current_entity["role"] = "Pedestrian"
-                    elif "passenger" in key:
-                        current_entity["role"] = "Passenger"
-                    elif "operator" in key or "driver" in key:
-                        current_entity["role"] = "Operator"
-                    else:
-                        # Fall back to DB-learned aliases for non-standard column headers
-                        for _alias, _canonical in _party_learned_aliases.items():
-                            if _alias in key:
-                                current_entity[_canonical] = val
-                                break
-                else:
-                    # Compound inline lines — parse keyword-anchored driver fields.
-                    # Handles both packed single-line format:
-                    #   "Driver Name John Smith DOB 04/16/1982 Age / Sex 44 / M"
-                    # and space-separated label-value format (no colon):
-                    #   "Name Karen L. Whitfield"
-                    #   "Date of Birth 07/22/1983"
-                    #   "Address 4812 Ridgemont Drive, Fort Worth, TX 76131"
-
-                    # Bare "Name VALUE" line (space-separated, no colon)
-                    m = re.match(r'(?i)^Name\s+(.+)$', line)
-                    if m and 'name' not in current_entity:
-                        current_entity['name'] = m.group(1).strip()
-
-                    # Packed "Driver Name VALUE ..." line
-                    m = re.search(r'(?i)\bDriver\s+Name\s+(.+?)(?=\s+DOB[A-Z]?[\s\d]|\s+Age\s*[/|]\s*Sex|\s+DL\s+#|\s*$)', line)
-                    if m and 'name' not in current_entity:
-                        current_entity['name'] = m.group(1).strip()
-
-                    # "Date of Birth MM/DD/YYYY" (bare, no colon)
-                    m = re.match(r'(?i)^Date\s+of\s+Birth\s+(\d{1,2}/\d{1,2}/\d{2,4})', line)
-                    if m:
-                        current_entity.setdefault('dob', m.group(1).strip())
-
-                    m = re.search(r'(?i)\bDOB[A-Z]?\s*(\d{1,2}/\d{1,2}/\d{2,4})', line)
-                    if m:
-                        current_entity.setdefault('dob', m.group(1).strip())
-
-                    # Bare "Address VALUE" line
-                    m = re.match(r'(?i)^Address\s+(.+)$', line)
-                    if m:
-                        current_entity.setdefault('address', m.group(1).strip())
-
-                    m = re.search(r'(?i)\bAddress\s+(.+?)(?=\s+City/State/Zip|\s+Phone\s*\(|\s+DL\s+#|\s*$)', line)
-                    if m:
-                        current_entity.setdefault('address', m.group(1).strip())
-
-                    m = re.search(r'(?i)\bCity/State/Zip\s+(.+?)(?=\s+Phone\s*\(|\s+DL\s+#|\s*$)', line)
-                    if m:
-                        csz = m.group(1).strip()
-                        addr = current_entity.get('address', '')
-                        current_entity['address'] = f"{addr}, {csz}".strip(', ') if addr else csz
-
-                    m = re.search(r'(?i)\bPhone\s+(\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4})', line)
-                    if m:
-                        current_entity.setdefault('phone', m.group(1).strip())
-
-                    # "Driver's License No. NUMBER" or "DL # NUMBER"
-                    m = re.match(r'(?i)^Driver\'?s?\s+License\s+No\.?\s+(.+)$', line)
-                    if m:
-                        current_entity.setdefault('license_number', m.group(1).strip())
-
-                    m = re.search(r'(?i)\bDL\s*#\s+([A-Z0-9][A-Z0-9\-]{3,20})\b', line)
-                    if m:
-                        current_entity.setdefault('license_number', m.group(1).strip())
-
-                    # "Condition / Injuries VALUE" (space-separated, no colon)
-                    m = re.match(r'(?i)^Condition\s*/\s*Injur\w*\s+(.+)$', line)
-                    if m:
-                        current_entity.setdefault('condition', m.group(1).strip())
-
-                    m = re.search(r'(?i)\bInjury\s+Severity\s+(.+?)(?=\s+Taken\s+To|\s+EMS\s+Run\s+#|\s*$)', line)
-                    if m:
-                        current_entity.setdefault('condition', m.group(1).strip())
-
-                    # "Transported No/Yes ..." line (bare, no colon)
-                    m = re.match(r'(?i)^Transported\s+(No|Yes)\b(.*)$', line)
-                    if m:
-                        transported_val = m.group(1).strip()
-                        if transported_val.lower() == 'yes':
-                            current_entity['_transported_flag'] = True
-
-                    # "Transported To VALUE"
-                    m = re.match(r'(?i)^Transported\s+To\s+(.+)$', line)
-                    if m:
-                        dest = m.group(1).strip()
-                        current_entity.setdefault('transported_to', dest)
-                        if dest.upper() not in ('N/A', 'NONE', 'UNKNOWN', ''):
-                            current_entity['_transported_flag'] = True
-
-                    m = re.search(r'(?i)\bTaken\s+To\s+(.+?)(?=\s+EMS\s+Run\s+#|\s*$)', line)
-                    if m:
-                        dest = m.group(1).strip()
-                        current_entity.setdefault('transported_to', dest)
-                        if dest.upper() not in ('N/A', 'NONE', 'UNKNOWN', ''):
-                            current_entity['_transported_flag'] = True
-
-                    # "Citations Issued VALUE" (bare, no colon)
-                    m = re.match(r'(?i)^Citations?\s+Issued\s+(.+)$', line)
-                    if m:
-                        val = m.group(1).strip()
-                        if val.lower() not in ('none', 'n/a', ''):
-                            existing = current_entity.get('citations', '')
-                            current_entity['citations'] = (existing + ', ' + val).strip(', ') if existing else val
-
-            save_party()
-            result_list = parties
+        elif cfg.table_type in ("operators", "passengers", "pedestrians"):
+            _role_filter = {"operators": "Operator", "passengers": "Passenger", "pedestrians": "Pedestrian"}
+            result_list = [p for p in _extract_all_parties(text)
+                           if p.get("role") == _role_filter[cfg.table_type]]
 
         elif cfg.table_type == "witnesses":
             witnesses = []
