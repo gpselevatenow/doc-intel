@@ -42,7 +42,7 @@
         "officer": "Officer Tamara L. Watkins",
         "report_number": "LAPD-26-07-04-1188",
         "ems_agency": "LAFD — Rescue Ambulance 71 and 88",
-        "contributing_factors": "wrong-way driving, DUI",
+        "contributing_factors": null,
         "property_damage": "I-405 NB center divider — V6 struck barrier before entering northbound lanes; three panels displaced",
         "vehicles": "CA-7HKR441, CA-8LTX224, CA-6PKW881, CA-9MXP112, CA-4TNW773, CA-2BWK558",
         "operators": "Marco A. Torres, Keiko L. Nakamura, David B. Greenberg, Ravi K. Patel, Jerome D. Wong, Brandon T. Simmons",
@@ -50,7 +50,7 @@
         "pedestrians": null,
         "witnesses": "Felix R. Dominguez, Priscilla T. Wan, LAPD Air-7 Crew, Anthony R. Bello, Cynthia A. Marsh"
       },
-      "_notes": "Schema split 2026-05-15: parties → operators (6) + passengers (5) + pedestrians (null). GT fix Option B.3: expected_form_id corrected to municipal_pd_collision. Doc is an LAPD city PD report, not a CHP 555 state form."
+      "_notes": "Schema split 2026-05-15: parties → operators (6) + passengers (5) + pedestrians (null). GT fix Option B.3: expected_form_id corrected to municipal_pd_collision. Doc is an LAPD city PD report, not a CHP 555 state form. GT fix A2.3: contributing_factors corrected to null. LAPD form has no Contributing Factors section; original GT was over-labeled by reading content (wrong-way DUI in accident description) rather than form structure. Consistent with FL/NY/PA municipal_pd_collision docs which all have null contributing_factors."
     },
     {
       "filename": "sample_27_tropical_moto_tampa.pdf",
