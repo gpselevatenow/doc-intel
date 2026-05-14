@@ -538,9 +538,13 @@ class AdvancedTableStrategy(Strategy):
                             before_vin = rest_row[:vin_m.start()].strip()
                             after_vin = rest_row[vin_m.end():].strip()
                             current_entity["model"] = before_vin if before_vin else "Unknown"
-                            plate_m = re.match(r'^([A-Z0-9][A-Z0-9\-]{2,10})(?:\s+\([A-Z]{2}\))?', after_vin)
+                            plate_m = re.match(r'^([A-Z0-9][A-Z0-9\-]{2,10}(?:\s+\([A-Z]{2}\))?)', after_vin)
                             if plate_m:
-                                current_entity["plate"] = plate_m.group(1)
+                                raw = plate_m.group(1).strip()
+                                sfx = re.search(r'\s+\(([A-Z]{2})\)$', raw)
+                                if sfx and raw[:sfx.start()].upper().startswith(sfx.group(1) + '-'):
+                                    raw = raw[:sfx.start()]
+                                current_entity["plate"] = raw
                         else:
                             current_entity["model"] = rest_row[:40]
                         continue
@@ -687,9 +691,13 @@ class AdvancedTableStrategy(Strategy):
                         current_entity.setdefault("vin", m.group(1))
 
                     # "License Plate / State PLATE (ST)" and bare "License Plate PLATE"
-                    m = re.search(r'(?i)(?:License\s+Plate(?:\s*/\s*State)?|Plate)\s+([A-Z0-9][A-Z0-9\-]{2,10})(?:\s+\([A-Z]{2}\))?', clean_line)
+                    m = re.search(r'(?i)(?:License\s+Plate(?:\s*/\s*State)?|Plate)\s+([A-Z0-9][A-Z0-9\-]{2,10}(?:\s+\([A-Z]{2}\))?)', clean_line)
                     if m:
-                        current_entity.setdefault("plate", m.group(1))
+                        raw = m.group(1).strip()
+                        sfx = re.search(r'\s+\(([A-Z]{2})\)$', raw)
+                        if sfx and raw[:sfx.start()].upper().startswith(sfx.group(1) + '-'):
+                            raw = raw[:sfx.start()]
+                        current_entity.setdefault("plate", raw)
 
                     # "Registered Owner NAME" / "Owner Name NAME"
                     m = re.match(r'(?i)^(?:Registered\s+)?Owner(?:\s+Name)?\s+(.+)$', clean_line)
