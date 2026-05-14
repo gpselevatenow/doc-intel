@@ -304,16 +304,18 @@ async def extract_ia(file: UploadFile = File(...)):
                                 bbox_map[f"vehicles[{i}].{sub_field}"] = hit
                         except Exception:
                             pass
-            for i, party in enumerate(result.get("parties", []) or []):
-                for sub_field in ["name", "dob", "address", "license_number"]:
-                    val = party.get(sub_field)
-                    if val and val not in ("Unknown", "N/A", "", None):
-                        try:
-                            hit = find_bbox_for_text(canonical_doc, str(val))
-                            if hit:
-                                bbox_map[f"parties[{i}].{sub_field}"] = hit
-                        except Exception:
-                            pass
+            for role in ["operators", "passengers", "pedestrians"]:
+                for i, party in enumerate(result.get(role, []) or []):
+                    for sub_field in ["name", "dob", "address", "license_number"]:
+                        val = party.get(sub_field) if isinstance(party, dict) else None
+                        if val and val not in ("Unknown", "N/A", "", None) \
+                                and len(str(val)) >= 3:
+                            try:
+                                hit = find_bbox_for_text(canonical_doc, str(val))
+                                if hit:
+                                    bbox_map[f"{role}[{i}].{sub_field}"] = hit
+                            except Exception:
+                                pass
         result["bbox_map"] = bbox_map
         return result
 
@@ -415,6 +417,8 @@ async def extract_police(file: UploadFile = File(...)):
 
             # Resolve "Same as driver/operator" vehicle owner references
             operators = [p for p in parties_list if p.get("role", "").lower() in ("operator", "driver")]
+            passengers = [p for p in parties_list if p.get("role", "").lower() == "passenger"]
+            pedestrians = [p for p in parties_list if p.get("role", "").lower() == "pedestrian"]
             for v in vehicles_list:
                 if v.pop("_owner_same_as_driver", False) and operators:
                     v["owner_name"] = operators[0].get("name", v.get("owner_name", "Unknown"))
@@ -447,6 +451,9 @@ async def extract_police(file: UploadFile = File(...)):
                 "road_surface": _na_if_none(orchestrator_record.get("road_surface")),
                 "vehicles": vehicles_list,
                 "parties": parties_list,
+                "operators": operators,
+                "passengers": passengers,
+                "pedestrians": pedestrians,
                 "witnesses": witnesses_list,
                 "dynamic_fields": {},
                 "review_flags": review_flags,
@@ -483,16 +490,18 @@ async def extract_police(file: UploadFile = File(...)):
                                 bbox_map[f"vehicles[{i}].{sub_field}"] = hit
                         except Exception:
                             pass
-            for i, party in enumerate(result.get("parties", []) or []):
-                for sub_field in ["name", "dob", "address", "license_number"]:
-                    val = party.get(sub_field)
-                    if val and val not in ("Unknown", "N/A", "", None):
-                        try:
-                            hit = find_bbox_for_text(canonical_doc, str(val))
-                            if hit:
-                                bbox_map[f"parties[{i}].{sub_field}"] = hit
-                        except Exception:
-                            pass
+            for role in ["operators", "passengers", "pedestrians"]:
+                for i, party in enumerate(result.get(role, []) or []):
+                    for sub_field in ["name", "dob", "address", "license_number"]:
+                        val = party.get(sub_field) if isinstance(party, dict) else None
+                        if val and val not in ("Unknown", "N/A", "", None) \
+                                and len(str(val)) >= 3:
+                            try:
+                                hit = find_bbox_for_text(canonical_doc, str(val))
+                                if hit:
+                                    bbox_map[f"{role}[{i}].{sub_field}"] = hit
+                            except Exception:
+                                pass
         result["bbox_map"] = bbox_map
         return result
 

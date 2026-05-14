@@ -584,9 +584,12 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   }
 
   // ── Police / HSMV render ─────────────────────────────────────────────────
-  const vehicles  = data.vehicles  || [];
-  const parties   = data.parties   || [];
-  const witnesses = data.witnesses || [];
+  const vehicles    = data.vehicles    || [];
+  const parties     = data.parties     || [];
+  const operators   = data.operators   || [];
+  const passengers  = data.passengers  || [];
+  const pedestrians = data.pedestrians || [];
+  const witnesses   = data.witnesses   || [];
 
   return (
     <div className="fade-in">
@@ -690,11 +693,23 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             No parties identified in this document.
           </div>
         ) : (
-          parties.map((p, i) => (
-            <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
-              <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`parties[${i}].${fieldName}`)} />
-            </div>
-          ))
+          <>
+            {operators.map((p, i) => (
+              <div key={`op-${i}`} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
+                <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`operators[${i}].${fieldName}`)} />
+              </div>
+            ))}
+            {passengers.map((p, i) => (
+              <div key={`pa-${i}`} style={{ animation: `fieldLand 0.35s ease ${(operators.length + i) * 60 + 480}ms both` }}>
+                <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`passengers[${i}].${fieldName}`)} />
+              </div>
+            ))}
+            {pedestrians.map((p, i) => (
+              <div key={`pe-${i}`} style={{ animation: `fieldLand 0.35s ease ${(operators.length + passengers.length + i) * 60 + 480}ms both` }}>
+                <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`pedestrians[${i}].${fieldName}`)} />
+              </div>
+            ))}
+          </>
         )}
       </div>
 
