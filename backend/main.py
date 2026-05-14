@@ -406,19 +406,22 @@ async def extract_police(file: UploadFile = File(...)):
                     )
 
             vehicles_list: list = []
-            parties_list: list = []
             witnesses_list: list = []
-            for key, target in [("vehicles", vehicles_list), ("parties", parties_list), ("witnesses", witnesses_list)]:
+            for key, target in [("vehicles", vehicles_list), ("witnesses", witnesses_list)]:
                 try:
                     parsed = json.loads(orchestrator_record.get(key) or "[]")
                     target.extend(parsed)
                 except Exception:
                     pass
 
-            # Resolve "Same as driver/operator" vehicle owner references
-            operators = [p for p in parties_list if p.get("role", "").lower() in ("operator", "driver")]
-            passengers = [p for p in parties_list if p.get("role", "").lower() == "passenger"]
-            pedestrians = [p for p in parties_list if p.get("role", "").lower() == "pedestrian"]
+            operators_list   = json.loads(orchestrator_record.get("operators")   or "[]")
+            passengers_list  = json.loads(orchestrator_record.get("passengers")  or "[]")
+            pedestrians_list = json.loads(orchestrator_record.get("pedestrians") or "[]")
+            parties_list     = operators_list + passengers_list + pedestrians_list
+
+            operators   = operators_list
+            passengers  = passengers_list
+            pedestrians = pedestrians_list
             for v in vehicles_list:
                 if v.pop("_owner_same_as_driver", False) and operators:
                     v["owner_name"] = operators[0].get("name", v.get("owner_name", "Unknown"))
