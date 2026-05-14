@@ -171,7 +171,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)subrogation(?:[:\\s]+)?(?P<value>yes|no|potential|possible|none|n/?a)",
+                            "(?im)subrogation[ \\t]*:[ \\t]*(?P<value>[^\\n]{2,80}(?:\\n(?![ \\t]*[A-Z][A-Za-z ]+:)[^\\n]{2,120})?)",
                             "(?im)(?:subrogation\\s+potential|subrogation\\s+opportunity|recovery\\s+opportunity|third\\s+party\\s+recovery|recovery\\s+potential|subrogation\\s+rights?)(?:[:\\s]+)?(?P<value>yes|no|potential|possible|none|[A-Za-z0-9 \\t,.-]{2,60})",
                             "(?im)subrogation[ \\t]*:[ \\t]*(?P<value>[A-Za-z0-9 \\t,.()/\\-]{2,80})"
                         ],
