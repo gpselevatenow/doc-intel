@@ -29,7 +29,7 @@
                     "priority": 1,
                     "config": {
                         "patterns": [
-                            "(?im)(?:INVESTIGATING\\s+AGENCY|LAW\\s+ENFORCEMENT\\s+AGENCY|AGENCY\\s+NAME|REPORTING\\s+AGENCY|DEPARTMENT\\s+NAME)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})"
+                            "(?im)(?:INVESTIGATING\\s+AGENCY|LAW\\s+ENFORCEMENT\\s+AGENCY|AGENCY\\s+NAME|REPORTING\\s+AGENCY|RESPONDING\\s+AGENCY|DEPARTMENT\\s+NAME)(?:[:\\s]+)?(?P<value>[A-Za-z0-9 \\t,().\\-]{3,60})"
                         ]
                     }
                 }
