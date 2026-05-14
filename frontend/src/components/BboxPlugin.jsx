@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const bboxPlugin = (props) => {
-    const { bboxMap, selectedField } = props;
+    const { bboxMap, selectedFieldRef } = props;
 
     return {
         renderPageLayer: (renderPageProps) => {
@@ -35,7 +35,7 @@ export const bboxPlugin = (props) => {
                         const width = ((r - l) / pageWidthPt) * 100;
                         const height = ((t - b) / pageHeightPt) * 100;
 
-                        const isSelected = selectedField === box.fieldId;
+                        const isSelected = selectedFieldRef.current === box.fieldId;
 
                         return (
                             <div

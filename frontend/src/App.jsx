@@ -34,6 +34,8 @@ class ErrorBoundary extends React.Component {
 
 const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
   const jumpToPageRef = useRef(null);
+  const selectedFieldRef = useRef(selectedField);
+  selectedFieldRef.current = selectedField; // sync during render so renderPageLayer reads current value
 
   const jumpPlugin = useMemo(() => ({
     install: (pluginFunctions) => {
@@ -48,7 +50,7 @@ const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
     setTimeout(() => jumpToPageRef.current(entry.page - 1), 50);
   }, [selectedField]);
 
-  const bboxPluginInstance = bboxPlugin({ bboxMap, selectedField });
+  const bboxPluginInstance = bboxPlugin({ bboxMap, selectedFieldRef });
 
   return (
     <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
