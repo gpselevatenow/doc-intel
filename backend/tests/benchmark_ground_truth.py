@@ -343,7 +343,7 @@ def run_extraction(doc_path: Path, forced_form_id: str | None = None) -> tuple[d
         (record, all_candidates, form_id).
     """
     with pdfplumber.open(str(doc_path)) as pdf:
-        text = "\n".join(p.extract_text() or "" for p in pdf.pages[:3])
+        text = "\n".join(p.extract_text() or "" for p in pdf.pages)
 
     if forced_form_id:
         form_id = forced_form_id
