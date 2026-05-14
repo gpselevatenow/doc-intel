@@ -293,6 +293,27 @@ async def extract_ia(file: UploadFile = File(...)):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
                     if bbox_info:
                         bbox_map[key] = bbox_info
+            for i, vehicle in enumerate(result.get("vehicles", []) or []):
+                for sub_field in ["vin", "plate", "owner_name", "owner_address",
+                                   "insurance_company", "policy_number", "damages"]:
+                    val = vehicle.get(sub_field)
+                    if val and val not in ("Unknown", "N/A", "", None):
+                        try:
+                            hit = find_bbox_for_text(canonical_doc, str(val))
+                            if hit:
+                                bbox_map[f"vehicles[{i}].{sub_field}"] = hit
+                        except Exception:
+                            pass
+            for i, party in enumerate(result.get("parties", []) or []):
+                for sub_field in ["name", "dob", "address", "license_number"]:
+                    val = party.get(sub_field)
+                    if val and val not in ("Unknown", "N/A", "", None):
+                        try:
+                            hit = find_bbox_for_text(canonical_doc, str(val))
+                            if hit:
+                                bbox_map[f"parties[{i}].{sub_field}"] = hit
+                        except Exception:
+                            pass
         result["bbox_map"] = bbox_map
         return result
 
@@ -451,6 +472,27 @@ async def extract_police(file: UploadFile = File(...)):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
                     if bbox_info:
                         bbox_map[f"dynamic_{key}"] = bbox_info
+            for i, vehicle in enumerate(result.get("vehicles", []) or []):
+                for sub_field in ["vin", "plate", "owner_name", "owner_address",
+                                   "insurance_company", "policy_number", "damages"]:
+                    val = vehicle.get(sub_field)
+                    if val and val not in ("Unknown", "N/A", "", None):
+                        try:
+                            hit = find_bbox_for_text(canonical_doc, str(val))
+                            if hit:
+                                bbox_map[f"vehicles[{i}].{sub_field}"] = hit
+                        except Exception:
+                            pass
+            for i, party in enumerate(result.get("parties", []) or []):
+                for sub_field in ["name", "dob", "address", "license_number"]:
+                    val = party.get(sub_field)
+                    if val and val not in ("Unknown", "N/A", "", None):
+                        try:
+                            hit = find_bbox_for_text(canonical_doc, str(val))
+                            if hit:
+                                bbox_map[f"parties[{i}].{sub_field}"] = hit
+                        except Exception:
+                            pass
         result["bbox_map"] = bbox_map
         return result
 

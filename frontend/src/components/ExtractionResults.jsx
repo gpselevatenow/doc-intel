@@ -556,7 +556,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
             {[['Cause of Loss','cause_of_loss'],['Settlement Estimate','settlement'],['Coverage A','coverage_a'],['Inspection Date','inspection_date'],['Inspection Firm','inspection_firm'],['Coverage B','coverage_b'],['Coverage C','coverage_c'],['Coverage D','coverage_d'],['Coverages / Policy Form','coverages'],['Subrogation Status','subrogation'],['Officials (Report Filed)','officials'],['Payment Summary','payment_summary']].map(([label, fid], index) => (
-              <div key={fid} style={{ ...confStyle(fid), animation: fieldAnim(fid, index * 60) }}>{renderFieldLabel(label, fid)}<div className="field-value"><EditableField value={data[fid]} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} /></div></div>
+              <div key={fid} onClick={() => onFieldClick(fid)} style={{ cursor: 'pointer', ...confStyle(fid), animation: fieldAnim(fid, index * 60) }}>{renderFieldLabel(label, fid)}<div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data[fid]} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} /></div></div>
             ))}
           </div>
         </div>
@@ -598,31 +598,31 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={MapPin} title="Incident Summary" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div style={{ ...confStyle('date_time'), animation: fieldAnim('date_time', 0) }}>
+          <div onClick={() => onFieldClick('date_time')} style={{ cursor: 'pointer', ...confStyle('date_time'), animation: fieldAnim('date_time', 0) }}>
             {renderFieldLabel('Date / Time', 'date_time')}
-            <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
           </div>
-          <div style={{ ...confStyle('location'), animation: fieldAnim('location', 60) }}>
+          <div onClick={() => onFieldClick('location')} style={{ cursor: 'pointer', ...confStyle('location'), animation: fieldAnim('location', 60) }}>
             {renderFieldLabel('Location', 'location')}
-            <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
           </div>
-          <div style={{ ...confStyle('weather'), animation: fieldAnim('weather', 120) }}>
+          <div onClick={() => onFieldClick('weather')} style={{ cursor: 'pointer', ...confStyle('weather'), animation: fieldAnim('weather', 120) }}>
             {renderFieldLabel('Weather Conditions', 'weather')}
-            <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
           </div>
-          <div style={{ ...confStyle('accident_type'), animation: fieldAnim('accident_type', 300) }}>
+          <div onClick={() => onFieldClick('accident_type')} style={{ cursor: 'pointer', ...confStyle('accident_type'), animation: fieldAnim('accident_type', 300) }}>
             {renderFieldLabel('Accident Type', 'accident_type')}
-            <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
           </div>
-          <div style={{ ...confStyle('ems_agency'), animation: fieldAnim('ems_agency', 480) }}>
+          <div onClick={() => onFieldClick('ems_agency')} style={{ cursor: 'pointer', ...confStyle('ems_agency'), animation: fieldAnim('ems_agency', 480) }}>
             {renderFieldLabel('EMS Agency', 'ems_agency')}
-            <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
           </div>
-          <div style={{ ...confStyle('light_condition'), animation: fieldAnim('light_condition', 240) }}>
+          <div onClick={() => onFieldClick('light_condition')} style={{ cursor: 'pointer', ...confStyle('light_condition'), animation: fieldAnim('light_condition', 240) }}>
             {renderFieldLabel('Light Condition', 'light_condition')}
             <div className="field-value">{data.light_condition && data.light_condition !== 'N/A' ? data.light_condition : '—'}</div>
           </div>
-          <div style={{ ...confStyle('road_surface'), animation: fieldAnim('road_surface', 180) }}>
+          <div onClick={() => onFieldClick('road_surface')} style={{ cursor: 'pointer', ...confStyle('road_surface'), animation: fieldAnim('road_surface', 180) }}>
             {renderFieldLabel('Road Surface', 'road_surface')}
             <div className="field-value">{data.road_surface && data.road_surface !== 'N/A' ? data.road_surface : '—'}</div>
           </div>
@@ -633,17 +633,17 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={Shield} title="Agency & Investigation" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div style={{ ...confStyle('agency'), animation: fieldAnim('agency', 360) }}>
+          <div onClick={() => onFieldClick('agency')} style={{ cursor: 'pointer', ...confStyle('agency'), animation: fieldAnim('agency', 360) }}>
             {renderFieldLabel('Responding Agency', 'agency')}
-            <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
           </div>
-          <div style={{ ...confStyle('officer'), animation: fieldAnim('officer', 420) }}>
+          <div onClick={() => onFieldClick('officer')} style={{ cursor: 'pointer', ...confStyle('officer'), animation: fieldAnim('officer', 420) }}>
             {renderFieldLabel('Investigating Officer', 'officer')}
-            <div className="field-value"><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
           </div>
-          <div style={{ ...confStyle('report_number'), animation: fieldAnim('report_number', 480) }}>
+          <div onClick={() => onFieldClick('report_number')} style={{ cursor: 'pointer', ...confStyle('report_number'), animation: fieldAnim('report_number', 480) }}>
             {renderFieldLabel('Report Number', 'report_number')}
-            <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
+            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
           </div>
           {data.form_id && (
             <div>
@@ -671,7 +671,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         ) : (
           vehicles.map((v, i) => (
             <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
-              <VehicleCard vehicle={v} index={i} onFieldClick={onFieldClick} />
+              <VehicleCard vehicle={v} index={i} onFieldClick={(fieldName) => onFieldClick(`vehicles[${i}].${fieldName}`)} />
             </div>
           ))
         )}
@@ -692,7 +692,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         ) : (
           parties.map((p, i) => (
             <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
-              <PartyCard party={p} index={i} onFieldClick={onFieldClick} />
+              <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`parties[${i}].${fieldName}`)} />
             </div>
           ))
         )}
@@ -709,7 +709,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           />
           {witnesses.map((w, i) => (
             <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
-              <WitnessCard witness={w} index={i} onFieldClick={onFieldClick} />
+              <WitnessCard witness={w} index={i} onFieldClick={(fieldName) => onFieldClick(`witnesses[${i}].${fieldName}`)} />
             </div>
           ))}
         </div>
@@ -719,8 +719,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       {data.contributing_factors && data.contributing_factors !== 'Unknown' && (
         <div className="glass-card">
           <SectionHeader icon={AlertCircle} title="Contributing Factors" color="var(--warning)" />
-          <div className="field-value">
-            <EditableField value={data.contributing_factors} fieldName="contributing_factors" docId="police_doc" needsReview={review_flags['contributing_factors']} />
+          <div onClick={() => onFieldClick('contributing_factors')} style={{ cursor: 'pointer' }}>
+            <div className="field-value" onClick={e => e.stopPropagation()}>
+              <EditableField value={data.contributing_factors} fieldName="contributing_factors" docId="police_doc" needsReview={review_flags['contributing_factors']} />
+            </div>
           </div>
         </div>
       )}
@@ -729,8 +731,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       {data.property_damage && data.property_damage !== 'Unknown' && (
         <div className="glass-card">
           <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Property Damage (Non-Vehicle)</h3>
-          <div className="field-value">
-            <EditableField value={data.property_damage} fieldName="property_damage" docId="police_doc" needsReview={review_flags['property_damage']} />
+          <div onClick={() => onFieldClick('property_damage')} style={{ cursor: 'pointer' }}>
+            <div className="field-value" onClick={e => e.stopPropagation()}>
+              <EditableField value={data.property_damage} fieldName="property_damage" docId="police_doc" needsReview={review_flags['property_damage']} />
+            </div>
           </div>
         </div>
       )}

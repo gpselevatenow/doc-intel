@@ -53,7 +53,8 @@ export const bboxPlugin = (props) => {
                                     pointerEvents: 'none',
                                     borderRadius: '2px',
                                     transition: 'all 0.2s ease-in-out',
-                                    boxShadow: isSelected ? '0 0 8px rgba(255,0,0,0.5)' : 'none'
+                                    boxShadow: isSelected ? '0 0 8px rgba(255,0,0,0.5)' : 'none',
+                                    animation: isSelected ? 'selectedPulse 0.8s ease-out' : 'none'
                                 }}
                             />
                         );

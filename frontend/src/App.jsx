@@ -33,13 +33,28 @@ class ErrorBoundary extends React.Component {
 }
 
 const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
+  const jumpToPageRef = useRef(null);
+
+  const jumpPlugin = useMemo(() => ({
+    install: (pluginFunctions) => {
+      jumpToPageRef.current = pluginFunctions.jumpToPage;
+    },
+  }), []);
+
+  useEffect(() => {
+    if (!selectedField || !bboxMap || !jumpToPageRef.current) return;
+    const entry = bboxMap[selectedField];
+    if (!entry?.page) return;
+    setTimeout(() => jumpToPageRef.current(entry.page - 1), 50);
+  }, [selectedField]);
+
   const bboxPluginInstance = bboxPlugin({ bboxMap, selectedField });
 
   return (
     <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
         <div style={{ height: '100%', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#334155' }}>
-          <Viewer fileUrl={pdfUrl} plugins={[bboxPluginInstance]} />
+          <Viewer fileUrl={pdfUrl} plugins={[bboxPluginInstance, jumpPlugin]} />
         </div>
       </Worker>
     </div>
