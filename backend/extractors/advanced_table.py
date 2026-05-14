@@ -869,7 +869,12 @@ class AdvancedTableStrategy(Strategy):
                                 nw_m = re.match(r'^([A-Z][a-z]+)\b', next_raw)
                                 if nw_m:
                                     if last_token.endswith('.'):
-                                        current_entity["name"] = candidate + " " + nw_m.group(1)
+                                        appended_name = candidate + " " + nw_m.group(1)
+                                        remainder = next_raw[nw_m.end():].lstrip()
+                                        badge_m = re.match(r'^(#\d+)\b', remainder)
+                                        if badge_m:
+                                            appended_name += " " + badge_m.group(1)
+                                        current_entity["name"] = appended_name
                                     else:
                                         cond_a = after.startswith(',')
                                         cond_b = bool(re.match(r'^[a-z]', after.lstrip()))
