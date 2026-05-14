@@ -149,7 +149,7 @@ def _extract_all_parties(text: str) -> list[dict]:
         if not line:
             continue
 
-        if re.match(r'(?i)^SECTION\s+(?:[6-9]|\d{2,})\b|^(?:NARRATIVE|SUPPLEMENTAL|SUPPLEMENT|ADDENDUM)\b', line):
+        if re.match(r'(?i)^SECTION\s+(?:5|[6-9]|\d{2,})\b|^(?:NARRATIVE|SUPPLEMENTAL|SUPPLEMENT|ADDENDUM|WITNESSES?)\b', line):
             save_party()
             current_entity = {}
             delimiter_found = False
