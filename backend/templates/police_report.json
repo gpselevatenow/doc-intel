@@ -339,14 +339,40 @@
             ]
         },
         {
-            "field_id": "parties",
+            "field_id": "operators",
             "field_type": "list_of_objects",
             "strategies": [
                 {
                     "strategy": "advanced_table",
                     "priority": 1,
                     "config": {
-                        "table_type": "parties"
+                        "table_type": "operators"
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "passengers",
+            "field_type": "list_of_objects",
+            "strategies": [
+                {
+                    "strategy": "advanced_table",
+                    "priority": 1,
+                    "config": {
+                        "table_type": "passengers"
+                    }
+                }
+            ]
+        },
+        {
+            "field_id": "pedestrians",
+            "field_type": "list_of_objects",
+            "strategies": [
+                {
+                    "strategy": "advanced_table",
+                    "priority": 1,
+                    "config": {
+                        "table_type": "pedestrians"
                     }
                 }
             ]
