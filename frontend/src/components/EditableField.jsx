@@ -5,6 +5,7 @@ const EditableField = ({ value, fieldName, docId, needsReview = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
   const [originalValue, setOriginalValue] = useState(value);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setCurrentValue(value);
@@ -26,7 +27,7 @@ const EditableField = ({ value, fieldName, docId, needsReview = false }) => {
           })
         });
         if (response.ok) {
-          setOriginalValue(currentValue); // update baseline
+          setOriginalValue(currentValue);
         }
       } catch (err) {
         console.error("Failed to log correction:", err);
@@ -57,26 +58,54 @@ const EditableField = ({ value, fieldName, docId, needsReview = false }) => {
     );
   }
 
+  const displayValue = (!currentValue || currentValue === 'Unknown' || currentValue === 'N/A' || currentValue === 'n/a')
+    ? '—'
+    : currentValue;
+
+  const isMono = fieldName && (
+    /plate|vin|report.?number|policy.?number/i.test(fieldName) ||
+    /^\$[\d,]+/.test(currentValue || '')
+  );
+
+  const isLong = (currentValue || '').length > 120;
+
   return (
-    <span 
-      className="editable-field" 
-      onClick={() => setIsEditing(true)}
-      title="Click to correct this value"
-      style={{ 
-        cursor: 'pointer', 
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.25rem',
-        borderBottom: currentValue !== value ? '1px dashed var(--accent)' : '1px dashed transparent',
-        transition: 'border-color 0.2s ease'
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.borderBottom = '1px dashed rgba(255,255,255,0.3)'}
-      onMouseLeave={(e) => e.currentTarget.style.borderBottom = currentValue !== value ? '1px dashed var(--accent)' : '1px dashed transparent'}
-    >
-      {currentValue} 
-      {needsReview && <AlertTriangle size={14} color="var(--warning)" style={{ marginLeft: '4px' }} title="Low Confidence: Please review" />}
-      <Edit2 size={12} style={{ opacity: 0.3 }} />
-    </span>
+    <>
+      <span
+        className="editable-field"
+        onClick={() => setIsEditing(true)}
+        title="Click to correct this value"
+        style={{
+          cursor: 'pointer',
+          display: '-webkit-box',
+          WebkitLineClamp: expanded ? 'none' : 3,
+          WebkitBoxOrient: 'vertical',
+          overflow: expanded ? 'visible' : 'hidden',
+          borderBottom: currentValue !== value ? '1px dashed var(--accent)' : '1px dashed transparent',
+          transition: 'border-color 0.2s ease',
+          fontFamily: isMono ? 'var(--font-mono, monospace)' : 'inherit',
+          letterSpacing: isMono ? '0.06em' : 'inherit',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.borderBottom = '1px dashed rgba(255,255,255,0.3)'}
+        onMouseLeave={(e) => e.currentTarget.style.borderBottom = currentValue !== value ? '1px dashed var(--accent)' : '1px dashed transparent'}
+      >
+        {displayValue}
+        {needsReview && <AlertTriangle size={14} color="var(--warning)" style={{ marginLeft: '4px', verticalAlign: 'middle' }} title="Low Confidence: Please review" />}
+        <Edit2 size={12} style={{ opacity: 0.3, marginLeft: '4px', verticalAlign: 'middle' }} />
+      </span>
+      {isLong && (
+        <button
+          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+          style={{
+            background: 'none', border: 'none', color: 'var(--accent)',
+            cursor: 'pointer', fontSize: '11px', padding: '2px 0',
+            display: 'block', marginTop: '4px'
+          }}
+        >
+          {expanded ? '↑ Show less' : '↓ Show more'}
+        </button>
+      )}
+    </>
   );
 };
 

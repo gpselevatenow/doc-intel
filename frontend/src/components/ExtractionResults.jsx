@@ -33,13 +33,21 @@ const SectionHeader = ({ icon: Icon, title, count, color = 'var(--accent)' }) =>
 
 const FieldRow = ({ label, value, onClick, unknown = false }) => {
   const isEmpty = !value || value === 'Unknown' || value === 'N/A';
+  const isMono = /^(VIN|License Plate|Policy Number|Report Number)$/i.test(label) ||
+    /^\$[\d,]+/.test(value || '');
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
       <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</span>
       <span
         className={onClick ? 'clickable-field' : ''}
         onClick={onClick}
-        style={{ fontSize: '0.88rem', color: isEmpty ? 'var(--text-muted)' : 'var(--text-main)', fontStyle: isEmpty ? 'italic' : 'normal' }}
+        style={{
+          fontSize: '0.88rem',
+          color: isEmpty ? 'var(--text-muted)' : 'var(--text-main)',
+          fontStyle: isEmpty ? 'italic' : 'normal',
+          fontFamily: isMono && !isEmpty ? 'var(--font-mono, monospace)' : 'inherit',
+          letterSpacing: isMono && !isEmpty ? '0.06em' : 'inherit',
+        }}
       >
         {isEmpty ? '—' : value}
       </span>
@@ -248,17 +256,38 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     return hit ? hit.trim() : null;
   }, [data]);
 
+  const fieldScores = data?.accuracy_field_scores || {};
+  const fv = (v) => (!v || v === 'Unknown' || v === 'N/A' || v === 'n/a') ? '—' : v;
+  const confStyle = (fid) => {
+    const conf = fieldScores?.[fid];
+    if (conf === undefined || conf === null) return {};
+    if (conf >= 80) return { borderLeft: '3px solid var(--success)', background: 'var(--success-bg)', borderRadius: '8px', padding: '10px 12px', marginBottom: '8px' };
+    if (conf >= 50) return { borderLeft: '3px solid var(--warning)', background: 'var(--warning-bg)', borderRadius: '8px', padding: '10px 12px', marginBottom: '8px' };
+    return { borderLeft: '3px solid var(--danger)', background: 'var(--danger-bg)', borderRadius: '8px', padding: '10px 12px', marginBottom: '8px' };
+  };
+  const fieldAnim = (fid, delayMs) => {
+    const conf = fieldScores?.[fid];
+    const land = `fieldLand 0.35s ease ${delayMs}ms both`;
+    if (conf !== undefined && conf !== null && conf >= 50 && conf < 80) {
+      return `${land}, reviewPulse 2.5s ease-in-out ${delayMs + 350}ms infinite`;
+    }
+    return land;
+  };
+
   const renderFieldLabel = (label, fieldId) => {
-    const fieldScores = data.accuracy_field_scores || {};
     const conf = (fieldId && fieldId in fieldScores) ? fieldScores[fieldId] : null;
     const confColor = conf === null ? null : conf >= 80 ? 'var(--success)' : conf >= 50 ? 'var(--warning)' : 'var(--danger)';
     const confBg   = conf === null ? null : conf >= 80 ? 'rgba(16,185,129,0.12)' : conf >= 50 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+    const badge    = conf === null ? null : conf >= 80 ? 'AUTO-ACCEPTED' : conf >= 50 ? 'REVIEW REQUIRED' : 'ESCALATE';
     return (
       <div className="field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
           <span>{label}</span>
           {conf !== null && (
             <span style={{ fontSize: '0.68rem', padding: '0.05rem 0.38rem', borderRadius: '8px', fontWeight: 700, background: confBg, color: confColor, lineHeight: 1.6 }}>{conf}%</span>
+          )}
+          {badge && (
+            <span style={{ fontSize: '9px', color: confColor, fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.1em' }}>{badge}</span>
           )}
         </div>
         {fieldId && (
@@ -520,8 +549,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         <div className="glass-card">
           <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
-            {[['Cause of Loss','cause_of_loss'],['Settlement Estimate','settlement'],['Coverage A','coverage_a'],['Inspection Date','inspection_date'],['Inspection Firm','inspection_firm'],['Coverage B','coverage_b'],['Coverage C','coverage_c'],['Coverage D','coverage_d'],['Coverages / Policy Form','coverages'],['Subrogation Status','subrogation'],['Officials (Report Filed)','officials'],['Payment Summary','payment_summary']].map(([label, fid]) => (
-              <div key={fid}>{renderFieldLabel(label, fid)}<div className="field-value clickable-field" onClick={() => onFieldClick(fid)}>{data[fid]}</div></div>
+            {[['Cause of Loss','cause_of_loss'],['Settlement Estimate','settlement'],['Coverage A','coverage_a'],['Inspection Date','inspection_date'],['Inspection Firm','inspection_firm'],['Coverage B','coverage_b'],['Coverage C','coverage_c'],['Coverage D','coverage_d'],['Coverages / Policy Form','coverages'],['Subrogation Status','subrogation'],['Officials (Report Filed)','officials'],['Payment Summary','payment_summary']].map(([label, fid], index) => (
+              <div key={fid} style={{ ...confStyle(fid), animation: fieldAnim(fid, index * 60) }}>{renderFieldLabel(label, fid)}<div className="field-value"><EditableField value={data[fid]} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} /></div></div>
             ))}
           </div>
         </div>
@@ -563,31 +592,31 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={MapPin} title="Incident Summary" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
+          <div style={{ ...confStyle('date_time'), animation: fieldAnim('date_time', 0) }}>
             {renderFieldLabel('Date / Time', 'date_time')}
             <div className="field-value"><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('location'), animation: fieldAnim('location', 60) }}>
             {renderFieldLabel('Location', 'location')}
             <div className="field-value"><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('weather'), animation: fieldAnim('weather', 120) }}>
             {renderFieldLabel('Weather Conditions', 'weather')}
             <div className="field-value"><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('accident_type'), animation: fieldAnim('accident_type', 300) }}>
             {renderFieldLabel('Accident Type', 'accident_type')}
             <div className="field-value"><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('ems_agency'), animation: fieldAnim('ems_agency', 480) }}>
             {renderFieldLabel('EMS Agency', 'ems_agency')}
             <div className="field-value"><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('light_condition'), animation: fieldAnim('light_condition', 240) }}>
             {renderFieldLabel('Light Condition', 'light_condition')}
             <div className="field-value">{data.light_condition && data.light_condition !== 'N/A' ? data.light_condition : '—'}</div>
           </div>
-          <div>
+          <div style={{ ...confStyle('road_surface'), animation: fieldAnim('road_surface', 180) }}>
             {renderFieldLabel('Road Surface', 'road_surface')}
             <div className="field-value">{data.road_surface && data.road_surface !== 'N/A' ? data.road_surface : '—'}</div>
           </div>
@@ -598,15 +627,15 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={Shield} title="Agency & Investigation" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
+          <div style={{ ...confStyle('agency'), animation: fieldAnim('agency', 360) }}>
             {renderFieldLabel('Responding Agency', 'agency')}
             <div className="field-value"><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('officer'), animation: fieldAnim('officer', 420) }}>
             {renderFieldLabel('Investigating Officer', 'officer')}
             <div className="field-value"><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
           </div>
-          <div>
+          <div style={{ ...confStyle('report_number'), animation: fieldAnim('report_number', 480) }}>
             {renderFieldLabel('Report Number', 'report_number')}
             <div className="field-value"><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
           </div>
@@ -634,7 +663,11 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             No vehicles extracted from this document.
           </div>
         ) : (
-          vehicles.map((v, i) => <VehicleCard key={i} vehicle={v} index={i} onFieldClick={onFieldClick} />)
+          vehicles.map((v, i) => (
+            <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
+              <VehicleCard vehicle={v} index={i} onFieldClick={onFieldClick} />
+            </div>
+          ))
         )}
       </div>
 
@@ -651,7 +684,11 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             No parties identified in this document.
           </div>
         ) : (
-          parties.map((p, i) => <PartyCard key={i} party={p} index={i} onFieldClick={onFieldClick} />)
+          parties.map((p, i) => (
+            <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
+              <PartyCard party={p} index={i} onFieldClick={onFieldClick} />
+            </div>
+          ))
         )}
       </div>
 
@@ -664,7 +701,11 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             count={`${witnesses.length} witness${witnesses.length !== 1 ? 'es' : ''}`}
             color="#34d399"
           />
-          {witnesses.map((w, i) => <WitnessCard key={i} witness={w} index={i} onFieldClick={onFieldClick} />)}
+          {witnesses.map((w, i) => (
+            <div key={i} style={{ animation: `fieldLand 0.35s ease ${i * 60 + 480}ms both` }}>
+              <WitnessCard witness={w} index={i} onFieldClick={onFieldClick} />
+            </div>
+          ))}
         </div>
       )}
 
