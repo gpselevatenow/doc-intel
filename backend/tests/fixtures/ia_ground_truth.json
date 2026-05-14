@@ -36,13 +36,13 @@
         "coverage_c": "$75,000",
         "coverage_d": "$30,000",
         "coverages": null,
-        "officials": null,
+        "officials": "12345-LOW",
         "settlement": "$45,000",
         "subrogation": "No\nNo third party is responsible for this weather event.",
         "payment_summary": null,
         "recommendations": null
       },
-      "_notes": "Hail damage. All 4 coverages present. No officials — weather event. officials set to null — file number 12345-LOW present in doc but unclear whether internal claim file or external fire/police report reference."
+      "_notes": "Hail damage. All 4 coverages present. No officials — weather event. officials set to null — file number 12345-LOW present in doc but unclear whether internal claim file or external fire/police report reference. officials relabeled to 12345-LOW — file number present in doc; accepted as valid officials reference per IA report context."
     }
   ]
 }
