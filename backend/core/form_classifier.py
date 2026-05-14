@@ -45,6 +45,23 @@ _FINGERPRINTS: list[tuple[str, list[str]]] = [
         r'\bHPD-\d{2}-\d{2}-\d{2}',
     ]),
 
+    # ── Municipal city PD collision reports ──────────────────────────────────
+    # These are internal city-agency forms, not state-standardized crash forms.
+    # Positioned before state fingerprints to prevent il_sr1 / state false-positives.
+    # Template resolution: intentionally absent from _FORM_TEMPLATE_MAP in
+    # orchestrator_integration.py → falls through to police_report.json base
+    # template (same behavior as generic_mmucc).
+    ("municipal_pd_collision", [
+        r'Los\s+Angeles\s+Police\s+Department',
+        r'New\s+York\s+City\s+Police\s+Department',
+        r'Philadelphia\s+Police\s+Department',
+        r'Tampa\s+Police\s+Department',
+        r'\bLAPD-\d{2}-\d{2}-\d{2}-\d{2,4}\b',
+        r'\bNYPD-\d{2}-\d{2}-\d{2}-\d{2,4}\b',
+        r'\bPPD-\d{2}-\d{2}-\d{2}-\d{2,4}\b',
+        r'\bTPD-\d{2}-\d{2}-\d{2}-\d{2,4}\b',
+    ]),
+
     # ── NY — must require the A to avoid matching NJ NJTR-1 ──────────────────
     ("ny_mv104a", [
         r'\bMV[-\s]*104[-\s]*A\b',
@@ -505,6 +522,7 @@ def state_from_form_id(form_id: str) -> str | None:
         "wy_crash":     "WY",
         "de_tc308":     "DE",
         "dc_mpd":       "DC",
+        "municipal_pd_collision": None,
         "generic_mmucc": None,
     }
     return _MAP.get(form_id)

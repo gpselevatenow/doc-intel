@@ -174,6 +174,8 @@ _FORM_TEMPLATE_MAP: dict[str, str] = {
     "de_tc308":     "de_tc308.json",
     "dc_mpd":       "dc_mpd.json",
     "nv_nhp1":      "nv_nhp1.json",
+    # municipal_pd_collision intentionally absent: no state overlay; falls through
+    # to police_report.json base template (same extraction behavior as generic_mmucc).
 }
 
 
