@@ -421,6 +421,7 @@ function App() {
               <div className="pane right-pane">
                 {selectedResult.status === 'success' ? (
                   <ExtractionResults
+                    key={selectedResultId}
                     type={selectedResult.type}
                     data={selectedResult.data}
                     docId={selectedResult.name}

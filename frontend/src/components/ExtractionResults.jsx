@@ -199,18 +199,8 @@ const WitnessCard = ({ witness, index, onFieldClick }) => (
 function ReserveWarningBanner({ reserveWarning, reserveText }) {
   if (!reserveWarning) return null;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -12 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        borderColor: ['var(--danger-border)', 'rgba(239,68,68,0.7)', 'var(--danger-border)'],
-      }}
-      transition={{
-        opacity: { duration: 0.3 },
-        y: { type: 'spring', stiffness: 300, damping: 20 },
-        borderColor: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
-      }}
+    <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0ms both' }}>
+    <div
       style={{
         background: 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.08) 100%)',
         border: '1px solid var(--danger-border)',
@@ -252,7 +242,8 @@ function ReserveWarningBanner({ reserveWarning, reserveText }) {
       }}>
         → Escalate to Claims Manager for reserve authorization
       </p>
-    </motion.div>
+    </div>
+    </div>
   );
 }
 
@@ -284,17 +275,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     if (conf >= 50) return { borderLeft: '3px solid var(--warning)', background: 'var(--warning-bg)', borderRadius: '8px', padding: '10px 12px', marginBottom: '8px' };
     return { borderLeft: '3px solid var(--danger)', background: 'var(--danger-bg)', borderRadius: '8px', padding: '10px 12px', marginBottom: '8px' };
   };
-  const springIn = (delayMs) => ({
-    initial: { opacity: 0, y: 8, scale: 0.98 },
-    animate: { opacity: 1, y: 0, scale: 1 },
-    transition: { type: 'spring', stiffness: 280, damping: 22, delay: delayMs / 1000 },
-  });
-
-  const reviewAnimate = {
-    borderColor: ['var(--warning-border)', 'rgba(245,158,11,0.6)', 'var(--warning-border)'],
-    transition: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
-  };
-
   const renderFieldLabel = (label, fieldId) => {
     const conf = (fieldId && fieldId in fieldScores) ? fieldScores[fieldId] : null;
     const confColor = conf === null ? null : conf >= 80 ? 'var(--success)' : conf >= 50 ? 'var(--warning)' : 'var(--danger)';
@@ -572,19 +552,19 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
             {[['Cause of Loss','cause_of_loss'],['Settlement Estimate','settlement'],['Coverage A','coverage_a'],['Inspection Date','inspection_date'],['Inspection Firm','inspection_firm'],['Coverage B','coverage_b'],['Coverage C','coverage_c'],['Coverage D','coverage_d'],['Coverages / Policy Form','coverages'],['Subrogation Status','subrogation'],['Officials (Report Filed)','officials'],['Payment Summary','payment_summary']].map(([label, fid], index) => (
-              <motion.div
-                key={fid}
-                onClick={() => onFieldClick(fid)}
-                style={{ cursor: 'pointer', ...confStyle(fid) }}
-                {...springIn(index * 60)}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-              >
-                {renderFieldLabel(label, fid)}
-                <div className="field-value" onClick={e => e.stopPropagation()}>
-                  <EditableField value={data[fid]} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} />
-                </div>
-              </motion.div>
+              <div key={fid} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${index * 150}ms both` }}>
+                <motion.div
+                  onClick={() => onFieldClick(fid)}
+                  style={{ cursor: 'pointer', ...confStyle(fid) }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                >
+                  {renderFieldLabel(label, fid)}
+                  <div className="field-value" onClick={e => e.stopPropagation()}>
+                    <EditableField value={data[fid]} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} />
+                  </div>
+                </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -629,90 +609,83 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={MapPin} title="Incident Summary" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <motion.div
-            onClick={() => onFieldClick('date_time')}
-            style={{ cursor: 'pointer', ...confStyle('date_time') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'date_time' ? 1.02 : 1, boxShadow: selectedField === 'date_time' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Date / Time', 'date_time')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('location')}
-            style={{ cursor: 'pointer', ...confStyle('location') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'location' ? 1.02 : 1, boxShadow: selectedField === 'location' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.06 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.06 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Location', 'location')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('weather')}
-            style={{ cursor: 'pointer', ...confStyle('weather') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'weather' ? 1.02 : 1, boxShadow: selectedField === 'weather' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.12 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.12 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Weather Conditions', 'weather')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('accident_type')}
-            style={{ cursor: 'pointer', ...confStyle('accident_type') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'accident_type' ? 1.02 : 1, boxShadow: selectedField === 'accident_type' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.3 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.3 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Accident Type', 'accident_type')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('ems_agency')}
-            style={{ cursor: 'pointer', ...confStyle('ems_agency') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'ems_agency' ? 1.02 : 1, boxShadow: selectedField === 'ems_agency' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.48 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.48 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('EMS Agency', 'ems_agency')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('light_condition')}
-            style={{ cursor: 'pointer', ...confStyle('light_condition') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'light_condition' ? 1.02 : 1, boxShadow: selectedField === 'light_condition' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.24 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.24 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Light Condition', 'light_condition')}
-            <div className="field-value">{data.light_condition && data.light_condition !== 'N/A' ? data.light_condition : '—'}</div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('road_surface')}
-            style={{ cursor: 'pointer', ...confStyle('road_surface') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'road_surface' ? 1.02 : 1, boxShadow: selectedField === 'road_surface' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.18 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.18 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Road Surface', 'road_surface')}
-            <div className="field-value">{data.road_surface && data.road_surface !== 'N/A' ? data.road_surface : '—'}</div>
-          </motion.div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('date_time')}
+              style={{ cursor: 'pointer', ...confStyle('date_time') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Date / Time', 'date_time')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 150ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('location')}
+              style={{ cursor: 'pointer', ...confStyle('location') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Location', 'location')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 300ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('weather')}
+              style={{ cursor: 'pointer', ...confStyle('weather') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Weather Conditions', 'weather')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 750ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('accident_type')}
+              style={{ cursor: 'pointer', ...confStyle('accident_type') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Accident Type', 'accident_type')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1350ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('ems_agency')}
+              style={{ cursor: 'pointer', ...confStyle('ems_agency') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('EMS Agency', 'ems_agency')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 600ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('light_condition')}
+              style={{ cursor: 'pointer', ...confStyle('light_condition') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Light Condition', 'light_condition')}
+              <div className="field-value">{data.light_condition && data.light_condition !== 'N/A' ? data.light_condition : '—'}</div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 450ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('road_surface')}
+              style={{ cursor: 'pointer', ...confStyle('road_surface') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Road Surface', 'road_surface')}
+              <div className="field-value">{data.road_surface && data.road_surface !== 'N/A' ? data.road_surface : '—'}</div>
+            </motion.div>
+          </div>
         </div>
       </div>
 
@@ -720,42 +693,39 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={Shield} title="Agency & Investigation" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <motion.div
-            onClick={() => onFieldClick('agency')}
-            style={{ cursor: 'pointer', ...confStyle('agency') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'agency' ? 1.02 : 1, boxShadow: selectedField === 'agency' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.36 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.36 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Responding Agency', 'agency')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('officer')}
-            style={{ cursor: 'pointer', ...confStyle('officer') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'officer' ? 1.02 : 1, boxShadow: selectedField === 'officer' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.42 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.42 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Investigating Officer', 'officer')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
-          </motion.div>
-          <motion.div
-            onClick={() => onFieldClick('report_number')}
-            style={{ cursor: 'pointer', ...confStyle('report_number') }}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: selectedField === 'report_number' ? 1.02 : 1, boxShadow: selectedField === 'report_number' ? '0 4px 20px rgba(147,197,253,0.15)' : '0 0 0 rgba(0,0,0,0)' }}
-            transition={{ opacity: { type: 'spring', stiffness: 280, damping: 22, delay: 0.48 }, y: { type: 'spring', stiffness: 280, damping: 22, delay: 0.48 }, scale: { type: 'spring', stiffness: 300, damping: 20 }, boxShadow: { duration: 0.2 } }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            {renderFieldLabel('Report Number', 'report_number')}
-            <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
-          </motion.div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 900ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('agency')}
+              style={{ cursor: 'pointer', ...confStyle('agency') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Responding Agency', 'agency')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1050ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('officer')}
+              style={{ cursor: 'pointer', ...confStyle('officer') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Investigating Officer', 'officer')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
+            </motion.div>
+          </div>
+          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1200ms both' }}>
+            <motion.div
+              onClick={() => onFieldClick('report_number')}
+              style={{ cursor: 'pointer', ...confStyle('report_number') }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
+              {renderFieldLabel('Report Number', 'report_number')}
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
+            </motion.div>
+          </div>
           {data.form_id && (
             <div>
               <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.2rem' }}>Form / State</span>
@@ -781,9 +751,9 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           </div>
         ) : (
           vehicles.map((v, i) => (
-            <motion.div key={i} {...springIn(i * 60 + 480)}>
+            <div key={i} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${i * 150 + 1500}ms both` }}>
               <VehicleCard vehicle={v} index={i} onFieldClick={(fieldName) => onFieldClick(`vehicles[${i}].${fieldName}`)} />
-            </motion.div>
+            </div>
           ))
         )}
       </div>
@@ -803,19 +773,19 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
         ) : (
           <>
             {operators.map((p, i) => (
-              <motion.div key={`op-${i}`} {...springIn(i * 60 + 480)}>
+              <div key={`op-${i}`} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${i * 150 + 1500}ms both` }}>
                 <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`operators[${i}].${fieldName}`)} />
-              </motion.div>
+              </div>
             ))}
             {passengers.map((p, i) => (
-              <motion.div key={`pa-${i}`} {...springIn((operators.length + i) * 60 + 480)}>
+              <div key={`pa-${i}`} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${(operators.length + i) * 150 + 1500}ms both` }}>
                 <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`passengers[${i}].${fieldName}`)} />
-              </motion.div>
+              </div>
             ))}
             {pedestrians.map((p, i) => (
-              <motion.div key={`pe-${i}`} {...springIn((operators.length + passengers.length + i) * 60 + 480)}>
+              <div key={`pe-${i}`} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${(operators.length + passengers.length + i) * 150 + 1500}ms both` }}>
                 <PartyCard party={p} index={i} onFieldClick={(fieldName) => onFieldClick(`pedestrians[${i}].${fieldName}`)} />
-              </motion.div>
+              </div>
             ))}
           </>
         )}
@@ -831,9 +801,9 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
             color="#34d399"
           />
           {witnesses.map((w, i) => (
-            <motion.div key={i} {...springIn(i * 60 + 480)}>
+            <div key={i} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${i * 150 + 1500}ms both` }}>
               <WitnessCard witness={w} index={i} onFieldClick={(fieldName) => onFieldClick(`witnesses[${i}].${fieldName}`)} />
-            </motion.div>
+            </div>
           ))}
         </div>
       )}
