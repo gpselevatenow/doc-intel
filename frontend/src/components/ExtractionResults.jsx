@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
 import EditableField from './EditableField';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Badge = () => (
   <span className="badge" title="High Confidence (Regex Validated)">
