@@ -457,6 +457,12 @@ body {
   border-radius: 4px;
 }
 
+@keyframes selectedPulse {
+  0%   { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.6); }
+  50%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.2); }
+  100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
+}
+
 /* React PDF Viewer Custom Highlight overrides */
 .rpv-search__highlight {
   background-color: #fef08a !important; /* Soft yellow marker */
@@ -467,23 +473,3 @@ body {
   transition: all 0.2s ease !important;
 }
 
-@keyframes fieldLand {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes reservePulse {
-  0%, 100% { border-color: var(--danger-border); }
-  50%       { border-color: rgba(239, 68, 68, 0.7); }
-}
-
-@keyframes selectedPulse {
-  0%   { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.6); }
-  50%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.2); }
-  100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
-}
-
-@keyframes reviewPulse {
-  0%, 100% { border-color: var(--warning-border); }
-  50%       { border-color: rgba(245, 158, 11, 0.6); }
-}

@@ -420,11 +420,12 @@ function App() {
               </div>
               <div className="pane right-pane">
                 {selectedResult.status === 'success' ? (
-                  <ExtractionResults 
-                    type={selectedResult.type} 
-                    data={selectedResult.data} 
+                  <ExtractionResults
+                    type={selectedResult.type}
+                    data={selectedResult.data}
                     docId={selectedResult.name}
                     onFieldClick={(fieldId) => setSelectedField(fieldId)}
+                    selectedField={selectedField}
                     isReprocessing={isReprocessingId === selectedResult.id}
                     onReprocess={() => reprocessResult(selectedResult.id)}
                   />
