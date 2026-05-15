@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle, ShieldCheck } from 'lucide-react';
 import EditableField from './EditableField';
 import TypewriterValue from './TypewriterValue';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -405,103 +405,82 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     } catch (e) { console.error("Failed to submit feedback", e); }
   };
 
-  const score = data.accuracy_score || 0;
-  const scoreColor = score >= 90 ? 'var(--success)' : score >= 70 ? 'var(--warning)' : 'var(--danger)';
-  const scoreText = score >= 90 ? 'High Confidence' : score >= 70 ? 'Review Recommended' : 'ESCALATION REQUIRED: Low Data Extraction Confidence';
+  const renderAccuracyBadge = () => {
+    const score = data.accuracy_score || 0;
+    const isHigh = score >= 90;
+    const isMid = score >= 70 && score < 90;
+    const color = isHigh ? 'var(--success-bright)' : isMid ? 'var(--warning)' : 'var(--danger)';
+    const label = isHigh ? 'High confidence' : isMid ? 'Review recommended' : 'Escalation required';
 
-  const renderAccuracyBadge = () => (
-    <div style={{ marginBottom: '1rem', background: 'var(--card-bg)', border: `1px solid ${scoreColor}`, borderRadius: '8px', overflow: 'hidden' }}>
-      <div style={{ padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    return (
+      <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: scoreColor }}>
-            {score >= 90 ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
-            Avg Extraction Confidence: {score.toFixed(1)}%
-          </h3>
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{scoreText}</p>
+          <div style={{ fontSize: '28px', fontWeight: '500', color, fontFamily: 'var(--mono-font)', lineHeight: 1 }}>
+            {score.toFixed(1)}%
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em', marginTop: '4px', fontFamily: 'var(--mono-font)' }}>
+            Avg extraction confidence
+          </div>
         </div>
-        {score < 70 && <button className="btn-primary" style={{ background: 'var(--danger)', border: 'none' }}>Escalate to Supervisor</button>}
-      </div>
-      {data.accuracy_reasons && data.accuracy_reasons.length > 0 && (
-        <details style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.2)', borderTop: `1px solid ${scoreColor}` }}>
-          <summary style={{ cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Why this score?</summary>
-          <p style={{ margin: '0.4rem 0 0.5rem 0', fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Average confidence score across all extracted fields. Not a comparison against ground truth.</p>
-          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
-            {data.accuracy_reasons.map((r, i) => (
-              <li key={i} style={{ color: r.startsWith('Found') ? 'var(--success)' : 'var(--danger)', marginBottom: '0.25rem' }}>{r}</li>
-            ))}
-          </ul>
-        </details>
-      )}
-      <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', borderTop: `1px solid ${scoreColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          {feedbackGiven ? "Thanks for your feedback!" : "How did the system do?"}
-        </span>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {['up', 'down'].map(dir => (
-            <button key={dir} onClick={() => submitFeedback(dir)} disabled={feedbackGiven !== null}
-              style={{ background: feedbackGiven === dir ? (dir === 'up' ? 'var(--success)' : 'var(--danger)') : 'transparent', border: `1px solid ${feedbackGiven === dir ? (dir === 'up' ? 'var(--success)' : 'var(--danger)') : 'var(--text-muted)'}`, color: feedbackGiven === dir ? (dir === 'up' ? 'black' : 'white') : 'var(--text-muted)', borderRadius: '4px', padding: '0.25rem 0.5rem', cursor: feedbackGiven ? 'default' : 'pointer', display: 'flex', alignItems: 'center' }}>
-              {dir === 'up' ? <ThumbsUp size={16} /> : <ThumbsDown size={16} />}
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color, background: isHigh ? 'var(--success-bg)' : 'rgba(245,158,11,0.08)', padding: '6px 12px', borderRadius: '6px', fontFamily: 'var(--mono-font)', border: `0.5px solid ${isHigh ? 'var(--success-border)' : 'rgba(245,158,11,0.25)'}` }}>
+          <ShieldCheck size={13} />
+          {label}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
-  // ── Insights ──────────────────────────────────────────────────────────────
-  let insights = [], nextActions = [];
-  if (type === 'ia') {
-    if (data.reserve_warning) {
-      insights.push("High severity claim — reserve language detected.");
-    } else {
-      insights.push("Standard property claim layout detected.");
-      nextActions.push("Proceed to standard settlement workflow.");
-    }
-    if (data.subrogation && data.subrogation.toLowerCase() === 'yes') {
-      insights.push("Third-party liability identified.");
-      nextActions.push("Initiate subrogation investigation against third party.");
-    }
-  } else if (type === 'acord') {
-    if (data.description_of_loss && data.description_of_loss.toLowerCase().includes('fire')) {
-      insights.push("Severe property loss (Fire) indicated in description.");
-      nextActions.push("Assign to Large Loss Adjuster team immediately.");
-    } else {
-      insights.push("Standard ACORD Loss Notice parsed.");
-      nextActions.push("Verify policy coverage limits for the reported Date of Loss.");
-    }
-  } else {
-    const hasDui = data.state_codes && data.state_codes.some(c => c.code === '9-2' || c.description.includes('DUI'));
-    if (hasDui) { insights.push("Severe traffic violation (DUI) detected."); nextActions.push("Flag claim for SIU review."); }
-    if (data.ems && data.ems.toLowerCase() === 'yes') { insights.push("Medical transport (EMS) confirmed."); nextActions.push("Initiate BI workflow and request medical records."); }
-    if (data.vehicles && data.vehicles.length > 2) {
-      insights.push(`Multi-vehicle collision — ${data.vehicles.length} vehicles involved.`);
-      if (!hasDui) nextActions.push("Review liability apportionment across all drivers.");
-    }
-    const injured = (data.parties || []).filter(p => p.injuries && p.injuries !== 'None reported' && p.injuries !== 'Unknown');
-    if (injured.length > 0) { insights.push(`${injured.length} ${injured.length === 1 ? 'party' : 'parties'} with reported injuries.`); nextActions.push("Obtain medical authorizations and records."); }
-    if (insights.length === 0) { insights.push("Standard incident with no severe flags."); nextActions.push("Proceed with standard auto-damage appraisal."); }
-  }
-  if (data.duplicate_insights && data.duplicate_insights.length > 0) {
-    insights.push(...data.duplicate_insights);
-    nextActions.push("Review duplicate data fields and confirm accurate selection.");
-  }
+  const renderInsights = () => {
+    const chips = [];
+    const actions = [];
 
-  const renderInsights = () => (
-    <div className="insight-container fade-in">
-      <div className="insight-card">
-        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--success)' }}><Lightbulb size={20} /> Document Insights</h3>
-        <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
-          {insights.map((ins, i) => <li key={i} style={{ marginBottom: '0.5rem' }}>{ins}</li>)}
-        </ul>
+    if (data.reserve_warning) chips.push({ label: 'Reserve language detected', color: 'var(--danger)', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)', icon: '⚠' });
+    if (data.subrogation && data.subrogation.toLowerCase().includes('investig')) chips.push({ label: 'Subrogation opportunity', color: 'var(--warning)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', icon: '⚖' });
+    const opCount = (data.operators || []).length + (data.passengers || []).length + (data.pedestrians || []).length;
+    if (opCount > 0) chips.push({ label: `${opCount} parties identified`, color: 'var(--accent)', bg: 'var(--accent-bg)', border: 'var(--accent-border)', icon: '◎' });
+    const vCount = (data.vehicles || []).length;
+    if (vCount > 0) chips.push({ label: `${vCount} vehicles`, color: 'var(--accent)', bg: 'var(--accent-bg)', border: 'var(--accent-border)', icon: '⬡' });
+    if (data.coverage_a) chips.push({ label: 'Coverage A confirmed', color: 'var(--success-bright)', bg: 'var(--success-bg)', border: 'var(--success-border)', icon: '✓' });
+
+    if (data.reserve_warning) actions.push(`Set reserve — ${data.settlement || 'amount TBD'}`);
+    if (data.subrogation && data.subrogation.toLowerCase().includes('investig')) actions.push('File subrogation preservation letter');
+    if (!data.agency || data.agency === 'Unknown') actions.push('Request agency supplement');
+    if (opCount > 3) actions.push('Review liability across all parties');
+    if (actions.length === 0) actions.push('Review extracted fields and submit to ClaimCenter');
+
+    if (chips.length === 0 && actions.length === 0) return null;
+
+    return (
+      <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)' }}>
+        {chips.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)', marginBottom: '8px' }}>Signals detected</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {chips.map((chip, i) => (
+                <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', color: chip.color, background: chip.bg, border: `0.5px solid ${chip.border}` }}>
+                  <span style={{ fontSize: '10px' }}>{chip.icon}</span>
+                  {chip.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {actions.length > 0 && (
+          <div>
+            <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)', marginBottom: '8px' }}>Next actions</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {actions.map((action, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px 12px', background: 'var(--surface-3)', borderRadius: '6px', fontSize: '12px', color: '#e2e8f0' }}>
+                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent-bg)', border: '0.5px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--accent)', fontFamily: 'var(--mono-font)', flexShrink: 0, marginTop: '1px' }}>{i + 1}</div>
+                  <span style={{ lineHeight: '1.4' }}>{action}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      <div className="action-card">
-        <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--danger)' }}><ArrowRightCircle size={20} /> Next Best Action</h3>
-        <ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
-          {nextActions.map((act, i) => <li key={i} style={{ marginBottom: '0.5rem' }}><strong>{act}</strong></li>)}
-        </ul>
-      </div>
-    </div>
-  );
+    );
+  };
 
   // ── ACORD render ─────────────────────────────────────────────────────────
   if (type === 'acord') {

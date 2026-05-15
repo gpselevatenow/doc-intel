@@ -451,45 +451,36 @@ function App() {
 
     return (
       <div className="master-detail-layout fade-in">
-        <div className="sidebar">
-          <div className="sidebar-header" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button className="btn-secondary" onClick={() => { setActiveView('upload'); setIsCrossReferencing(false); }} style={{ width: '100%', justifyContent: 'center' }}>
-              <ArrowLeft size={16} /> Back to Upload
+        <div style={{ width: '240px', flexShrink: 0, background: 'var(--surface-2)', borderRight: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          <div style={{ padding: '12px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <button onClick={() => setActiveView('upload')}
+              style={{ background: 'transparent', border: '0.5px solid var(--nav-border)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '11px', padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+              <ArrowLeft size={12} /> New extraction
             </button>
-            {processedResults.length >= 2 && (
-              <button className="btn-primary" onClick={() => setIsCrossReferencing(true)} style={{ width: '100%', justifyContent: 'center', background: 'var(--accent)', border: 'none' }}>
-                <RefreshCw size={16} /> Cross-Reference Claim
-              </button>
-            )}
-            {processedResults.length > 0 && (
-              <button className="btn-secondary" onClick={() => { setProcessedResults([]); setSelectedResultId(null); setActiveView('upload'); setIsCrossReferencing(false); }} style={{ width: '100%', justifyContent: 'center', color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                <Trash2 size={16} /> Clear History
-              </button>
-            )}
           </div>
-          <div className="doc-list">
-            {processedResults.length === 0 ? (
-              <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                No document history found.
-              </div>
-            ) : (
-              processedResults.map(res => (
-                <div 
-                  key={res.id} 
-                  className={`doc-item ${selectedResultId === res.id ? 'active' : ''}`}
-                  onClick={() => { setSelectedResultId(res.id); setSelectedField(null); }}
-                >
-                  <div className="doc-item-title" title={res.name}>{res.name}</div>
-                  <div className="doc-item-meta" style={{ marginBottom: '0.25rem' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{res.timestamp}</span>
+          <div style={{ padding: '10px 14px 6px', fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)' }}>Extractions</div>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {processedResults.map(r => (
+              <div key={r.id}
+                onClick={() => { setSelectedResultId(r.id); setSelectedField(null); }}
+                style={{ padding: '11px 14px', borderBottom: '0.5px solid var(--nav-border)', cursor: 'pointer', borderLeft: r.id === selectedResultId ? '2px solid var(--accent)' : '2px solid transparent', background: r.id === selectedResultId ? 'var(--accent-bg)' : 'transparent', transition: 'background 0.15s' }}>
+                <div style={{ fontSize: '11px', color: '#cbd5e1', fontFamily: 'var(--mono-font)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '5px' }}>{r.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '3px', fontFamily: 'var(--mono-font)', background: r.type === 'ia' ? 'var(--success-bg)' : 'var(--accent-bg)', color: r.type === 'ia' ? 'var(--success-bright)' : 'var(--accent)' }}>
+                    {r.type === 'ia' ? 'IA' : r.type === 'acord' ? 'ACORD' : r.type === 'hsmv' ? 'HSMV' : 'Police'}
                   </div>
-                  <div className="doc-item-meta">
-                    <span>{res.type === 'ia' ? 'IA Report' : res.type === 'acord' ? 'ACORD Form' : res.type === 'hsmv' ? 'FL HSMV 90010S' : 'Police Report'}</span>
-                    <span className={`status-badge ${res.status}`}>{res.status === 'success' ? 'Extracted' : 'Failed'}</span>
+                  <div style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--success-bright)', fontFamily: 'var(--mono-font)' }}>
+                    {r.data?.accuracy_score ? `${r.data.accuracy_score.toFixed(1)}%` : '—'}
                   </div>
                 </div>
-              ))
-            )}
+              </div>
+            ))}
+          </div>
+          <div style={{ padding: '10px 12px', borderTop: '0.5px solid var(--nav-border)' }}>
+            <button onClick={() => { setProcessedResults([]); setSelectedResultId(null); setActiveView('upload'); setIsCrossReferencing(false); }}
+              style={{ background: 'transparent', border: '0.5px solid rgba(239,68,68,0.2)', borderRadius: '6px', color: 'rgba(239,68,68,0.6)', fontSize: '11px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+              <Trash2 size={11} /> Clear history
+            </button>
           </div>
         </div>
 
