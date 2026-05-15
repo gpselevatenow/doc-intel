@@ -16,10 +16,21 @@
   --warning-border: rgba(245, 158, 11, 0.35);
   --danger-bg: rgba(239, 68, 68, 0.10);
   --danger-border: rgba(239, 68, 68, 0.35);
-  --success-bg: rgba(110, 231, 183, 0.08);
-  --success-border: rgba(110, 231, 183, 0.25);
   --border-color: rgba(255, 255, 255, 0.15);
   --card-bg: rgba(30, 21, 71, 0.6);
+  --nav-bg: #060e1d;
+  --nav-border: rgba(255,255,255,0.07);
+  --surface-1: #0a1628;
+  --surface-2: #060e1d;
+  --surface-3: rgba(255,255,255,0.04);
+  --mono-font: 'JetBrains Mono', 'Fira Code', monospace;
+  --text-tertiary: #475569;
+  --text-secondary-bright: #94a3b8;
+  --success-bright: #10b981;
+  --success-bg: rgba(16,185,129,0.08);
+  --success-border: rgba(16,185,129,0.25);
+  --accent-bg: rgba(147,197,253,0.08);
+  --accent-border: rgba(147,197,253,0.2);
 }
 
 body {

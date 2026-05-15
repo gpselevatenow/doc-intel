@@ -219,47 +219,142 @@ function App() {
 
   // --- Render Helpers ---
   const renderHeader = () => (
-    <header className="header">
-      <div className="header-left" style={{ gap: '0.75rem', alignItems: 'center' }}>
-        <img src={logo} alt="Elevatenow Logo" style={{ height: '24px', borderRadius: '4px', objectFit: 'contain' }} />
-        <h1>Doc Intel</h1>
+    <nav style={{
+      background: 'var(--nav-bg)',
+      borderBottom: '0.5px solid var(--nav-border)',
+      height: '48px',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0 24px',
+      gap: '0',
+      flexShrink: 0,
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginRight:'32px' }}>
+        <div style={{
+          background: '#4f46e5', color: 'white',
+          fontSize: '10px', fontWeight: '600',
+          padding: '3px 7px', borderRadius: '4px',
+          letterSpacing: '.02em', fontFamily: 'var(--mono-font)',
+        }}>EN</div>
+        <span style={{ color:'#e2e8f0', fontSize:'14px', fontWeight:'500' }}>Doc Intel</span>
       </div>
-      <div className="nav-tabs">
-        <button 
-          className={`nav-tab ${activeView === 'upload' ? 'active' : ''}`}
-          onClick={() => setActiveView('upload')}
-        >
-          <PlusSquare size={18} /> New Extraction
-        </button>
-        <button 
-          className={`nav-tab ${(activeView === 'history' || activeView === 'results') ? 'active' : ''}`}
-          onClick={() => setActiveView('history')}
-        >
-          <Clock size={18} /> History
-        </button>
-        <button 
-          className={`nav-tab ${activeView === 'benchmarks' ? 'active' : ''}`}
-          onClick={() => setActiveView('benchmarks')}
-        >
-          <Activity size={18} /> System Benchmarks
-        </button>
+
+      {[
+        { id:'upload', icon:<PlusSquare size={13}/>, label:'New extraction' },
+        { id:'history', icon:<Clock size={13}/>, label:'History' },
+        { id:'benchmarks', icon:<Activity size={13}/>, label:'Benchmarks' },
+      ].map(item => (
+        <div key={item.id} onClick={() => setActiveView(item.id)}
+          style={{
+            padding: '0 16px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12px',
+            color: (item.id === 'history' && (activeView === 'history' || activeView === 'results'))
+              ? 'var(--accent)'
+              : activeView === item.id ? 'var(--accent)' : 'var(--text-tertiary)',
+            borderBottom: (item.id === 'history' && (activeView === 'history' || activeView === 'results'))
+              ? '2px solid var(--accent)'
+              : activeView === item.id ? '2px solid var(--accent)' : '2px solid transparent',
+            cursor: 'pointer',
+            transition: 'color 0.15s',
+            userSelect: 'none',
+          }}>
+          {item.icon}{item.label}
+        </div>
+      ))}
+
+      <div style={{ flex:1 }} />
+
+      <div style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'11px', color:'var(--success-bright)', fontFamily:'var(--mono-font)' }}>
+        <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'var(--success-bright)' }} />
+        System online · F1 1.0000
       </div>
-    </header>
+    </nav>
   );
 
   const renderUploadView = () => {
     if (stagedFiles.length === 0) {
       return (
-        <div className="upload-view fade-in">
-          <h2>Process New Documents</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Upload up to 10 PDF documents. Select the report type for each before running the extraction.</p>
-          
-          <label className="upload-area">
-            <Upload size={40} style={{ marginBottom: '1rem', color: 'var(--accent)' }} />
-            <h3>Click to Select PDFs</h3>
-            <p>Supports up to 10 files simultaneously</p>
-            <input type="file" accept=".pdf" multiple onChange={handleFileSelect} disabled={isProcessing} />
-          </label>
+        <div style={{ display:'flex', flexDirection:'column', height:'100%', background:'var(--surface-1)', overflowY:'auto' }}>
+          {/* Hero */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px', padding:'48px 48px 32px' }}>
+            {/* Left: copy + stats */}
+            <div>
+              <div style={{ fontSize:'10px', color:'var(--accent)', letterSpacing:'.12em', textTransform:'uppercase', fontFamily:'var(--mono-font)', marginBottom:'12px' }}>
+                Claims intelligence · v0.9
+              </div>
+              <h2 style={{ fontSize:'26px', fontWeight:'500', color:'#f1f5f9', lineHeight:'1.3', marginBottom:'10px', marginTop:0 }}>
+                Extract. Validate.<br/>Act on claims data.
+              </h2>
+              <p style={{ fontSize:'13px', color:'var(--text-tertiary)', lineHeight:'1.7', maxWidth:'380px', margin:0 }}>
+                Upload police reports or IA adjuster documents. The system classifies, extracts 17+ fields, flags reserve language, and reconstructs the claim timeline — automatically.
+              </p>
+              <div style={{ display:'flex', gap:'24px', marginTop:'24px' }}>
+                {[
+                  { n:'1.0000', l:'F1 score' },
+                  { n:'17', l:'Fields extracted' },
+                  { n:'5 / 5', l:'States validated' },
+                ].map(s => (
+                  <div key={s.l}>
+                    <div style={{ fontSize:'22px', fontWeight:'500', color:'var(--accent)', fontFamily:'var(--mono-font)' }}>{s.n}</div>
+                    <div style={{ fontSize:'10px', color:'var(--text-tertiary)', textTransform:'uppercase', letterSpacing:'.08em', marginTop:'2px' }}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: drop zone */}
+            <label style={{ border:'1px dashed var(--accent-border)', borderRadius:'12px', padding:'32px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'10px', cursor:'pointer', background:'var(--accent-bg)', transition:'border-color 0.2s, background 0.2s' }}>
+              <div style={{ width:'44px', height:'44px', borderRadius:'10px', background:'var(--accent-bg)', border:'0.5px solid var(--accent-border)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--accent)' }}>
+                <Upload size={20} />
+              </div>
+              <div style={{ fontSize:'14px', fontWeight:'500', color:'#e2e8f0' }}>Drop documents here</div>
+              <div style={{ fontSize:'12px', color:'var(--text-tertiary)' }}>or click to browse — up to 10 files</div>
+              <div style={{ display:'flex', gap:'8px', marginTop:'4px' }}>
+                {[
+                  { l:'Police report', c:'var(--accent)', bg:'var(--accent-bg)', bc:'var(--accent-border)' },
+                  { l:'IA report', c:'var(--success-bright)', bg:'var(--success-bg)', bc:'var(--success-border)' },
+                  { l:'ACORD', c:'var(--warning)', bg:'rgba(245,158,11,0.08)', bc:'rgba(245,158,11,0.3)' },
+                ].map(t => (
+                  <div key={t.l} style={{ padding:'3px 8px', borderRadius:'4px', fontSize:'10px', border:`0.5px solid ${t.bc}`, background:t.bg, color:t.c, fontFamily:'var(--mono-font)' }}>{t.l}</div>
+                ))}
+              </div>
+              <input type="file" accept=".pdf" multiple style={{ display:'none' }} onChange={handleFileSelect} />
+            </label>
+          </div>
+
+          {/* Recent extractions */}
+          {processedResults.length > 0 && (
+            <div>
+              <div style={{ fontSize:'10px', color:'var(--text-tertiary)', letterSpacing:'.1em', textTransform:'uppercase', padding:'14px 48px 8px', borderTop:'0.5px solid var(--nav-border)', fontFamily:'var(--mono-font)' }}>
+                Recent extractions
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1px', background:'var(--nav-border)', borderTop:'0.5px solid var(--nav-border)' }}>
+                {processedResults.slice(0,6).map(r => (
+                  <div key={r.id}
+                    onClick={() => { setSelectedResultId(r.id); setActiveView('results'); }}
+                    style={{ padding:'14px 20px', background:'var(--surface-1)', cursor:'pointer', transition:'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background='var(--surface-3)'}
+                    onMouseLeave={e => e.currentTarget.style.background='var(--surface-1)'}
+                  >
+                    <div style={{ fontSize:'11px', color:'#cbd5e1', fontFamily:'var(--mono-font)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:'6px' }}>{r.name}</div>
+                    <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                      <div style={{ fontSize:'9px', padding:'1px 6px', borderRadius:'3px', fontFamily:'var(--mono-font)', background: r.type === 'ia' ? 'var(--success-bg)' : 'var(--accent-bg)', color: r.type === 'ia' ? 'var(--success-bright)' : 'var(--accent)' }}>
+                        {r.type === 'ia' ? 'IA' : r.type === 'acord' ? 'ACORD' : r.type === 'hsmv' ? 'HSMV' : 'Police'}
+                      </div>
+                      <div style={{ fontSize:'10px', color:'var(--text-tertiary)' }}>{r.timestamp}</div>
+                      <div style={{ marginLeft:'auto', fontSize:'11px', color:'var(--success-bright)', fontFamily:'var(--mono-font)' }}>
+                        {r.data?.accuracy_score ? `${r.data.accuracy_score.toFixed(1)}%` : '—'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
