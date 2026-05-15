@@ -6,6 +6,7 @@ const TypewriterValue = ({ value, delay = 0, speed = 22 }) => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    console.log('TypewriterValue mounting:', value, 'delay:', delay);
     if (isEmpty) {
       setDisplayed('—');
       setDone(true);
