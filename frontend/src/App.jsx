@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Upload, ShieldCheck, Play, Trash2, ArrowLeft, Clock, PlusSquare, RefreshCw, Activity } from 'lucide-react';
+import { Upload, ShieldCheck, Play, Trash2, ArrowLeft, Clock, PlusSquare, RefreshCw, Activity, Search, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import ExtractionResults from './components/ExtractionResults';
 import DiscrepancyDashboard from './components/DiscrepancyDashboard';
 import BenchmarkingDashboard from './components/BenchmarkingDashboard';
 import logo from './assets/logo.jpg';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
+import { searchPlugin } from '@react-pdf-viewer/search';
+import '@react-pdf-viewer/search/lib/styles/index.css';
 import { bboxPlugin } from './components/BboxPlugin';
 
 class ErrorBoundary extends React.Component {
@@ -34,14 +36,21 @@ class ErrorBoundary extends React.Component {
 
 const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
   const jumpToPageRef = useRef(null);
+  const zoomRef = useRef(null);
   const selectedFieldRef = useRef(selectedField);
-  selectedFieldRef.current = selectedField; // sync during render so renderPageLayer reads current value
+  selectedFieldRef.current = selectedField;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [scale, setScale] = useState(1.0);
 
   const jumpPlugin = useMemo(() => ({
     install: (pluginFunctions) => {
       jumpToPageRef.current = pluginFunctions.jumpToPage;
+      zoomRef.current = pluginFunctions.zoom;
     },
   }), []);
+
+  const searchPluginInstance = searchPlugin();
+  const { highlight, clearHighlights } = searchPluginInstance;
 
   useEffect(() => {
     if (!selectedField || !bboxMap || !jumpToPageRef.current) return;
@@ -50,15 +59,44 @@ const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
     setTimeout(() => jumpToPageRef.current(entry.page - 1), 50);
   }, [selectedField]);
 
+  const handleSearch = () => {
+    if (!searchQuery.trim()) { clearHighlights(); return; }
+    highlight({ keyword: searchQuery });
+  };
+
+  const handleZoom = (delta) => {
+    const next = Math.max(0.5, Math.min(3.0, scale + delta));
+    setScale(next);
+    if (zoomRef.current) zoomRef.current(next);
+  };
+
   const bboxPluginInstance = bboxPlugin({ bboxMap, selectedFieldRef });
 
   return (
-    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-        <div style={{ height: '100%', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#334155' }}>
-          <Viewer fileUrl={pdfUrl} plugins={[bboxPluginInstance, jumpPlugin]} />
-        </div>
-      </Worker>
+    <div style={{ height: '100%', width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Toolbar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
+        <input
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          placeholder="Search in document…"
+          style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', color: '#111827', background: '#ffffff', outline: 'none' }}
+        />
+        <button onClick={handleSearch} title="Search" style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 7px', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center' }}><Search size={13} /></button>
+        <button onClick={() => { clearHighlights(); setSearchQuery(''); }} title="Clear" style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 7px', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center' }}><X size={13} /></button>
+        <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 2px' }} />
+        <button onClick={() => handleZoom(-0.1)} title="Zoom out" style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 7px', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center' }}><ZoomOut size={13} /></button>
+        <span style={{ fontSize: '11px', color: '#6b7280', minWidth: '38px', textAlign: 'center' }}>{Math.round(scale * 100)}%</span>
+        <button onClick={() => handleZoom(0.1)} title="Zoom in" style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '5px', padding: '4px 7px', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center' }}><ZoomIn size={13} /></button>
+      </div>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+          <div style={{ height: '100%', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#334155' }}>
+            <Viewer fileUrl={pdfUrl} plugins={[bboxPluginInstance, jumpPlugin, searchPluginInstance]} />
+          </div>
+        </Worker>
+      </div>
     </div>
   );
 };
@@ -74,6 +112,7 @@ function App() {
   const [isCrossReferencing, setIsCrossReferencing] = useState(false);
   const [pdfSearchText, setPdfSearchText] = useState('');
   const [isReprocessingId, setIsReprocessingId] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // --- Upload Handlers ---
   const handleFileSelect = (event) => {
@@ -446,37 +485,48 @@ function App() {
 
     return (
       <div className="master-detail-layout fade-in">
-        <div style={{ width: '240px', flexShrink: 0, background: 'var(--surface-2)', borderRight: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-          <div style={{ padding: '12px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <button onClick={() => setActiveView('upload')}
-              style={{ background: 'transparent', border: '0.5px solid var(--nav-border)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '11px', padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
-              <ArrowLeft size={12} /> New extraction
+        <div style={{ width: sidebarCollapsed ? '40px' : '240px', flexShrink: 0, background: 'var(--surface-2)', borderRight: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', transition: 'width 0.2s ease' }}>
+          {/* Collapse toggle */}
+          <div style={{ display: 'flex', justifyContent: sidebarCollapsed ? 'center' : 'flex-end', padding: '6px 8px', borderBottom: '0.5px solid var(--nav-border)', flexShrink: 0 }}>
+            <button onClick={() => setSidebarCollapsed(c => !c)} title={sidebarCollapsed ? 'Expand' : 'Collapse'}
+              style={{ background: 'transparent', border: '0.5px solid var(--nav-border)', borderRadius: '4px', padding: '3px 6px', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+              {sidebarCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
             </button>
           </div>
-          <div style={{ padding: '10px 14px 6px', fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)' }}>Extractions</div>
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {processedResults.map(r => (
-              <div key={r.id}
-                onClick={() => { setSelectedResultId(r.id); setSelectedField(null); }}
-                style={{ padding: '11px 14px', borderBottom: '0.5px solid var(--nav-border)', cursor: 'pointer', borderLeft: r.id === selectedResultId ? '2px solid var(--accent)' : '2px solid transparent', background: r.id === selectedResultId ? 'var(--accent-bg)' : 'transparent', transition: 'background 0.15s' }}>
-                <div style={{ fontSize: '11px', color: '#cbd5e1', fontFamily: 'var(--mono-font)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '5px' }}>{r.name}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '3px', fontFamily: 'var(--mono-font)', background: r.type === 'ia' ? 'var(--success-bg)' : 'var(--accent-bg)', color: r.type === 'ia' ? 'var(--success-bright)' : 'var(--accent)' }}>
-                    {r.type === 'ia' ? 'IA' : r.type === 'acord' ? 'ACORD' : r.type === 'hsmv' ? 'HSMV' : 'Police'}
-                  </div>
-                  <div style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--success-bright)', fontFamily: 'var(--mono-font)' }}>
-                    {r.data?.accuracy_score ? `${r.data.accuracy_score.toFixed(1)}%` : '—'}
-                  </div>
-                </div>
+          {!sidebarCollapsed && (
+            <>
+              <div style={{ padding: '12px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <button onClick={() => setActiveView('upload')}
+                  style={{ background: 'transparent', border: '0.5px solid var(--nav-border)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '11px', padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+                  <ArrowLeft size={12} /> New extraction
+                </button>
               </div>
-            ))}
-          </div>
-          <div style={{ padding: '10px 12px', borderTop: '0.5px solid var(--nav-border)' }}>
-            <button onClick={() => { setProcessedResults([]); setSelectedResultId(null); setActiveView('upload'); setIsCrossReferencing(false); }}
-              style={{ background: 'transparent', border: '0.5px solid rgba(239,68,68,0.2)', borderRadius: '6px', color: 'rgba(239,68,68,0.6)', fontSize: '11px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
-              <Trash2 size={11} /> Clear history
-            </button>
-          </div>
+              <div style={{ padding: '10px 14px 6px', fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)' }}>Extractions</div>
+              <div style={{ flex: 1, overflowY: 'auto' }}>
+                {processedResults.map(r => (
+                  <div key={r.id}
+                    onClick={() => { setSelectedResultId(r.id); setSelectedField(null); }}
+                    style={{ padding: '11px 14px', borderBottom: '0.5px solid var(--nav-border)', cursor: 'pointer', borderLeft: r.id === selectedResultId ? '2px solid var(--accent)' : '2px solid transparent', background: r.id === selectedResultId ? 'var(--accent-bg)' : 'transparent', transition: 'background 0.15s' }}>
+                    <div style={{ fontSize: '11px', color: '#cbd5e1', fontFamily: 'var(--mono-font)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '5px' }}>{r.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '3px', fontFamily: 'var(--mono-font)', background: r.type === 'ia' ? 'var(--success-bg)' : 'var(--accent-bg)', color: r.type === 'ia' ? 'var(--success-bright)' : 'var(--accent)' }}>
+                        {r.type === 'ia' ? 'IA' : r.type === 'acord' ? 'ACORD' : r.type === 'hsmv' ? 'HSMV' : 'Police'}
+                      </div>
+                      <div style={{ marginLeft: 'auto', fontSize: '10px', color: 'var(--success-bright)', fontFamily: 'var(--mono-font)' }}>
+                        {r.data?.accuracy_score ? `${r.data.accuracy_score.toFixed(1)}%` : '—'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '10px 12px', borderTop: '0.5px solid var(--nav-border)' }}>
+                <button onClick={() => { setProcessedResults([]); setSelectedResultId(null); setActiveView('upload'); setIsCrossReferencing(false); }}
+                  style={{ background: 'transparent', border: '0.5px solid rgba(239,68,68,0.2)', borderRadius: '6px', color: 'rgba(239,68,68,0.6)', fontSize: '11px', padding: '6px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+                  <Trash2 size={11} /> Clear history
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="detail-view">
