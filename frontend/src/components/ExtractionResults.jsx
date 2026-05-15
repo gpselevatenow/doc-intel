@@ -562,7 +562,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
                 >
                   {renderFieldLabel(label, fid)}
                   <div className="field-value" onClick={e => e.stopPropagation()}>
-                    <EditableField value={data[fid]} delay={index * 400} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} />
+                    <EditableField value={data[fid]} delay={index * 400} speed={80} resetKey={docId} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} />
                   </div>
                 </motion.div>
               </div>
@@ -618,7 +618,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Date / Time', 'date_time')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} delay={0} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} delay={0} speed={80} resetKey={docId} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 400ms both' }}>
@@ -629,7 +629,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Location', 'location')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} delay={400} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} delay={400} speed={80} resetKey={docId} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 800ms both' }}>
@@ -640,7 +640,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Weather Conditions', 'weather')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} delay={800} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} delay={800} speed={80} resetKey={docId} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2000ms both' }}>
@@ -651,7 +651,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Accident Type', 'accident_type')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} delay={2000} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} delay={2000} speed={80} resetKey={docId} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 3600ms both' }}>
@@ -662,7 +662,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('EMS Agency', 'ems_agency')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} delay={3600} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} delay={3600} speed={80} resetKey={docId} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 1600ms both' }}>
@@ -673,7 +673,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Light Condition', 'light_condition')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.light_condition} delay={1600} fieldName="light_condition" docId="police_doc" needsReview={review_flags['light_condition']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.light_condition} delay={1600} speed={80} resetKey={docId} fieldName="light_condition" docId="police_doc" needsReview={review_flags['light_condition']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 1200ms both' }}>
@@ -684,7 +684,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Road Surface', 'road_surface')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.road_surface} delay={1200} fieldName="road_surface" docId="police_doc" needsReview={review_flags['road_surface']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.road_surface} delay={1200} speed={80} resetKey={docId} fieldName="road_surface" docId="police_doc" needsReview={review_flags['road_surface']} /></div>
             </motion.div>
           </div>
         </div>
@@ -702,7 +702,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Responding Agency', 'agency')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} delay={2400} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} delay={2400} speed={80} resetKey={docId} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2800ms both' }}>
@@ -713,7 +713,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Investigating Officer', 'officer')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} delay={2800} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} delay={2800} speed={80} resetKey={docId} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
             </motion.div>
           </div>
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 3200ms both' }}>
@@ -724,7 +724,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Report Number', 'report_number')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} delay={3200} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} delay={3200} speed={80} resetKey={docId} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
             </motion.div>
           </div>
           {data.form_id && (

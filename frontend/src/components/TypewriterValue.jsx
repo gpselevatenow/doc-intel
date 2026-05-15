@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const TypewriterValue = ({ value, delay = 0, speed = 22 }) => {
+const TypewriterValue = ({ value, delay = 0, speed = 80, resetKey = '' }) => {
   const isEmpty = !value || value === '—' || value === 'Unknown' || value === 'N/A' || value === 'n/a';
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
@@ -32,7 +32,7 @@ const TypewriterValue = ({ value, delay = 0, speed = 22 }) => {
       clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [value, delay, speed]);
+  }, [value, delay, resetKey]);
 
   if (isEmpty) return <span>—</span>;
 
