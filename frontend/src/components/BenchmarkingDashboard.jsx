@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Zap, Cpu, CheckCircle, Database, AlertCircle, TrendingDown, Clock } from 'lucide-react';
+import { Activity, Zap, Cpu, CheckCircle, Database, AlertCircle, TrendingDown, Clock, RefreshCw } from 'lucide-react';
 
 export default function BenchmarkingDashboard() {
   const [loading, setLoading] = useState(false);
@@ -54,25 +54,24 @@ export default function BenchmarkingDashboard() {
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
           <div>
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <Activity size={24} color="var(--accent)" /> System Diagnostics & Benchmarks
+            <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: '6px' }}>
+              System Diagnostics
+            </div>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 600, color: 'var(--text-main)' }}>
+              Extraction Benchmarks
             </h2>
-            <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-              Load testing + human-in-the-loop field failure analytics.
-            </p>
           </div>
           <button
-            className="btn-primary"
             onClick={runBenchmark}
             disabled={loading}
-            style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: 'var(--accent-bg)', border: '1px solid var(--accent-border)', borderRadius: '6px', color: 'var(--accent)', fontSize: '13px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
           >
             {loading ? (
-              <><div className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }} /> Running Test...</>
+              <><div className="spinner" style={{ width: '12px', height: '12px', borderWidth: '2px' }} /> Running...</>
             ) : (
-              <><Zap size={18} /> Execute Benchmark</>
+              <><RefreshCw size={13} /> Execute Benchmark</>
             )}
           </button>
         </div>
@@ -84,10 +83,12 @@ export default function BenchmarkingDashboard() {
         )}
 
         {!metrics && !loading && !error && (
-          <div style={{ padding: '3rem 2rem', textAlign: 'center', background: 'var(--card-bg)', borderRadius: '12px', border: '1px dashed var(--border-color)', marginBottom: '2rem' }}>
-            <Activity size={48} color="var(--border-color)" style={{ marginBottom: '1rem' }} />
-            <h3 style={{ color: 'var(--text-muted)' }}>Ready to run benchmarks</h3>
-            <p style={{ color: 'var(--text-muted)' }}>Click Execute Benchmark to simulate 50 extraction pipelines.</p>
+          <div style={{ padding: '1.5rem', background: 'var(--surface-2, #060e1d)', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <Activity size={18} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-main)' }}>Load test not yet run</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>Execute Benchmark to simulate 50 extraction pipelines and record latency + throughput.</div>
+            </div>
           </div>
         )}
 
@@ -132,29 +133,60 @@ export default function BenchmarkingDashboard() {
         )}
 
         {/* Stable Extraction Benchmarks */}
-        <div style={{ background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-            <CheckCircle size={18} color="var(--success)" />
-            <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>
-              Stable Extraction Benchmarks
-            </span>
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+            Stable Extraction Benchmarks
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             {[
               { label: 'Police Reports', f1: '1.0000', docs: 5, fields: 17, version: 'v0.7' },
               { label: 'IA Reports', f1: '1.0000', docs: 2, fields: 13, version: 'v0.8a' },
             ].map((row) => (
-              <div key={row.label} style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', borderLeft: '3px solid var(--success)', borderRadius: '8px', padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-main)' }}>{row.label}</span>
-                  <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.06)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>{row.version}</span>
+              <div key={row.label} style={{ background: 'var(--surface-2, #060e1d)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>{row.label}</span>
+                  <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>{row.version}</span>
                 </div>
-                <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--success)', lineHeight: 1 }}>
-                  F1 = {row.f1}
+                <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '2rem', fontWeight: 700, color: 'var(--success)', lineHeight: 1 }}>
+                  {row.f1}
                 </div>
-                <div style={{ marginTop: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  {row.docs} docs · {row.fields} fields
+                <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono, monospace)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginTop: '4px', marginBottom: '0.75rem' }}>
+                  F1 Score
                 </div>
+                <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                  <div style={{ height: '100%', width: '100%', background: 'var(--success)', borderRadius: '2px' }} />
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  {row.docs} docs · {row.fields} fields measured
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Per-field F1 Grid */}
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+            Per-Field F1 · Police &amp; IA
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+            {[
+              { field: 'Date of Loss', f1: 1.000 },
+              { field: 'Time of Loss', f1: 1.000 },
+              { field: 'Report Number', f1: 1.000 },
+              { field: 'Officer Name', f1: 1.000 },
+              { field: 'Plate Number', f1: 1.000 },
+              { field: 'VIN', f1: 1.000 },
+              { field: 'Claimant Name', f1: 1.000 },
+              { field: 'At-Fault Party', f1: 1.000 },
+              { field: 'Damage Description', f1: 1.000 },
+              { field: 'Light Condition', f1: 1.000 },
+              { field: 'Road Surface', f1: 1.000 },
+              { field: 'Cause of Loss', f1: 1.000 },
+            ].map((item) => (
+              <div key={item.field} style={{ background: 'var(--surface-2, #060e1d)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.75rem' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.35rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.field}</div>
+                <div style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '1rem', fontWeight: 700, color: 'var(--success)' }}>{item.f1.toFixed(3)}</div>
               </div>
             ))}
           </div>
