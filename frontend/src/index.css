@@ -474,6 +474,18 @@ body {
   100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.tw-cursor {
+  animation: blink 0.7s step-end infinite;
+  color: var(--accent);
+  font-weight: 400;
+  margin-left: 1px;
+}
+
 /* React PDF Viewer Custom Highlight overrides */
 .rpv-search__highlight {
   background-color: #fef08a !important; /* Soft yellow marker */

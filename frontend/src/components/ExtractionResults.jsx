@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
 import EditableField from './EditableField';
+import TypewriterValue from './TypewriterValue';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Badge = () => (
@@ -255,6 +256,19 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   const [newField, setNewField] = useState('');
   const [feedbackGiven, setFeedbackGiven] = useState(null);
   const [auditModalField, setAuditModalField] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(0);
+
+  useEffect(() => {
+    setVisibleCount(0);
+    const totalFields = 12;
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setVisibleCount(i);
+      if (i >= totalFields) clearInterval(interval);
+    }, 120);
+    return () => clearInterval(interval);
+  }, [data]);
 
   const reserveText = useMemo(() => {
     if (!data?.reserve_warning) return null;
@@ -552,7 +566,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
             {[['Cause of Loss','cause_of_loss'],['Settlement Estimate','settlement'],['Coverage A','coverage_a'],['Inspection Date','inspection_date'],['Inspection Firm','inspection_firm'],['Coverage B','coverage_b'],['Coverage C','coverage_c'],['Coverage D','coverage_d'],['Coverages / Policy Form','coverages'],['Subrogation Status','subrogation'],['Officials (Report Filed)','officials'],['Payment Summary','payment_summary']].map(([label, fid], index) => (
-              <div key={fid} style={{ animation: `fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${index * 150}ms both` }}>
+              <div key={fid} style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > index ? 'visible' : 'hidden', opacity: visibleCount > index ? 1 : 0, transition: 'opacity 0.3s ease' }}>
                 <motion.div
                   onClick={() => onFieldClick(fid)}
                   style={{ cursor: 'pointer', ...confStyle(fid) }}
@@ -561,7 +575,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
                 >
                   {renderFieldLabel(label, fid)}
                   <div className="field-value" onClick={e => e.stopPropagation()}>
-                    <EditableField value={data[fid]} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} />
+                    <EditableField value={data[fid]} delay={index * 400} fieldName={fid} docId="ia_doc" needsReview={review_flags[fid]} />
                   </div>
                 </motion.div>
               </div>
@@ -609,7 +623,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={MapPin} title="Incident Summary" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 0 ? 'visible' : 'hidden', opacity: visibleCount > 0 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('date_time')}
               style={{ cursor: 'pointer', ...confStyle('date_time') }}
@@ -617,10 +631,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Date / Time', 'date_time')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.date_time} delay={0} fieldName="date_time" docId="police_doc" needsReview={review_flags['date_time']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 150ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 1 ? 'visible' : 'hidden', opacity: visibleCount > 1 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('location')}
               style={{ cursor: 'pointer', ...confStyle('location') }}
@@ -628,10 +642,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Location', 'location')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.location} delay={400} fieldName="location" docId="police_doc" needsReview={review_flags['location']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 300ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 2 ? 'visible' : 'hidden', opacity: visibleCount > 2 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('weather')}
               style={{ cursor: 'pointer', ...confStyle('weather') }}
@@ -639,10 +653,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Weather Conditions', 'weather')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.weather} delay={800} fieldName="weather" docId="police_doc" needsReview={review_flags['weather']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 750ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 3 ? 'visible' : 'hidden', opacity: visibleCount > 3 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('accident_type')}
               style={{ cursor: 'pointer', ...confStyle('accident_type') }}
@@ -650,10 +664,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Accident Type', 'accident_type')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.accident_type} delay={2000} fieldName="accident_type" docId="police_doc" needsReview={review_flags['accident_type']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1350ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 4 ? 'visible' : 'hidden', opacity: visibleCount > 4 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('ems_agency')}
               style={{ cursor: 'pointer', ...confStyle('ems_agency') }}
@@ -661,10 +675,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('EMS Agency', 'ems_agency')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.ems_agency} delay={3600} fieldName="ems_agency" docId="police_doc" needsReview={review_flags['ems_agency']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 600ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 5 ? 'visible' : 'hidden', opacity: visibleCount > 5 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('light_condition')}
               style={{ cursor: 'pointer', ...confStyle('light_condition') }}
@@ -672,10 +686,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Light Condition', 'light_condition')}
-              <div className="field-value">{data.light_condition && data.light_condition !== 'N/A' ? data.light_condition : '—'}</div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.light_condition} delay={1600} fieldName="light_condition" docId="police_doc" needsReview={review_flags['light_condition']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 450ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 6 ? 'visible' : 'hidden', opacity: visibleCount > 6 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('road_surface')}
               style={{ cursor: 'pointer', ...confStyle('road_surface') }}
@@ -683,7 +697,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Road Surface', 'road_surface')}
-              <div className="field-value">{data.road_surface && data.road_surface !== 'N/A' ? data.road_surface : '—'}</div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.road_surface} delay={1200} fieldName="road_surface" docId="police_doc" needsReview={review_flags['road_surface']} /></div>
             </motion.div>
           </div>
         </div>
@@ -693,7 +707,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
       <div className="glass-card">
         <SectionHeader icon={Shield} title="Agency & Investigation" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 900ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 7 ? 'visible' : 'hidden', opacity: visibleCount > 7 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('agency')}
               style={{ cursor: 'pointer', ...confStyle('agency') }}
@@ -701,10 +715,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Responding Agency', 'agency')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.agency} delay={2400} fieldName="agency" docId="police_doc" needsReview={review_flags['agency']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1050ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 8 ? 'visible' : 'hidden', opacity: visibleCount > 8 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('officer')}
               style={{ cursor: 'pointer', ...confStyle('officer') }}
@@ -712,10 +726,10 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Investigating Officer', 'officer')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.officer} delay={2800} fieldName="officer" docId="police_doc" needsReview={review_flags['officer']} /></div>
             </motion.div>
           </div>
-          <div style={{ animation: 'fieldLand 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1200ms both' }}>
+          <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) both', visibility: visibleCount > 9 ? 'visible' : 'hidden', opacity: visibleCount > 9 ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <motion.div
               onClick={() => onFieldClick('report_number')}
               style={{ cursor: 'pointer', ...confStyle('report_number') }}
@@ -723,7 +737,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               whileTap={{ scale: 0.99 }}
             >
               {renderFieldLabel('Report Number', 'report_number')}
-              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
+              <div className="field-value" onClick={e => e.stopPropagation()}><EditableField value={data.report_number} delay={3200} fieldName="report_number" docId="police_doc" needsReview={review_flags['report_number']} /></div>
             </motion.div>
           </div>
           {data.form_id && (
