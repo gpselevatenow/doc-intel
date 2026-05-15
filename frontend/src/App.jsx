@@ -362,85 +362,80 @@ function App() {
     const selectedFile = stagedFiles.find(f => f.id === selectedResultId) || stagedFiles[0];
 
     return (
-      <div className="master-detail-layout fade-in">
-        <div className="sidebar" style={{ width: '400px' }}>
-          <div className="sidebar-header" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-              <PlusSquare size={16} /> Add More Documents
-              <input type="file" accept=".pdf" multiple onChange={handleFileSelect} disabled={isProcessing} style={{ display: 'none' }} />
-            </label>
-            
-            <button 
-              className="btn-primary" 
-              onClick={runExtraction} 
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <><div className="spinner" style={{ width: '18px', height: '18px', borderWidth: '2px' }}></div> Processing {stagedFiles.length} Document(s)...</>
-              ) : (
-                <><Play size={18} /> Run Extraction ({stagedFiles.length})</>
-              )}
-            </button>
-          </div>
-          
-          <div className="doc-list">
+      <div style={{ display: 'flex', width: '100%', height: '100%', background: 'var(--surface-1)' }}>
+        <div style={{ width: '280px', flexShrink: 0, background: 'var(--surface-2)', borderRight: '0.5px solid var(--nav-border)', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '14px 12px', gap: '8px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 12px', background: 'transparent', border: '0.5px solid var(--nav-border)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer', width: '100%', boxSizing: 'border-box' }}>
+            <PlusSquare size={13} /> Add more documents
+            <input type="file" accept=".pdf" multiple onChange={handleFileSelect} disabled={isProcessing} style={{ display: 'none' }} />
+          </label>
+
+          <button
+            onClick={runExtraction}
+            disabled={isProcessing}
+            style={{ background: isProcessing ? 'rgba(147,197,253,0.1)' : '#93c5fd', color: isProcessing ? '#93c5fd' : '#0a1628', border: '0.5px solid #93c5fd', borderRadius: '6px', padding: '9px 16px', fontSize: '12px', fontWeight: '600', fontFamily: 'var(--mono-font)', cursor: isProcessing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', width: '100%' }}
+          >
+            {isProcessing ? (
+              <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> Extracting...</>
+            ) : (
+              <><Play size={12} /> Run Extraction ({stagedFiles.length})</>
+            )}
+          </button>
+
+          <div style={{ flex: 1, overflowY: 'auto', marginTop: '4px' }}>
             {stagedFiles.map((file) => (
-              <div 
-                key={file.id} 
-                className={`doc-item ${selectedFile.id === file.id ? 'active' : ''}`}
+              <div
+                key={file.id}
                 onClick={() => setSelectedResultId(file.id)}
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
+                style={{ padding: '10px', borderRadius: '6px', cursor: 'pointer', borderLeft: file.id === selectedResultId ? '2px solid var(--accent)' : '2px solid transparent', background: file.id === selectedResultId ? 'var(--accent-bg)' : 'transparent', marginBottom: '2px' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="doc-item-title" title={file.name} style={{ margin: 0, maxWidth: '200px' }}>{file.name}</div>
-                  <button 
-                    style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.2rem' }}
-                    onClick={(e) => { e.stopPropagation(); removeFile(file.id); }}
-                    disabled={isProcessing}
-                    title="Remove File"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
-                  <select 
-                    className="type-select" 
-                    value={file.type} 
+                <div style={{ fontSize: '11px', color: '#cbd5e1', fontFamily: 'var(--mono-font)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '6px' }}>{file.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={e => e.stopPropagation()}>
+                  <select
+                    value={file.type}
                     onChange={(e) => updateFileType(file.id, e.target.value)}
                     disabled={isProcessing}
-                    style={{ width: '100%', marginRight: 0, padding: '0.25rem' }}
+                    style={{ flex: 1, background: 'var(--surface-1)', border: '0.5px solid var(--nav-border)', borderRadius: '4px', color: 'var(--text-muted)', fontSize: '11px', padding: '4px 6px', fontFamily: 'var(--mono-font)' }}
                   >
                     <option value="ia">IA Report</option>
                     <option value="police">Police Report</option>
                     <option value="acord">ACORD Form</option>
                     <option value="hsmv">FL HSMV 90010S</option>
                   </select>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeFile(file.id); }}
+                    disabled={isProcessing}
+                    style={{ background: 'transparent', border: 'none', color: 'rgba(239,68,68,0.5)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="detail-view" style={{ flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--surface-1)', overflow: 'hidden' }}>
+          <div style={{ padding: '10px 16px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)' }}>Document preview</div>
+            {selectedFile && (
+              <div style={{ fontSize: '10px', color: 'var(--accent)', fontFamily: 'var(--mono-font)', marginLeft: '8px' }}>{selectedFile.name}</div>
+            )}
+          </div>
           {isProcessing && (
-            <div style={{ padding: '1.5rem', background: 'var(--secondary-bg)', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-main)' }}>
-                <strong><div className="spinner" style={{ width: '14px', height: '14px', borderWidth: '2px', marginRight: '8px' }}></div> Extracting Documents...</strong>
-                <span>{processingProgress.current} of {processingProgress.total}</span>
+            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid var(--nav-border)' }}>
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${(processingProgress.current / processingProgress.total) * 100}%`, background: 'var(--accent)', borderRadius: '2px', transition: 'width 0.3s ease' }} />
               </div>
-              <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${(processingProgress.current / processingProgress.total) * 100}%`, background: 'var(--accent)', transition: 'width 0.3s ease' }}></div>
+              <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--mono-font)', marginTop: '6px' }}>
+                Extracting... {processingProgress.current} of {processingProgress.total}
               </div>
             </div>
           )}
-          {selectedFile ? (
-            <div className="pane left-pane" style={{ borderRight: 'none', flex: 1, overflow: 'hidden' }}>
-              <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-muted)' }}>Document Preview</h3>
-              <ErrorBoundary>
-                <PDFViewer pdfUrl={selectedFile.pdfUrl} searchText={pdfSearchText} />
-              </ErrorBoundary>
-            </div>
-          ) : null}
+          <div style={{ flex: 1, overflow: 'hidden', padding: '16px' }}>
+            <ErrorBoundary>
+              <PDFViewer pdfUrl={selectedFile?.pdfUrl} searchText={pdfSearchText} />
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
     );
