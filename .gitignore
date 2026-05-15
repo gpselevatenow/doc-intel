@@ -14,6 +14,20 @@ frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
 
+# Diagnostic / investigation scripts
+backend/diag_*.py
+backend/scripts/investigate_*.py
+
+# Debug screenshots and verification scripts
+frontend/*.png
+frontend/verify_*.cjs
+frontend/diag_*.cjs
+
+# Variant benchmark results and dated ground truth snapshots
+backend/tests/benchmark_results_*.json
+docs/benchmarks/ground_truth_*-*.md
+docs/scoring_analysis_*.md
+
 # Documents / Sensitive Info
 *.pdf
 !sample documents/*.pdf
