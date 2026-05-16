@@ -195,6 +195,194 @@ export default function DeltaView() {
         </div>
       )}
 
+      {/* Delta intelligence panel */}
+      {delta && summary && (
+        <div style={{
+          background: 'var(--surface-2)',
+          border: '0.5px solid var(--nav-border)',
+          borderRadius: '10px',
+          marginBottom: '16px',
+          overflow: 'hidden',
+        }}>
+          {/* Header */}
+          <div style={{
+            padding: '10px 14px',
+            borderBottom: '0.5px solid var(--nav-border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <div style={{
+              fontSize: '12px', fontWeight: '500',
+              color: '#e2e8f0',
+              display: 'flex', alignItems: 'center',
+              gap: '6px',
+            }}>
+              <i className="ti ti-git-compare"
+                style={{ fontSize: '14px', color: 'var(--warning)' }}
+                aria-hidden="true" />
+              Comparison intelligence
+            </div>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {summary.changed > 0 && (
+                <div style={{
+                  fontSize: '10px', padding: '2px 8px',
+                  borderRadius: '10px',
+                  background: 'rgba(245,158,11,0.12)',
+                  color: 'var(--warning)',
+                  fontFamily: 'var(--mono-font)',
+                }}>{summary.changed} changed</div>
+              )}
+              {summary.added > 0 && (
+                <div style={{
+                  fontSize: '10px', padding: '2px 8px',
+                  borderRadius: '10px',
+                  background: 'rgba(16,185,129,0.12)',
+                  color: 'var(--success-bright)',
+                  fontFamily: 'var(--mono-font)',
+                }}>{summary.added} added</div>
+              )}
+              {summary.removed > 0 && (
+                <div style={{
+                  fontSize: '10px', padding: '2px 8px',
+                  borderRadius: '10px',
+                  background: 'rgba(239,68,68,0.12)',
+                  color: 'var(--danger)',
+                  fontFamily: 'var(--mono-font)',
+                }}>{summary.removed} removed</div>
+              )}
+            </div>
+          </div>
+
+          {/* Key change chips */}
+          <div style={{
+            padding: '10px 14px',
+            borderBottom: '0.5px solid var(--nav-border)',
+          }}>
+            <div style={{
+              fontSize: '9px', color: 'var(--text-tertiary)',
+              textTransform: 'uppercase', letterSpacing: '.1em',
+              fontFamily: 'var(--mono-font)', marginBottom: '6px',
+            }}>Key changes detected</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              {Object.entries(delta)
+                .filter(([_, v]) => v.status !== 'unchanged')
+                .slice(0, 5)
+                .map(([field, info]) => (
+                  <div key={field} style={{
+                    display: 'inline-flex',
+                    alignItems: 'center', gap: '5px',
+                    fontSize: '11px',
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    background: info.status === 'changed'
+                      ? 'rgba(245,158,11,0.08)'
+                      : info.status === 'added'
+                      ? 'rgba(16,185,129,0.08)'
+                      : 'rgba(239,68,68,0.08)',
+                    border: `0.5px solid ${
+                      info.status === 'changed'
+                        ? 'rgba(245,158,11,0.3)'
+                        : info.status === 'added'
+                        ? 'rgba(16,185,129,0.3)'
+                        : 'rgba(239,68,68,0.3)'}`,
+                    color: info.status === 'changed'
+                      ? 'var(--warning)'
+                      : info.status === 'added'
+                      ? 'var(--success-bright)'
+                      : 'var(--danger)',
+                  }}>
+                    {field.replace(/_/g, ' ')}
+                    {info.status === 'added' ? ' +'
+                      : info.status === 'removed' ? ' −'
+                      : ' ≠'}
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Delta actions */}
+          <div style={{ padding: '10px 14px 14px' }}>
+            <div style={{
+              fontSize: '9px', color: 'var(--text-tertiary)',
+              textTransform: 'uppercase', letterSpacing: '.1em',
+              fontFamily: 'var(--mono-font)', marginBottom: '8px',
+            }}>Next best actions</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+
+              {delta.settlement?.status === 'changed' && (
+                <div style={{
+                  display: 'flex', alignItems: 'flex-start',
+                  gap: '10px', padding: '8px 10px',
+                  background: 'rgba(239,68,68,0.06)',
+                  borderRadius: '6px',
+                  border: '0.5px solid rgba(239,68,68,0.2)',
+                }}>
+                  <div style={{
+                    width: '18px', height: '18px',
+                    borderRadius: '50%',
+                    background: 'rgba(239,68,68,0.15)',
+                    color: 'var(--danger)', fontSize: '10px',
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: 'var(--mono-font)',
+                    flexShrink: 0,
+                  }}>1</div>
+                  <div style={{ flex: 1, fontSize: '12px',
+                    color: '#e2e8f0', lineHeight: '1.4' }}>
+                    Update reserve — settlement changed from{' '}
+                    {delta.settlement.v1} to{' '}
+                    {delta.settlement.v2}
+                  </div>
+                  <div style={{
+                    fontSize: '9px', padding: '2px 6px',
+                    borderRadius: '10px',
+                    background: 'rgba(239,68,68,0.15)',
+                    color: 'var(--danger)',
+                    fontFamily: 'var(--mono-font)',
+                    flexShrink: 0,
+                  }}>urgent</div>
+                </div>
+              )}
+
+              {summary.changed > 0 && (
+                <div style={{
+                  display: 'flex', alignItems: 'flex-start',
+                  gap: '10px', padding: '8px 10px',
+                  background: 'rgba(245,158,11,0.06)',
+                  borderRadius: '6px',
+                  border: '0.5px solid rgba(245,158,11,0.2)',
+                }}>
+                  <div style={{
+                    width: '18px', height: '18px',
+                    borderRadius: '50%',
+                    background: 'rgba(245,158,11,0.15)',
+                    color: 'var(--warning)', fontSize: '10px',
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: 'var(--mono-font)',
+                    flexShrink: 0,
+                  }}>{delta.settlement?.status === 'changed' ? 2 : 1}</div>
+                  <div style={{ flex: 1, fontSize: '12px',
+                    color: '#e2e8f0', lineHeight: '1.4' }}>
+                    Verify {summary.changed} changed fields
+                    — liability apportionment may be affected
+                  </div>
+                  <div style={{
+                    fontSize: '9px', padding: '2px 6px',
+                    borderRadius: '10px',
+                    background: 'rgba(245,158,11,0.15)',
+                    color: 'var(--warning)',
+                    fontFamily: 'var(--mono-font)',
+                    flexShrink: 0,
+                  }}>review</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delta rows */}
       {filtered.length > 0 && (
         <div style={{ display: 'flex',
