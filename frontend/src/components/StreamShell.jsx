@@ -145,7 +145,7 @@ function StreamField({ field_id, value,
 
 export default function StreamShell({
   file, docType, onFieldClick,
-  onFieldHover, onFieldHoverEnd
+  onFieldHover, onFieldHoverEnd, onBboxEntry
 }) {
   const [steps, setSteps] = useState([]);
   const [fields, setFields] = useState([]);
@@ -230,6 +230,13 @@ export default function StreamShell({
         partiesRef.current = event.data || [];
         setParties(partiesRef.current);
         break;
+      case 'bbox':
+        onBboxEntry?.(event.field_id, {
+          bbox: event.bbox,
+          page: event.page,
+          value: event.value,
+        });
+        break;
       case 'done':
         setDone(true);
         setStreaming(false);
@@ -276,9 +283,12 @@ export default function StreamShell({
           {steps.map((s, i) => (
             <AgentStep key={i} msg={s.msg} status={s.status} />
           ))}
-          {streaming && (
-            <AgentStep msg="Extracting..." status="active" />
-          )}
+          {streaming
+            ? <AgentStep msg="Extracting..." status="active" />
+            : done
+            ? <AgentStep msg="Extraction complete ✓" status="done" />
+            : null
+          }
         </div>
       )}
 
