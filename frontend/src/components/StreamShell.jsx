@@ -147,6 +147,7 @@ export default function StreamShell({
   file, docType, onFieldClick,
   onFieldHover, onFieldHoverEnd,
   onFieldHeartbeat, onFieldExtracted,
+  onBboxEntry,
 }) {
   const [steps, setSteps] = useState([]);
   const [fields, setFields] = useState([]);
@@ -217,6 +218,7 @@ export default function StreamShell({
         setSteps(prev => [...prev, { msg: event.msg, status: 'done' }]);
         break;
       case 'field':
+        console.log('field event firing heartbeat:', event.field_id);
         onFieldHeartbeat?.(event.field_id);
         setTimeout(() => {
           onFieldExtracted?.(event.field_id);
@@ -235,6 +237,13 @@ export default function StreamShell({
       case 'parties':
         partiesRef.current = event.data || [];
         setParties(partiesRef.current);
+        break;
+      case 'bbox':
+        onBboxEntry?.(event.field_id, {
+          bbox: event.bbox,
+          page: event.page,
+          value: event.value,
+        });
         break;
       case 'done':
         setDone(true);

@@ -127,10 +127,12 @@ function App() {
   const [streamDocType, setStreamDocType] = useState('police_report');
   const [heartbeatField, setHeartbeatField] = useState(null);
   const [extractedFields, setExtractedFields] = useState(new Set());
+  const [streamBboxMap, setStreamBboxMap] = useState({});
 
   useEffect(() => {
     setHeartbeatField(null);
     setExtractedFields(new Set());
+    setStreamBboxMap({});
   }, [streamFile]);
 
   // --- Upload Handlers ---
@@ -684,7 +686,7 @@ function App() {
                   <ErrorBoundary>
                     <PDFViewer
                       pdfUrl={streamPdfUrl}
-                      bboxMap={{}}
+                      bboxMap={streamBboxMap}
                       selectedField={null}
                       heartbeatField={heartbeatField}
                       extractedFields={extractedFields} />
@@ -698,7 +700,8 @@ function App() {
                 onFieldHover={() => {}}
                 onFieldHoverEnd={() => {}}
                 onFieldHeartbeat={(fid) => setHeartbeatField(fid)}
-                onFieldExtracted={(fid) => setExtractedFields(prev => new Set([...prev, fid]))} />
+                onFieldExtracted={(fid) => setExtractedFields(prev => new Set([...prev, fid]))}
+                onBboxEntry={(fieldId, info) => setStreamBboxMap(prev => ({ ...prev, [fieldId]: info }))} />
             </div>
           </div>
         ) : activeView === 'upload' ? (
