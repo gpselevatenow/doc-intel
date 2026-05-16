@@ -9,5 +9,12 @@ export default defineConfig({
   },
   resolve: {
     dedupe: ['framer-motion', 'react', 'react-dom']
+  },
+  server: {
+    port: 5174,
+    strictPort: true,
+    proxy: {
+      '/api': 'http://localhost:8001'
+    }
   }
 })

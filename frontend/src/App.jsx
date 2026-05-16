@@ -161,13 +161,13 @@ function App() {
       const formData = new FormData();
       formData.append('file', item.file);
       
-      let endpoint = 'http://127.0.0.1:8000/api/extract/police-report';
+      let endpoint = 'http://127.0.0.1:8001/api/extract/police-report';
       if (item.type === 'ia') {
-        endpoint = 'http://127.0.0.1:8000/api/extract/ia-report';
+        endpoint = 'http://127.0.0.1:8001/api/extract/ia-report';
       } else if (item.type === 'acord') {
-        endpoint = 'http://127.0.0.1:8000/api/extract/acord-report';
+        endpoint = 'http://127.0.0.1:8001/api/extract/acord-report';
       } else if (item.type === 'hsmv') {
-        endpoint = 'http://127.0.0.1:8000/api/extract/hsmv-report';
+        endpoint = 'http://127.0.0.1:8001/api/extract/hsmv-report';
       }
         
       try {
@@ -227,13 +227,13 @@ function App() {
       const formData = new FormData();
       formData.append('file', file);
       
-      let endpoint = 'http://127.0.0.1:8000/api/extract/police-report';
+      let endpoint = 'http://127.0.0.1:8001/api/extract/police-report';
       if (target.type === 'ia') {
-        endpoint = 'http://127.0.0.1:8000/api/extract/ia-report';
+        endpoint = 'http://127.0.0.1:8001/api/extract/ia-report';
       } else if (target.type === 'acord') {
-        endpoint = 'http://127.0.0.1:8000/api/extract/acord-report';
+        endpoint = 'http://127.0.0.1:8001/api/extract/acord-report';
       } else if (target.type === 'hsmv') {
-        endpoint = 'http://127.0.0.1:8000/api/extract/hsmv-report';
+        endpoint = 'http://127.0.0.1:8001/api/extract/hsmv-report';
       }
       
       const response = await fetch(endpoint, {
