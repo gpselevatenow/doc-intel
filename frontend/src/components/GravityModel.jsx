@@ -142,6 +142,187 @@ function buildNodes(data) {
   return { nodes, links };
 }
 
+function IncidentCard({ node, data }) {
+  const vehicles = data.vehicles || [];
+  const operators = data.operators || [];
+  const passengers = data.passengers || [];
+  const pedestrians = data.pedestrians || [];
+  const totalParties = operators.length + passengers.length + pedestrians.length;
+  const injured = operators.filter(
+    (p) => p.injuries && p.injuries !== 'No apparent injury' && p.injuries !== 'Unknown'
+  ).length;
+
+  const riskScore =
+    data.risk_score ||
+    (data.reserve_warning ? 3 : 0) +
+    (data.subrogation?.toLowerCase().includes('investig') ? 2 : 0);
+
+  const flags = [];
+  if (data.reserve_warning) flags.push({ label: 'Reserve language', color: '#ef4444' });
+  if (data.subrogation?.toLowerCase().includes('investig'))
+    flags.push({ label: 'Subrogation opportunity', color: '#f59e0b' });
+
+  const actions = [];
+  if (data.reserve_warning)
+    actions.push({
+      text: `Set reserve — ${data.settlement || 'amount TBD'}`,
+      priority: 'urgent',
+      color: '#ef4444',
+    });
+  if (data.subrogation?.toLowerCase().includes('investig'))
+    actions.push({
+      text: 'File subrogation preservation letter',
+      priority: '30 days',
+      color: '#f59e0b',
+    });
+  if (totalParties > 3)
+    actions.push({
+      text: `Review liability — ${totalParties} parties involved`,
+      priority: 'review',
+      color: '#93c5fd',
+    });
+  if (actions.length === 0)
+    actions.push({
+      text: 'Review fields and submit to ClaimCenter',
+      priority: 'review',
+      color: '#93c5fd',
+    });
+
+  return (
+    <div style={{
+      background: 'rgba(15,23,42,0.95)',
+      border: '0.5px solid rgba(239,68,68,0.3)',
+      borderRadius: '10px',
+      overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '12px 14px',
+        borderBottom: '0.5px solid rgba(255,255,255,0.07)',
+        display: 'flex', alignItems: 'center', gap: '10px',
+      }}>
+        <div style={{
+          width: '36px', height: '36px', borderRadius: '8px',
+          background: 'rgba(239,68,68,0.12)',
+          border: '1px solid rgba(239,68,68,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '18px', flexShrink: 0,
+        }}>⚡</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '13px', fontWeight: '500', color: '#f1f5f9', marginBottom: '3px' }}>
+            {node.detail?.slice(0, 40) || 'Incident'}
+          </div>
+          <div style={{ fontSize: '10px', color: '#475569', fontFamily: 'JetBrains Mono, monospace' }}>
+            {[data.location?.slice(0, 30), data.date_time?.slice(0, 12)].filter(Boolean).join(' · ')}
+          </div>
+        </div>
+      </div>
+
+      {/* Risk meter */}
+      <div style={{ padding: '10px 14px', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
+        <div style={{
+          fontSize: '9px', color: '#475569', textTransform: 'uppercase',
+          letterSpacing: '.08em', fontFamily: 'JetBrains Mono, monospace', marginBottom: '6px',
+        }}>Risk profile</div>
+        <div style={{ display: 'flex', gap: '3px', marginBottom: '5px' }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{
+              flex: 1, height: '5px', borderRadius: '2px',
+              background: i <= riskScore
+                ? i <= 2 ? '#10b981' : i <= 3 ? '#f59e0b' : '#ef4444'
+                : 'rgba(255,255,255,0.08)',
+            }} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', fontFamily: 'JetBrains Mono, monospace' }}>
+          <span style={{ color: '#475569' }}>Low</span>
+          <span style={{ color: riskScore >= 4 ? '#ef4444' : riskScore >= 2 ? '#f59e0b' : '#10b981', fontWeight: '500' }}>
+            {riskScore >= 4 ? 'High risk' : riskScore >= 2 ? 'Medium risk' : 'Low risk'} · {riskScore}/5
+          </span>
+        </div>
+      </div>
+
+      {/* Claim snapshot */}
+      <div style={{ padding: '10px 14px', borderBottom: '0.5px solid rgba(255,255,255,0.07)' }}>
+        <div style={{
+          fontSize: '9px', color: '#475569', textTransform: 'uppercase',
+          letterSpacing: '.08em', fontFamily: 'JetBrains Mono, monospace', marginBottom: '8px',
+        }}>Claim snapshot</div>
+        {[
+          { dot: '#93c5fd', label: 'Vehicles', val: `${vehicles.length} involved` },
+          { dot: '#a78bfa', label: 'Parties', val: `${totalParties} total · ${injured} injured` },
+          {
+            dot: '#ef4444', label: 'Flags',
+            val: flags.length > 0 ? flags.map((f) => f.label).join(' · ') : 'None detected',
+            color: flags.length > 0 ? '#ef4444' : '#475569',
+          },
+        ].map((row, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 0',
+            borderBottom: i < 2 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
+            fontSize: '11px',
+          }}>
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: row.dot, flexShrink: 0 }} />
+            <span style={{ color: '#475569', width: '60px', flexShrink: 0, fontFamily: 'JetBrains Mono, monospace', fontSize: '10px' }}>
+              {row.label}
+            </span>
+            <span style={{ color: row.color || '#e2e8f0' }}>{row.val}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Next actions */}
+      <div style={{ padding: '10px 14px' }}>
+        <div style={{
+          fontSize: '9px', color: '#475569', textTransform: 'uppercase',
+          letterSpacing: '.08em', fontFamily: 'JetBrains Mono, monospace', marginBottom: '8px',
+        }}>Next actions</div>
+        {actions.map((a, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px',
+            background: 'rgba(255,255,255,0.03)', borderRadius: '6px', marginBottom: '5px',
+            border: '0.5px solid rgba(255,255,255,0.06)',
+          }}>
+            <div style={{
+              width: '18px', height: '18px', borderRadius: '50%',
+              background: a.color + '22', color: a.color, fontSize: '10px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'JetBrains Mono, monospace', flexShrink: 0,
+            }}>{i + 1}</div>
+            <span style={{ flex: 1, fontSize: '11px', color: '#e2e8f0', lineHeight: '1.4' }}>{a.text}</span>
+            <div style={{
+              fontSize: '9px', padding: '2px 6px', borderRadius: '10px',
+              background: a.color + '22', color: a.color,
+              fontFamily: 'JetBrains Mono, monospace', flexShrink: 0,
+            }}>{a.priority}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EntityCard({ node, color }) {
+  return (
+    <div style={{
+      padding: '12px 14px',
+      background: 'rgba(15,23,42,0.95)',
+      border: `0.5px solid ${color}44`,
+      borderLeft: `3px solid ${color}`,
+      borderRadius: '10px',
+    }}>
+      <div style={{
+        fontSize: '9px', color: color, textTransform: 'uppercase',
+        letterSpacing: '.08em', fontFamily: 'JetBrains Mono, monospace', marginBottom: '5px',
+      }}>{node.type}</div>
+      <div style={{ fontSize: '13px', fontWeight: '500', color: '#f1f5f9', marginBottom: '4px' }}>
+        {node.label}
+      </div>
+      <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: '1.5' }}>{node.detail}</div>
+    </div>
+  );
+}
+
 export default function GravityModel({ data }) {
   const svgRef = useRef(null);
   const [selected, setSelected] = useState(null);
@@ -335,31 +516,22 @@ export default function GravityModel({ data }) {
       />
 
       {selected && (
-        <div
-          style={{
-            marginTop: '10px',
-            padding: '10px 12px',
-            background: 'rgba(15,23,42,0.9)',
-            border: `0.5px solid ${selected.color}44`,
-            borderLeft: `3px solid ${selected.color}`,
-            borderRadius: '8px',
-            fontSize: '11px',
-            color: '#e2e8f0',
-            fontFamily: 'var(--mono-font)',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '9px',
-              color: selected.color,
-              textTransform: 'uppercase',
-              letterSpacing: '.08em',
-              marginBottom: '4px',
-            }}
-          >
-            {selected.type}
-          </div>
-          {selected.detail}
+        <div style={{ marginTop: '10px' }}>
+          {selected.type === 'incident' && (
+            <IncidentCard node={selected} data={data} />
+          )}
+          {selected.type === 'vehicle' && (
+            <EntityCard node={selected} color={selected.color} />
+          )}
+          {(selected.type === 'person' || selected.type === 'pedestrian') && (
+            <EntityCard node={selected} color={selected.color} />
+          )}
+          {selected.type === 'flag' && (
+            <EntityCard node={selected} color={selected.color} />
+          )}
+          {selected.type === 'condition' && (
+            <EntityCard node={selected} color={selected.color} />
+          )}
         </div>
       )}
     </div>
