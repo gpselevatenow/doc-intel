@@ -9,5 +9,9 @@ export default defineConfig({
   },
   resolve: {
     dedupe: ['framer-motion', 'react', 'react-dom']
+  },
+  server: {
+    port: 5173,
+    strictPort: true,
   }
 })
