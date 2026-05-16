@@ -116,6 +116,7 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [streamFile, setStreamFile] = useState(null);
   const [streamDocType, setStreamDocType] = useState('police_report');
+  const [streamBboxMap, setStreamBboxMap] = useState({});
 
   // --- Upload Handlers ---
   const handleFileSelect = (event) => {
@@ -428,6 +429,7 @@ function App() {
             onClick={() => {
               if (stagedFiles.length === 0) return;
               const f = stagedFiles[0];
+              setStreamBboxMap({});
               setStreamFile(f.file);
               setStreamDocType(
                 f.type === 'ia' ? 'ia_report'
@@ -668,17 +670,20 @@ function App() {
                   <ErrorBoundary>
                     <PDFViewer
                       pdfUrl={streamPdfUrl}
-                      bboxMap={{}}
-                      selectedField={null} />
+                      bboxMap={streamBboxMap}
+                      selectedField={selectedField} />
                   </ErrorBoundary>
                 )}
               </div>
               <StreamShell
                 file={streamFile}
                 docType={streamDocType}
-                onFieldClick={() => {}}
+                onFieldClick={(fid) => setSelectedField(fid)}
                 onFieldHover={() => {}}
-                onFieldHoverEnd={() => {}} />
+                onFieldHoverEnd={() => {}}
+                onBboxEntry={(fieldId, info) =>
+                  setStreamBboxMap(prev => ({ ...prev, [fieldId]: info }))
+                } />
             </div>
           </div>
         ) : activeView === 'upload' ? (
