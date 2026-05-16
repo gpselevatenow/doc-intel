@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Upload, ShieldCheck, Play, Trash2, ArrowLeft, Clock, PlusSquare, RefreshCw, Activity, Search, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { Upload, ShieldCheck, Play, Trash2, ArrowLeft, Clock, PlusSquare, RefreshCw, Activity, Search, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, GitCompare } from 'lucide-react';
 import ExtractionResults from './components/ExtractionResults';
 import DiscrepancyDashboard from './components/DiscrepancyDashboard';
 import BenchmarkingDashboard from './components/BenchmarkingDashboard';
+import DeltaView from './components/DeltaView';
 import logo from './assets/logo.jpg';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
@@ -282,6 +283,7 @@ function App() {
         { id:'upload', icon:<PlusSquare size={13}/>, label:'New extraction' },
         { id:'history', icon:<Clock size={13}/>, label:'History' },
         { id:'benchmarks', icon:<Activity size={13}/>, label:'Benchmarks' },
+        { id:'compare', icon:<GitCompare size={13}/>, label:'Compare' },
       ].map(item => (
         <div key={item.id} onClick={() => setActiveView(item.id)}
           style={{
@@ -584,6 +586,8 @@ function App() {
       <main className="main-content">
         {activeView === 'benchmarks' ? (
           <BenchmarkingDashboard />
+        ) : activeView === 'compare' ? (
+          <DeltaView />
         ) : activeView === 'upload' ? (
           renderUploadView()
         ) : (

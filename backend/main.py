@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 import os
 import re
 import shutil
@@ -707,6 +708,75 @@ def _bg_train():
         run_all_training()
     except Exception as e:
         print(f"Background training error: {e}")
+
+
+@app.post("/api/extract/delta")
+async def extract_delta(
+    file1: UploadFile = File(...),
+    file2: UploadFile = File(...),
+    doc_type: str = Form("police_report")
+):
+    import tempfile
+    import pdfplumber
+    results = []
+    for upload in [file1, file2]:
+        suffix = Path(upload.filename).suffix
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(await upload.read())
+            tmp_path = tmp.name
+        try:
+            text = ""
+            with pdfplumber.open(tmp_path) as pdf:
+                text = "\n".join(p.extract_text() or "" for p in pdf.pages)
+            markdown_text, canonical_doc = parse_document(tmp_path)
+            canonical_doc.markdown = text
+            form_id, _ = classify_form(text)
+            orchestrator_output = run_orchestrator(
+                canonical_doc, upload.filename, doc_type, form_id=form_id)
+            record = orchestrator_output["record"]
+            result = {}
+            for key in [
+                "date_time", "location", "weather", "road_surface",
+                "light_condition", "accident_type", "agency", "officer",
+                "report_number", "ems_agency", "contributing_factors",
+                "property_damage", "cause_of_loss", "settlement",
+                "subrogation", "coverage_a", "coverage_b",
+                "coverage_c", "coverage_d"
+            ]:
+                val = record.get(key)
+                if val:
+                    try:
+                        result[key] = json.loads(val) if val.startswith('[') else val
+                    except Exception:
+                        result[key] = val
+            results.append(result)
+        finally:
+            os.unlink(tmp_path)
+
+    r1, r2 = results[0], results[1]
+    all_keys = set(list(r1.keys()) + list(r2.keys()))
+    delta = {}
+    for key in all_keys:
+        v1 = r1.get(key)
+        v2 = r2.get(key)
+        if v1 == v2:
+            delta[key] = {"status": "unchanged", "v1": v1, "v2": v2}
+        elif v1 is None:
+            delta[key] = {"status": "added", "v1": None, "v2": v2}
+        elif v2 is None:
+            delta[key] = {"status": "removed", "v1": v1, "v2": None}
+        else:
+            delta[key] = {"status": "changed", "v1": v1, "v2": v2}
+
+    return {
+        "delta": delta,
+        "summary": {
+            "changed":   sum(1 for v in delta.values() if v["status"] == "changed"),
+            "added":     sum(1 for v in delta.values() if v["status"] == "added"),
+            "removed":   sum(1 for v in delta.values() if v["status"] == "removed"),
+            "unchanged": sum(1 for v in delta.values() if v["status"] == "unchanged"),
+        }
+    }
 
 
 @app.post("/api/feedback/correction")
