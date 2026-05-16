@@ -14,6 +14,7 @@ import traceback
 import threading
 
 from core.parser import parse_document, flatten_markdown_tables, normalize_label_value_blocks, find_bbox_for_text, split_narrative_section
+from core.ghost_predictor import get_ghost_predictions
 from core.ner_fallback import ner_fill_unknowns
 from core.field_validator import validate_record
 from core.confidence import score_record
@@ -563,6 +564,13 @@ async def extract_stream(
             })
             await asyncio.sleep(0.05)
 
+            early_signals = {}
+            ghost_preds = get_ghost_predictions(form_id, early_signals)
+            ghost_field_ids = {g["field_id"] for g in ghost_preds}
+            for ghost in ghost_preds:
+                yield emit(ghost)
+                await asyncio.sleep(0.03)
+
             yield emit({"type": "step",
                 "msg": "Extracting fields..."})
             await asyncio.sleep(0.05)
@@ -636,6 +644,15 @@ async def extract_stream(
                             "_", " ").title()
                     }
                 })
+
+                if field_id in ghost_field_ids:
+                    yield emit({
+                        "type": "ghost_resolve",
+                        "field_id": field_id,
+                        "real_value": str(parsed)[:120],
+                        "was_correct": False
+                    })
+
                 await asyncio.sleep(0.08)
 
             reserve_warning = bool(

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import InsightsPanel from './InsightsPanel';
 import PersonCard from './PersonCard';
 import VehicleCard from './VehicleCard';
+import GhostField from './GhostField';
 
 const FIELD_LABELS = {
   date_time: 'Date / time',
@@ -155,6 +156,8 @@ export default function StreamShell({
   const [done, setDone] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [syntheticData, setSyntheticData] = useState(null);
+  const [ghosts, setGhosts] = useState({});
+  const [ghostResolutions, setGhostResolutions] = useState({});
   const fieldIndex = useRef(0);
 
   // Keep refs so handleEvent closure always sees latest values
@@ -171,6 +174,8 @@ export default function StreamShell({
     setParties([]);
     setDone(false);
     setSyntheticData(null);
+    setGhosts({});
+    setGhostResolutions({});
     fieldIndex.current = 0;
     flagsRef.current = [];
     vehiclesRef.current = [];
@@ -214,6 +219,12 @@ export default function StreamShell({
       case 'step':
       case 'classified':
         setSteps(prev => [...prev, { msg: event.msg, status: 'done' }]);
+        break;
+      case 'ghost':
+        setGhosts(prev => ({ ...prev, [event.field_id]: event }));
+        break;
+      case 'ghost_resolve':
+        setGhostResolutions(prev => ({ ...prev, [event.field_id]: event.real_value }));
         break;
       case 'field':
         setFields(prev => [...prev, { ...event, index: fieldIndex.current++ }]);
@@ -295,6 +306,48 @@ export default function StreamShell({
           fontFamily: 'var(--mono-font)',
         }}>
           ⚠ Reserve language detected
+        </div>
+      )}
+
+      {Object.keys(ghosts).length > 0 && (
+        <div style={{ padding: '14px 16px 0' }}>
+          <div style={{
+            fontSize: '9px',
+            color: 'rgba(147,197,253,0.6)',
+            textTransform: 'uppercase',
+            letterSpacing: '.1em',
+            fontFamily: 'var(--mono-font)',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <div style={{
+              width: '6px', height: '6px',
+              borderRadius: '50%',
+              background: 'rgba(147,197,253,0.5)',
+              animation: 'heartbeatPulse 1.5s infinite',
+            }} />
+            Predicted fields
+            <span style={{
+              fontSize: '9px',
+              color: 'rgba(147,197,253,0.4)',
+              fontStyle: 'italic',
+            }}>
+              — based on {Object.values(ghosts)[0]?.basis?.split(' ').slice(-2).join(' ')}
+            </span>
+          </div>
+          {Object.entries(ghosts).map(([fid, ghost]) => (
+            <GhostField
+              key={fid}
+              field_id={fid}
+              predicted_value={ghost.predicted_value}
+              confidence={ghost.confidence}
+              basis={ghost.basis}
+              resolvedValue={ghostResolutions[fid]}
+              isResolved={fid in ghostResolutions}
+            />
+          ))}
         </div>
       )}
 
