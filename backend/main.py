@@ -59,6 +59,22 @@ def _na_if_none(val, fallback="N/A"):
     return val
 
 
+def compute_risk_level(result: dict) -> str:
+    score = 0
+    if result.get("reserve_warning"): score += 3
+    if result.get("subrogation"): score += 2
+    vehicles = result.get("vehicles") or []
+    operators = result.get("operators") or []
+    if len(vehicles) >= 3: score += 1
+    if len(operators) >= 3: score += 1
+    accident = result.get("accident_type") or ""
+    if any(w in accident.lower() for w in ["fatality", "fatal", "death", "dui", "rollover"]):
+        score += 2
+    if score >= 5: return "high"
+    if score >= 2: return "medium"
+    return "low"
+
+
 def _check_reserve_warning(text: str) -> tuple:
     """Return (True, sentence) if the document contains reserve language, else (False, None)."""
     match = re.search(r'[^.!?\n]*\breserve\b[^.!?\n]*[.!?]?', text, re.IGNORECASE)
@@ -316,6 +332,7 @@ async def extract_ia(file: UploadFile = File(...)):
                                     bbox_map[f"{role}[{i}].{sub_field}"] = hit
                             except Exception:
                                 pass
+        result["risk_level"] = compute_risk_level(result)
         result["bbox_map"] = bbox_map
         return result
 
@@ -505,6 +522,7 @@ async def extract_police(file: UploadFile = File(...)):
                                     bbox_map[f"{role}[{i}].{sub_field}"] = hit
                             except Exception:
                                 pass
+        result["risk_level"] = compute_risk_level(result)
         result["bbox_map"] = bbox_map
         return result
 

@@ -3,6 +3,7 @@ import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Tr
 import EditableField from './EditableField';
 import TypewriterValue from './TypewriterValue';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AmbientRisk } from './AmbientRisk';
 
 const Badge = () => (
   <span className="badge" title="High Confidence (Regex Validated)">
@@ -405,12 +406,21 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     } catch (e) { console.error("Failed to submit feedback", e); }
   };
 
+  const riskLevel = data?.risk_level || 'low';
+
   const renderAccuracyBadge = () => {
     const score = data.accuracy_score || 0;
     const isHigh = score >= 90;
     const isMid = score >= 70 && score < 90;
     const color = isHigh ? 'var(--success-bright)' : isMid ? 'var(--warning)' : 'var(--danger)';
     const label = isHigh ? 'High confidence' : isMid ? 'Review recommended' : 'Escalation required';
+
+    const riskColors = {
+      low: { color: 'var(--success-bright)', label: 'Low risk' },
+      medium: { color: 'var(--warning)', label: 'Medium risk' },
+      high: { color: 'var(--danger)', label: 'High risk' },
+    };
+    const risk = riskColors[riskLevel] || riskColors.low;
 
     return (
       <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -420,6 +430,22 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           </div>
           <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em', marginTop: '4px', fontFamily: 'var(--mono-font)' }}>
             Avg extraction confidence
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '10px',
+            color: risk.color,
+            fontFamily: 'var(--mono-font)',
+            marginTop: '6px',
+          }}>
+            <div style={{
+              width: '6px', height: '6px',
+              borderRadius: '50%',
+              background: risk.color,
+            }} />
+            {risk.label}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color, background: isHigh ? 'var(--success-bg)' : 'rgba(245,158,11,0.08)', padding: '6px 12px', borderRadius: '6px', fontFamily: 'var(--mono-font)', border: `0.5px solid ${isHigh ? 'var(--success-border)' : 'rgba(245,158,11,0.25)'}` }}>
@@ -486,6 +512,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   if (type === 'acord') {
     return (
       <div className="fade-in">
+        <AmbientRisk riskLevel={riskLevel} />
         {renderAuditModal()}
         {renderAccuracyBadge()}
         {renderInsights()}
@@ -524,6 +551,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
   if (type === 'ia') {
     return (
       <div className="fade-in">
+        <AmbientRisk riskLevel={riskLevel} />
         {renderAuditModal()}
         <ReserveWarningBanner reserveWarning={data.reserve_warning} reserveText={reserveText} />
         {renderAccuracyBadge()}
@@ -581,6 +609,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
 
   return (
     <div className="fade-in">
+      <AmbientRisk riskLevel={riskLevel} />
       {renderAuditModal()}
       {renderAccuracyBadge()}
       {renderInsights()}
