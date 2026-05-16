@@ -370,7 +370,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
 
   const fetchCustomFields = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8002/api/settings/fields/${encodeURIComponent(docId)}`);
+      const res = await fetch(`http://127.0.0.1:8005/api/settings/fields/${encodeURIComponent(docId)}`);
       const json = await res.json();
       if (json.status === 'success') setCustomFields(json.fields);
     } catch (e) { console.error("Failed to fetch custom fields", e); }
@@ -380,7 +380,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
     e.preventDefault();
     if (!newField.trim() || !docId) return;
     try {
-      await fetch('http://127.0.0.1:8002/api/settings/fields', {
+      await fetch('http://127.0.0.1:8005/api/settings/fields', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId, field_name: newField.trim() })
       });
@@ -390,14 +390,14 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
 
   const deleteField = async (fieldName) => {
     try {
-      await fetch(`http://127.0.0.1:8002/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, { method: 'DELETE' });
+      await fetch(`http://127.0.0.1:8005/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, { method: 'DELETE' });
       fetchCustomFields();
     } catch (e) { console.error(e); }
   };
 
   const submitFeedback = async (action) => {
     try {
-      await fetch('http://127.0.0.1:8002/api/feedback/rate', {
+      await fetch('http://127.0.0.1:8005/api/feedback/rate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId || 'unknown_doc', action })
       });
