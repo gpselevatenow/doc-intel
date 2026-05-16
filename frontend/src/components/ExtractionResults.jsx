@@ -250,7 +250,7 @@ function ReserveWarningBanner({ reserveWarning, reserveText }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, onReprocess, selectedField }) => {
+const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFieldHoverEnd, isReprocessing, onReprocess, selectedField }) => {
   const [recommendations, setRecommendations] = useState('');
   const [customFields, setCustomFields] = useState([]);
   const [newField, setNewField] = useState('');
@@ -535,6 +535,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
               <div key={fid} style={{ animation: `fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) ${index * 400}ms both` }}>
                 <motion.div
                   onClick={() => onFieldClick(fid)}
+                  onMouseEnter={() => onFieldHover?.(fid)}
+                  onMouseLeave={() => onFieldHoverEnd?.()}
                   style={{ cursor: 'pointer', ...confStyle(fid) }}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
@@ -592,6 +594,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 0ms both' }}>
             <motion.div
               onClick={() => onFieldClick('date_time')}
+              onMouseEnter={() => onFieldHover?.('date_time')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('date_time') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -603,6 +607,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 400ms both' }}>
             <motion.div
               onClick={() => onFieldClick('location')}
+              onMouseEnter={() => onFieldHover?.('location')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('location') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -614,6 +620,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 800ms both' }}>
             <motion.div
               onClick={() => onFieldClick('weather')}
+              onMouseEnter={() => onFieldHover?.('weather')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('weather') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -625,6 +633,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2000ms both' }}>
             <motion.div
               onClick={() => onFieldClick('accident_type')}
+              onMouseEnter={() => onFieldHover?.('accident_type')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('accident_type') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -636,6 +646,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 3600ms both' }}>
             <motion.div
               onClick={() => onFieldClick('ems_agency')}
+              onMouseEnter={() => onFieldHover?.('ems_agency')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('ems_agency') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -647,6 +659,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 1600ms both' }}>
             <motion.div
               onClick={() => onFieldClick('light_condition')}
+              onMouseEnter={() => onFieldHover?.('light_condition')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('light_condition') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -658,6 +672,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 1200ms both' }}>
             <motion.div
               onClick={() => onFieldClick('road_surface')}
+              onMouseEnter={() => onFieldHover?.('road_surface')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('road_surface') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -676,6 +692,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2400ms both' }}>
             <motion.div
               onClick={() => onFieldClick('agency')}
+              onMouseEnter={() => onFieldHover?.('agency')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('agency') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -687,6 +705,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2800ms both' }}>
             <motion.div
               onClick={() => onFieldClick('officer')}
+              onMouseEnter={() => onFieldHover?.('officer')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('officer') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -698,6 +718,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, on
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 3200ms both' }}>
             <motion.div
               onClick={() => onFieldClick('report_number')}
+              onMouseEnter={() => onFieldHover?.('report_number')}
+              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('report_number') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}

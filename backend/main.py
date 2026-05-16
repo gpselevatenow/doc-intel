@@ -292,7 +292,7 @@ async def extract_ia(file: UploadFile = File(...)):
                 if isinstance(val, str) and key not in ("summary", "accuracy_reasons"):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
                     if bbox_info:
-                        bbox_map[key] = bbox_info
+                        bbox_map[key] = {**bbox_info, "value": str(val)[:80]}
             for i, vehicle in enumerate(result.get("vehicles", []) or []):
                 for sub_field in ["vin", "plate", "owner_name", "owner_address",
                                    "insurance_company", "policy_number", "damages"]:
@@ -476,7 +476,7 @@ async def extract_police(file: UploadFile = File(...)):
                 if isinstance(val, str) and key not in ("summary", "accuracy_reasons"):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
                     if bbox_info:
-                        bbox_map[key] = bbox_info
+                        bbox_map[key] = {**bbox_info, "value": str(val)[:80]}
             for key, val in result.get("dynamic_fields", {}).items():
                 if isinstance(val, str):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
@@ -575,7 +575,7 @@ async def extract_acord(file: UploadFile = File(...)):
                 if isinstance(val, str) and key not in ("summary", "accuracy_reasons"):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
                     if bbox_info:
-                        bbox_map[key] = bbox_info
+                        bbox_map[key] = {**bbox_info, "value": str(val)[:80]}
             for key, val in result.get("dynamic_fields", {}).items():
                 if isinstance(val, str):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
@@ -680,7 +680,7 @@ async def extract_hsmv(file: UploadFile = File(...)):
                 if isinstance(val, str) and key not in ("summary", "accuracy_reasons"):
                     bbox_info = find_bbox_for_text(canonical_doc, val)
                     if bbox_info:
-                        bbox_map[key] = bbox_info
+                        bbox_map[key] = {**bbox_info, "value": str(val)[:80]}
         result["bbox_map"] = bbox_map
         return result
 

@@ -34,7 +34,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
+const PDFViewer = ({ pdfUrl, bboxMap, selectedField, hoveredField }) => {
   const jumpToPageRef = useRef(null);
   const zoomRef = useRef(null);
   const selectedFieldRef = useRef(selectedField);
@@ -70,7 +70,7 @@ const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
     if (zoomRef.current) zoomRef.current(next);
   };
 
-  const bboxPluginInstance = bboxPlugin({ bboxMap, selectedFieldRef });
+  const bboxPluginInstance = bboxPlugin({ bboxMap, selectedField, hoveredField });
 
   return (
     <div style={{ height: '100%', width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -109,6 +109,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState({ current: 0, total: 0 });
   const [selectedField, setSelectedField] = useState(null);
+  const [hoveredField, setHoveredField] = useState(null);
   const [isCrossReferencing, setIsCrossReferencing] = useState(false);
   const [pdfSearchText, setPdfSearchText] = useState('');
   const [isReprocessingId, setIsReprocessingId] = useState(null);
@@ -542,10 +543,11 @@ function App() {
             <>
               <div className="pane left-pane" style={{ overflow: 'hidden' }}>
                 <ErrorBoundary>
-                  <PDFViewer 
-                    pdfUrl={selectedResult.pdfUrl} 
+                  <PDFViewer
+                    pdfUrl={selectedResult.pdfUrl}
                     bboxMap={selectedResult.data?.bbox_map || {}}
-                    selectedField={selectedField} 
+                    selectedField={selectedField}
+                    hoveredField={hoveredField}
                   />
                 </ErrorBoundary>
               </div>
@@ -557,6 +559,8 @@ function App() {
                     data={selectedResult.data}
                     docId={selectedResult.name}
                     onFieldClick={(fieldId) => setSelectedField(fieldId)}
+                    onFieldHover={(fieldId) => setHoveredField(fieldId)}
+                    onFieldHoverEnd={() => setHoveredField(null)}
                     selectedField={selectedField}
                     isReprocessing={isReprocessingId === selectedResult.id}
                     onReprocess={() => reprocessResult(selectedResult.id)}

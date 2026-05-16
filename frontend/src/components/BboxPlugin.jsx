@@ -1,66 +1,127 @@
 import React from 'react';
 
 export const bboxPlugin = (props) => {
-    const { bboxMap, selectedFieldRef } = props;
+  const { bboxMap, selectedField, hoveredField } = props;
 
-    return {
-        renderPageLayer: (renderPageProps) => {
-            // Find all boxes that belong to this page
-            // bboxMap is like { "location": { bbox: [l,t,r,b], page: 1 }, "date_time": ... }
-            const currentBoxes = [];
-            if (bboxMap) {
-                Object.entries(bboxMap).forEach(([fieldId, info]) => {
-                    if (info.page === renderPageProps.pageIndex + 1) {
-                        currentBoxes.push({ fieldId, ...info });
-                    }
-                });
-            }
+  return {
+    renderPageLayer: (renderPageProps) => {
+      const { pageIndex, width, height } = renderPageProps;
+      const PAGE_HEIGHT_PT = height / renderPageProps.scale;
 
-            if (currentBoxes.length === 0) return <React.Fragment />;
+      const boxes = Object.entries(bboxMap || {})
+        .filter(([_, info]) => info.page === pageIndex + 1)
+        .map(([fieldId, info]) => {
+          const [l, t, r, b] = info.bbox;
+          const scaleX = width / 612;
+          const flippedT = PAGE_HEIGHT_PT - t;
+          const flippedB = PAGE_HEIGHT_PT - b;
+          const left = l * scaleX;
+          const top = Math.min(flippedT, flippedB) * scaleX;
+          const w = (r - l) * scaleX;
+          const h = Math.abs(flippedT - flippedB) * scaleX;
+          const isSelected = fieldId === selectedField;
+          const isHovered = fieldId === hoveredField;
+          return { fieldId, left, top, w, h, isSelected, isHovered };
+        });
 
-            return (
-                <>
-                    {currentBoxes.map((box, idx) => {
-                        if (!box.bbox || box.bbox.length < 4) return null;
-                        const [l, t, r, b] = box.bbox;
-                        // docling returns bboxes in absolute PDF points.
-                        // renderPageProps gives us the scaled width/height.
-                        // We use percentages to map the points onto the scaled container.
-                        // docling origin is BOTTOM-LEFT. CSS top is TOP-LEFT.
-                        const pageWidthPt = renderPageProps.width / renderPageProps.scale;
-                        const pageHeightPt = renderPageProps.height / renderPageProps.scale;
+      return (
+        <div style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none', overflow: 'visible',
+        }}>
+          {boxes.map(({ fieldId, left, top, w, h, isSelected, isHovered }) => (
+            <div key={fieldId}>
 
-                        const left = (l / pageWidthPt) * 100;
-                        const top = ((pageHeightPt - t) / pageHeightPt) * 100;
-                        const width = ((r - l) / pageWidthPt) * 100;
-                        const height = ((t - b) / pageHeightPt) * 100;
+              {/* Highlight box */}
+              <div style={{
+                position: 'absolute',
+                left, top, width: w, height: h,
+                border: isSelected
+                  ? '2px solid #ef4444'
+                  : isHovered
+                  ? '2px solid #93c5fd'
+                  : '1px solid rgba(147,197,253,0.4)',
+                background: isSelected
+                  ? 'rgba(239,68,68,0.12)'
+                  : isHovered
+                  ? 'rgba(147,197,253,0.15)'
+                  : 'rgba(147,197,253,0.06)',
+                borderRadius: '2px',
+                transition: 'all 0.2s ease',
+                animation: isSelected ? 'selectedPulse 0.8s ease-out' : 'none',
+              }} />
 
-                        const isSelected = selectedFieldRef.current === box.fieldId;
+              {/* Semantic Lens card — only on hover */}
+              {isHovered && (
+                <div style={{
+                  position: 'absolute',
+                  left: left + w + 8,
+                  top: Math.max(0, top - 8),
+                  width: '200px',
+                  background: 'rgba(6,14,29,0.92)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: '0.5px solid rgba(147,197,253,0.3)',
+                  borderRadius: '10px',
+                  padding: '12px 14px',
+                  zIndex: 100,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                  animation: 'lensAppear 0.15s ease-out',
+                }}>
+                  {/* Field ID label */}
+                  <div style={{
+                    fontSize: '9px',
+                    color: '#93c5fd',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    textTransform: 'uppercase',
+                    letterSpacing: '.1em',
+                    marginBottom: '6px',
+                  }}>
+                    {fieldId.replace(/_/g, ' ')}
+                  </div>
 
-                        return (
-                            <div
-                                key={idx}
-                                title={box.fieldId}
-                                style={{
-                                    position: 'absolute',
-                                    left: `${left}%`,
-                                    top: `${top}%`,
-                                    width: `${width}%`,
-                                    height: `${height}%`,
-                                    border: isSelected ? '2px solid red' : '1px solid var(--accent)',
-                                    backgroundColor: isSelected ? 'rgba(255, 0, 0, 0.25)' : 'rgba(0, 204, 255, 0.1)',
-                                    zIndex: isSelected ? 20 : 10,
-                                    pointerEvents: 'none',
-                                    borderRadius: '2px',
-                                    transition: 'all 0.2s ease-in-out',
-                                    boxShadow: isSelected ? '0 0 8px rgba(255,0,0,0.5)' : 'none',
-                                    animation: isSelected ? 'selectedPulse 0.8s ease-out' : 'none'
-                                }}
-                            />
-                        );
-                    })}
-                </>
-            );
-        }
-    };
+                  {/* Extracted value */}
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#f1f5f9',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    lineHeight: '1.4',
+                    marginBottom: '8px',
+                    wordBreak: 'break-word',
+                  }}>
+                    {bboxMap[fieldId]?.value || '—'}
+                  </div>
+
+                  {/* Connector line */}
+                  <div style={{
+                    position: 'absolute',
+                    left: '-8px',
+                    top: '16px',
+                    width: '8px',
+                    height: '1px',
+                    background: 'rgba(147,197,253,0.5)',
+                  }} />
+
+                  {/* Source tag */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{
+                      width: '6px', height: '6px',
+                      borderRadius: '50%',
+                      background: '#10b981',
+                    }} />
+                    <span style={{
+                      fontSize: '10px',
+                      color: '#475569',
+                      fontFamily: 'JetBrains Mono, monospace',
+                    }}>extracted · auto-accepted</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+  };
 };
