@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import InsightsPanel from './InsightsPanel';
 import PersonCard from './PersonCard';
 import VehicleCard from './VehicleCard';
+import GravityModel from './GravityModel';
 
 const FIELD_LABELS = {
   date_time: 'Date / time',
@@ -361,6 +362,27 @@ export default function StreamShell({
             <PersonCard key={i} party={p} index={i} />
           ))}
         </div>
+      )}
+
+      {done && syntheticData && (
+        <GravityModel data={{
+          ...syntheticData,
+          accident_type: fields.find(
+            f => f.field_id === 'accident_type'
+          )?.value,
+          weather: fields.find(
+            f => f.field_id === 'weather'
+          )?.value,
+          subrogation: fields.find(
+            f => f.field_id === 'subrogation'
+          )?.value,
+          vehicles,
+          operators: parties.filter(p =>
+            p.role?.toLowerCase() === 'operator'),
+          pedestrians: parties.filter(p =>
+            p.role?.toLowerCase() === 'pedestrian' ||
+            p.role?.toLowerCase() === 'bicyclist'),
+        }} />
       )}
     </div>
   );
