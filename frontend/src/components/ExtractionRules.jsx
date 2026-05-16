@@ -13,7 +13,7 @@ export default function ExtractionRules() {
   const fetchFields = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/settings/fields');
+      const res = await fetch('http://localhost:8002/api/settings/fields');
       const data = await res.json();
       if (data.status === 'success') {
         setFields(data.fields);
@@ -29,7 +29,7 @@ export default function ExtractionRules() {
     if (!newField.trim()) return;
     
     try {
-      await fetch('http://localhost:8000/api/settings/fields', {
+      await fetch('http://localhost:8002/api/settings/fields', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ field_name: newField.trim() })
@@ -43,7 +43,7 @@ export default function ExtractionRules() {
 
   const deleteField = async (fieldName) => {
     try {
-      await fetch(`http://localhost:8000/api/settings/fields/${encodeURIComponent(fieldName)}`, {
+      await fetch(`http://localhost:8002/api/settings/fields/${encodeURIComponent(fieldName)}`, {
         method: 'DELETE'
       });
       fetchFields();
