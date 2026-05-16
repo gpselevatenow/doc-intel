@@ -636,6 +636,19 @@ async def extract_stream(
                             "_", " ").title()
                     }
                 })
+
+                if canonical_doc and isinstance(val, str):
+                    bbox_info = find_bbox_for_text(
+                        canonical_doc, str(val)[:80])
+                    if bbox_info:
+                        yield emit({
+                            "type": "bbox",
+                            "field_id": field_id,
+                            "bbox": bbox_info["bbox"],
+                            "page": bbox_info["page"],
+                            "value": str(val)[:80]
+                        })
+
                 await asyncio.sleep(0.08)
 
             reserve_warning = bool(
@@ -652,23 +665,6 @@ async def extract_stream(
                     "msg": "Reserve language detected"
                 })
                 await asyncio.sleep(0.05)
-
-            # Yield bbox entries for heartbeat rendering
-            if canonical_doc:
-                for key, val in record.items():
-                    if isinstance(val, str) and \
-                       key not in ("summary",
-                           "accuracy_reasons"):
-                        bbox_info = find_bbox_for_text(
-                            canonical_doc, val)
-                        if bbox_info:
-                            yield emit({
-                                "type": "bbox",
-                                "field_id": key,
-                                "bbox": bbox_info["bbox"],
-                                "page": bbox_info["page"],
-                                "value": str(val)[:80]
-                            })
 
             vehicles = []
             try:
