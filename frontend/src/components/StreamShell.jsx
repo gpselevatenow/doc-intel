@@ -181,7 +181,7 @@ export default function StreamShell({
     formData.append('file', file);
     formData.append('doc_type', docType || 'police_report');
 
-    fetch('http://localhost:8002/api/extract/stream',
+    fetch('http://localhost:8006/api/extract/stream',
       { method: 'POST', body: formData })
       .then(res => {
         const reader = res.body.getReader();
