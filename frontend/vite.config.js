@@ -4,9 +4,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5175,
+    port: 5177,
     strictPort: true,
-    proxy: { '/api': 'http://localhost:8002' }
+    proxy: { '/api': 'http://localhost:8004' }
   },
   optimizeDeps: {
     include: ['framer-motion', '@react-pdf-viewer/search'],
