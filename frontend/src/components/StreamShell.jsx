@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import InsightsPanel from './InsightsPanel';
+import PersonCard from './PersonCard';
+import VehicleCard from './VehicleCard';
 
 const FIELD_LABELS = {
   date_time: 'Date / time',
@@ -236,9 +238,9 @@ export default function StreamShell({
           accuracy_score: 97,
           reserve_warning: flagsRef.current.includes('reserve'),
           vehicles: vehiclesRef.current,
-          operators: partiesRef.current.filter(p => p.role === 'operator'),
-          passengers: partiesRef.current.filter(p => p.role === 'passenger'),
-          pedestrians: partiesRef.current.filter(p => p.role === 'pedestrian'),
+          operators: partiesRef.current.filter(p => p.role?.toLowerCase() === 'operator'),
+          passengers: partiesRef.current.filter(p => p.role?.toLowerCase() === 'passenger'),
+          pedestrians: partiesRef.current.filter(p => ['pedestrian', 'bicyclist'].includes(p.role?.toLowerCase())),
         });
         break;
     }
@@ -317,6 +319,46 @@ export default function StreamShell({
               onFieldHover={onFieldHover}
               onFieldHoverEnd={onFieldHoverEnd}
             />
+          ))}
+        </div>
+      )}
+
+      {vehicles.length > 0 && (
+        <div style={{ padding: '0 16px 14px' }}>
+          <div style={{
+            fontSize: '9px',
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '.1em',
+            fontFamily: 'var(--mono-font)',
+            marginBottom: '10px',
+            paddingTop: '14px',
+            borderTop: '0.5px solid var(--nav-border)',
+          }}>
+            Vehicles ({vehicles.length})
+          </div>
+          {vehicles.map((v, i) => (
+            <VehicleCard key={i} vehicle={v} index={i} />
+          ))}
+        </div>
+      )}
+
+      {parties.length > 0 && (
+        <div style={{ padding: '0 16px 14px' }}>
+          <div style={{
+            fontSize: '9px',
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '.1em',
+            fontFamily: 'var(--mono-font)',
+            marginBottom: '10px',
+            paddingTop: '14px',
+            borderTop: '0.5px solid var(--nav-border)',
+          }}>
+            Parties ({parties.length})
+          </div>
+          {parties.map((p, i) => (
+            <PersonCard key={i} party={p} index={i} />
           ))}
         </div>
       )}
