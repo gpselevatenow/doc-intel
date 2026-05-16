@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
+import InsightsPanel from './InsightsPanel';
 import EditableField from './EditableField';
 import TypewriterValue from './TypewriterValue';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -405,90 +406,13 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
     } catch (e) { console.error("Failed to submit feedback", e); }
   };
 
-  const renderAccuracyBadge = () => {
-    const score = data.accuracy_score || 0;
-    const isHigh = score >= 90;
-    const isMid = score >= 70 && score < 90;
-    const color = isHigh ? 'var(--success-bright)' : isMid ? 'var(--warning)' : 'var(--danger)';
-    const label = isHigh ? 'High confidence' : isMid ? 'Review recommended' : 'Escalation required';
-
-    return (
-      <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: '28px', fontWeight: '500', color, fontFamily: 'var(--mono-font)', lineHeight: 1 }}>
-            {score.toFixed(1)}%
-          </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em', marginTop: '4px', fontFamily: 'var(--mono-font)' }}>
-            Avg extraction confidence
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color, background: isHigh ? 'var(--success-bg)' : 'rgba(245,158,11,0.08)', padding: '6px 12px', borderRadius: '6px', fontFamily: 'var(--mono-font)', border: `0.5px solid ${isHigh ? 'var(--success-border)' : 'rgba(245,158,11,0.25)'}` }}>
-          <ShieldCheck size={13} />
-          {label}
-        </div>
-      </div>
-    );
-  };
-
-  const renderInsights = () => {
-    const chips = [];
-    const actions = [];
-
-    if (data.reserve_warning) chips.push({ label: 'Reserve language detected', color: 'var(--danger)', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)', icon: '⚠' });
-    if (data.subrogation && data.subrogation.toLowerCase().includes('investig')) chips.push({ label: 'Subrogation opportunity', color: 'var(--warning)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', icon: '⚖' });
-    const opCount = (data.operators || []).length + (data.passengers || []).length + (data.pedestrians || []).length;
-    if (opCount > 0) chips.push({ label: `${opCount} parties identified`, color: 'var(--accent)', bg: 'var(--accent-bg)', border: 'var(--accent-border)', icon: '◎' });
-    const vCount = (data.vehicles || []).length;
-    if (vCount > 0) chips.push({ label: `${vCount} vehicles`, color: 'var(--accent)', bg: 'var(--accent-bg)', border: 'var(--accent-border)', icon: '⬡' });
-    if (data.coverage_a) chips.push({ label: 'Coverage A confirmed', color: 'var(--success-bright)', bg: 'var(--success-bg)', border: 'var(--success-border)', icon: '✓' });
-
-    if (data.reserve_warning) actions.push(`Set reserve — ${data.settlement || 'amount TBD'}`);
-    if (data.subrogation && data.subrogation.toLowerCase().includes('investig')) actions.push('File subrogation preservation letter');
-    if (!data.agency || data.agency === 'Unknown') actions.push('Request agency supplement');
-    if (opCount > 3) actions.push('Review liability across all parties');
-    if (actions.length === 0) actions.push('Review extracted fields and submit to ClaimCenter');
-
-    if (chips.length === 0 && actions.length === 0) return null;
-
-    return (
-      <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)' }}>
-        {chips.length > 0 && (
-          <div style={{ marginBottom: '14px' }}>
-            <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)', marginBottom: '8px' }}>Signals detected</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {chips.map((chip, i) => (
-                <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', color: chip.color, background: chip.bg, border: `0.5px solid ${chip.border}` }}>
-                  <span style={{ fontSize: '10px' }}>{chip.icon}</span>
-                  {chip.label}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {actions.length > 0 && (
-          <div>
-            <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)', marginBottom: '8px' }}>Next actions</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {actions.map((action, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px 12px', background: 'var(--surface-3)', borderRadius: '6px', fontSize: '12px', color: '#e2e8f0' }}>
-                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent-bg)', border: '0.5px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--accent)', fontFamily: 'var(--mono-font)', flexShrink: 0, marginTop: '1px' }}>{i + 1}</div>
-                  <span style={{ lineHeight: '1.4' }}>{action}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // ── ACORD render ─────────────────────────────────────────────────────────
   if (type === 'acord') {
     return (
       <div className="fade-in">
         {renderAuditModal()}
-        {renderAccuracyBadge()}
-        {renderInsights()}
+        <InsightsPanel data={data} type={type} />
         <div className="glass-card">
           <SectionHeader icon={FileText} title="Extracted ACORD Data" />
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to edit and train the NLP engine.</p>
@@ -526,8 +450,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
       <div className="fade-in">
         {renderAuditModal()}
         <ReserveWarningBanner reserveWarning={data.reserve_warning} reserveText={reserveText} />
-        {renderAccuracyBadge()}
-        {renderInsights()}
+        <InsightsPanel data={data} type={type} />
         <div className="glass-card">
           <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
@@ -584,8 +507,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
   return (
     <div className="fade-in">
       {renderAuditModal()}
-      {renderAccuracyBadge()}
-      {renderInsights()}
+      <InsightsPanel data={data} type={type} />
 
       {/* ── Incident Summary ─────────────────────────────────────────── */}
       <div className="glass-card">
