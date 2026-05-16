@@ -35,11 +35,15 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
+const PDFViewer = ({ pdfUrl, bboxMap, selectedField, heartbeatField, extractedFields }) => {
   const jumpToPageRef = useRef(null);
   const zoomRef = useRef(null);
   const selectedFieldRef = useRef(selectedField);
   selectedFieldRef.current = selectedField;
+  const heartbeatFieldRef = useRef(heartbeatField);
+  heartbeatFieldRef.current = heartbeatField;
+  const extractedFieldsRef = useRef(extractedFields);
+  extractedFieldsRef.current = extractedFields;
   const [searchQuery, setSearchQuery] = useState('');
   const [scale, setScale] = useState(1.0);
 
@@ -71,7 +75,12 @@ const PDFViewer = ({ pdfUrl, bboxMap, selectedField }) => {
     if (zoomRef.current) zoomRef.current(next);
   };
 
-  const bboxPluginInstance = bboxPlugin({ bboxMap, selectedFieldRef });
+  const bboxPluginInstance = bboxPlugin({
+    bboxMap,
+    selectedFieldRef,
+    heartbeatFieldRef,
+    extractedFieldsRef,
+  });
 
   return (
     <div style={{ height: '100%', width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -116,6 +125,13 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [streamFile, setStreamFile] = useState(null);
   const [streamDocType, setStreamDocType] = useState('police_report');
+  const [heartbeatField, setHeartbeatField] = useState(null);
+  const [extractedFields, setExtractedFields] = useState(new Set());
+
+  useEffect(() => {
+    setHeartbeatField(null);
+    setExtractedFields(new Set());
+  }, [streamFile]);
 
   // --- Upload Handlers ---
   const handleFileSelect = (event) => {
@@ -669,7 +685,9 @@ function App() {
                     <PDFViewer
                       pdfUrl={streamPdfUrl}
                       bboxMap={{}}
-                      selectedField={null} />
+                      selectedField={null}
+                      heartbeatField={heartbeatField}
+                      extractedFields={extractedFields} />
                   </ErrorBoundary>
                 )}
               </div>
@@ -678,7 +696,9 @@ function App() {
                 docType={streamDocType}
                 onFieldClick={() => {}}
                 onFieldHover={() => {}}
-                onFieldHoverEnd={() => {}} />
+                onFieldHoverEnd={() => {}}
+                onFieldHeartbeat={(fid) => setHeartbeatField(fid)}
+                onFieldExtracted={(fid) => setExtractedFields(prev => new Set([...prev, fid]))} />
             </div>
           </div>
         ) : activeView === 'upload' ? (

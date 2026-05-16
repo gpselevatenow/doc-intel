@@ -1,66 +1,101 @@
 import React from 'react';
 
 export const bboxPlugin = (props) => {
-    const { bboxMap, selectedFieldRef } = props;
+  const {
+    bboxMap,
+    selectedFieldRef,
+    hoveredFieldRef,
+    heartbeatFieldRef,
+    extractedFieldsRef,
+  } = props;
 
-    return {
-        renderPageLayer: (renderPageProps) => {
-            // Find all boxes that belong to this page
-            // bboxMap is like { "location": { bbox: [l,t,r,b], page: 1 }, "date_time": ... }
-            const currentBoxes = [];
-            if (bboxMap) {
-                Object.entries(bboxMap).forEach(([fieldId, info]) => {
-                    if (info.page === renderPageProps.pageIndex + 1) {
-                        currentBoxes.push({ fieldId, ...info });
-                    }
-                });
+  return {
+    renderPageLayer: (renderPageProps) => {
+      const { pageIndex, width, height } = renderPageProps;
+      const PAGE_HEIGHT_PT = height / renderPageProps.scale;
+
+      const entries = Object.entries(bboxMap || {}).filter(
+        ([_, info]) => info.page === pageIndex + 1
+      );
+
+      if (entries.length === 0) return <React.Fragment />;
+
+      return (
+        <div style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none', overflow: 'visible',
+        }}>
+          {entries.map(([fieldId, info]) => {
+            const [l, t, r, b] = info.bbox;
+            const scaleX = width / 612;
+            const ph = PAGE_HEIGHT_PT;
+            const flippedT = ph - t;
+            const flippedB = ph - b;
+            const left = l * scaleX;
+            const top = Math.min(flippedT, flippedB) * scaleX;
+            const w = (r - l) * scaleX;
+            const h = Math.abs(flippedT - flippedB) * scaleX;
+
+            const isSelected  = selectedFieldRef?.current  === fieldId;
+            const isHovered   = hoveredFieldRef?.current   === fieldId;
+            const isHeartbeat = heartbeatFieldRef?.current === fieldId;
+            const isExtracted = extractedFieldsRef?.current?.has(fieldId);
+
+            let border, bg, animation;
+
+            if (isSelected) {
+              border    = '2px solid #ef4444';
+              bg        = 'rgba(239,68,68,0.12)';
+              animation = 'selectedPulse 0.8s ease-out';
+            } else if (isHeartbeat) {
+              border    = '2px solid rgba(147,197,253,0.9)';
+              bg        = 'rgba(147,197,253,0.2)';
+              animation = 'heartbeatPulse 0.8s ease-in-out infinite';
+            } else if (isExtracted) {
+              border    = '1.5px solid rgba(16,185,129,0.6)';
+              bg        = 'rgba(16,185,129,0.08)';
+              animation = 'none';
+            } else if (isHovered) {
+              border    = '2px solid rgba(139,92,246,0.8)';
+              bg        = 'rgba(139,92,246,0.15)';
+              animation = 'none';
+            } else {
+              return null;
             }
 
-            if (currentBoxes.length === 0) return <React.Fragment />;
-
             return (
-                <>
-                    {currentBoxes.map((box, idx) => {
-                        if (!box.bbox || box.bbox.length < 4) return null;
-                        const [l, t, r, b] = box.bbox;
-                        // docling returns bboxes in absolute PDF points.
-                        // renderPageProps gives us the scaled width/height.
-                        // We use percentages to map the points onto the scaled container.
-                        // docling origin is BOTTOM-LEFT. CSS top is TOP-LEFT.
-                        const pageWidthPt = renderPageProps.width / renderPageProps.scale;
-                        const pageHeightPt = renderPageProps.height / renderPageProps.scale;
-
-                        const left = (l / pageWidthPt) * 100;
-                        const top = ((pageHeightPt - t) / pageHeightPt) * 100;
-                        const width = ((r - l) / pageWidthPt) * 100;
-                        const height = ((t - b) / pageHeightPt) * 100;
-
-                        const isSelected = selectedFieldRef.current === box.fieldId;
-
-                        return (
-                            <div
-                                key={idx}
-                                title={box.fieldId}
-                                style={{
-                                    position: 'absolute',
-                                    left: `${left}%`,
-                                    top: `${top}%`,
-                                    width: `${width}%`,
-                                    height: `${height}%`,
-                                    border: isSelected ? '2px solid red' : '1px solid var(--accent)',
-                                    backgroundColor: isSelected ? 'rgba(255, 0, 0, 0.25)' : 'rgba(0, 204, 255, 0.1)',
-                                    zIndex: isSelected ? 20 : 10,
-                                    pointerEvents: 'none',
-                                    borderRadius: '2px',
-                                    transition: 'all 0.2s ease-in-out',
-                                    boxShadow: isSelected ? '0 0 8px rgba(255,0,0,0.5)' : 'none',
-                                    animation: isSelected ? 'selectedPulse 0.8s ease-out' : 'none'
-                                }}
-                            />
-                        );
-                    })}
-                </>
+              <div key={fieldId}>
+                <div style={{
+                  position: 'absolute',
+                  left, top, width: w, height: h,
+                  border, background: bg,
+                  borderRadius: '2px',
+                  transition: 'all 0.3s ease',
+                  animation,
+                }} />
+                {isExtracted && !isSelected && (
+                  <div style={{
+                    position: 'absolute',
+                    left: left + w + 4,
+                    top: top + h / 2 - 8,
+                    background: 'rgba(16,185,129,0.9)',
+                    color: 'white',
+                    fontSize: '9px',
+                    padding: '1px 5px',
+                    borderRadius: '3px',
+                    fontFamily: 'var(--mono-font)',
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                  }}>
+                    {(info.value || '').slice(0, 20)}
+                  </div>
+                )}
+              </div>
             );
-        }
-    };
+          })}
+        </div>
+      );
+    },
+  };
 };

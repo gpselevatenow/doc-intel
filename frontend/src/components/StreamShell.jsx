@@ -145,7 +145,8 @@ function StreamField({ field_id, value,
 
 export default function StreamShell({
   file, docType, onFieldClick,
-  onFieldHover, onFieldHoverEnd
+  onFieldHover, onFieldHoverEnd,
+  onFieldHeartbeat, onFieldExtracted,
 }) {
   const [steps, setSteps] = useState([]);
   const [fields, setFields] = useState([]);
@@ -216,6 +217,11 @@ export default function StreamShell({
         setSteps(prev => [...prev, { msg: event.msg, status: 'done' }]);
         break;
       case 'field':
+        onFieldHeartbeat?.(event.field_id);
+        setTimeout(() => {
+          onFieldExtracted?.(event.field_id);
+          onFieldHeartbeat?.(null);
+        }, 600);
         setFields(prev => [...prev, { ...event, index: fieldIndex.current++ }]);
         break;
       case 'flag':
