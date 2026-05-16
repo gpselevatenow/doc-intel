@@ -287,7 +287,7 @@ export default function StreamShell({
           {streaming
             ? <AgentStep msg="Extracting..." status="active" />
             : done
-            ? <AgentStep msg="Extraction complete" status="done" />
+            ? <AgentStep msg="Extraction complete ✓" status="done" />
             : null
           }
         </div>
