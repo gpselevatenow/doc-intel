@@ -291,9 +291,12 @@ export default function StreamShell({
           {steps.map((s, i) => (
             <AgentStep key={i} msg={s.msg} status={s.status} />
           ))}
-          {streaming && (
-            <AgentStep msg="Extracting..." status="active" />
-          )}
+          {streaming
+            ? <AgentStep msg="Extracting..." status="active" />
+            : done
+            ? <AgentStep msg="Extraction complete ✓" status="done" />
+            : null
+          }
         </div>
       )}
 

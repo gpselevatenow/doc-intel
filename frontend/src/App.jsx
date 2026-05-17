@@ -128,11 +128,13 @@ function App() {
   const [heartbeatField, setHeartbeatField] = useState(null);
   const [extractedFields, setExtractedFields] = useState(new Set());
   const [streamBboxMap, setStreamBboxMap] = useState({});
+  const [streamSelectedField, setStreamSelectedField] = useState(null);
 
   useEffect(() => {
     setHeartbeatField(null);
     setExtractedFields(new Set());
     setStreamBboxMap({});
+    setStreamSelectedField(null);
   }, [streamFile]);
 
   // --- Upload Handlers ---
@@ -687,7 +689,7 @@ function App() {
                     <PDFViewer
                       pdfUrl={streamPdfUrl}
                       bboxMap={streamBboxMap}
-                      selectedField={null}
+                      selectedField={streamSelectedField}
                       heartbeatField={heartbeatField}
                       extractedFields={extractedFields} />
                   </ErrorBoundary>
@@ -696,7 +698,7 @@ function App() {
               <StreamShell
                 file={streamFile}
                 docType={streamDocType}
-                onFieldClick={() => {}}
+                onFieldClick={(fid) => setStreamSelectedField(fid)}
                 onFieldHover={() => {}}
                 onFieldHoverEnd={() => {}}
                 onFieldHeartbeat={(fid) => setHeartbeatField(fid)}

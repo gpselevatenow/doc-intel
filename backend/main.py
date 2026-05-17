@@ -638,16 +638,19 @@ async def extract_stream(
                 })
 
                 if canonical_doc and isinstance(val, str):
-                    bbox_info = find_bbox_for_text(
-                        canonical_doc, str(val)[:80])
-                    if bbox_info:
-                        yield emit({
-                            "type": "bbox",
-                            "field_id": field_id,
-                            "bbox": bbox_info["bbox"],
-                            "page": bbox_info["page"],
-                            "value": str(val)[:80]
-                        })
+                    try:
+                        bbox_info = find_bbox_for_text(
+                            canonical_doc, str(val)[:80])
+                        if bbox_info:
+                            yield emit({
+                                "type": "bbox",
+                                "field_id": field_id,
+                                "bbox": bbox_info["bbox"],
+                                "page": bbox_info["page"],
+                                "value": str(val)[:80]
+                            })
+                    except:
+                        pass
 
                 await asyncio.sleep(0.08)
 
