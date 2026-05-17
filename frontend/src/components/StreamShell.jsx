@@ -146,7 +146,8 @@ function StreamField({ field_id, value,
 
 export default function StreamShell({
   file, docType, onFieldClick,
-  onFieldHover, onFieldHoverEnd
+  onFieldHover, onFieldHoverEnd,
+  onBboxEntry,
 }) {
   const [steps, setSteps] = useState([]);
   const [fields, setFields] = useState([]);
@@ -166,6 +167,7 @@ export default function StreamShell({
   const partiesRef = useRef([]);
 
   useEffect(() => {
+    console.log('StreamShell useEffect - file:', file?.name, 'type:', typeof file);
     if (!file) return;
     setSteps([]);
     setFields([]);
@@ -217,10 +219,14 @@ export default function StreamShell({
   function handleEvent(event) {
     switch (event.type) {
       case 'step':
+        setSteps(prev => [...prev, { msg: event.msg, status: 'done' }]);
+        break;
       case 'classified':
+        console.log('classified:', event.form_id);
         setSteps(prev => [...prev, { msg: event.msg, status: 'done' }]);
         break;
       case 'ghost':
+        console.log('ghost event:', event.field_id, event.predicted_value);
         setGhosts(prev => ({ ...prev, [event.field_id]: event }));
         break;
       case 'ghost_resolve':
@@ -240,6 +246,13 @@ export default function StreamShell({
       case 'parties':
         partiesRef.current = event.data || [];
         setParties(partiesRef.current);
+        break;
+      case 'bbox':
+        onBboxEntry?.(event.field_id, {
+          bbox: event.bbox,
+          page: event.page,
+          value: event.value,
+        });
         break;
       case 'done':
         setDone(true);
@@ -267,6 +280,8 @@ export default function StreamShell({
     </div>
   );
 
+  console.log('ghosts state:', Object.keys(ghosts));
+
   return (
     <div style={{
       height: '100%', overflowY: 'auto',
@@ -287,9 +302,12 @@ export default function StreamShell({
           {steps.map((s, i) => (
             <AgentStep key={i} msg={s.msg} status={s.status} />
           ))}
-          {streaming && (
-            <AgentStep msg="Extracting..." status="active" />
-          )}
+          {streaming
+            ? <AgentStep msg="Extracting..." status="active" />
+            : done
+            ? <AgentStep msg="Extraction complete ✓" status="done" />
+            : null
+          }
         </div>
       )}
 

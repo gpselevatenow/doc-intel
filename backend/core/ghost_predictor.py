@@ -10,6 +10,7 @@ GHOST_PREDICTIONS = {
         "road_surface": "Dry",
         "light_condition": "Daylight",
         "property_damage": "None reported",
+        "contributing_factors": "Unknown",
     },
     "ny_mv104a": {
         "agency": "New York City Police Department",

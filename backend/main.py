@@ -568,6 +568,7 @@ async def extract_stream(
             ghost_preds = get_ghost_predictions(form_id, early_signals)
             ghost_field_ids = {g["field_id"] for g in ghost_preds}
             for ghost in ghost_preds:
+                print(f"[GHOST] emitting: {ghost['field_id']}")
                 yield emit(ghost)
                 await asyncio.sleep(0.03)
 
@@ -652,6 +653,21 @@ async def extract_stream(
                         "real_value": str(parsed)[:120],
                         "was_correct": False
                     })
+
+                if canonical_doc and isinstance(val, str):
+                    try:
+                        bbox_info = find_bbox_for_text(
+                            canonical_doc, str(val)[:80])
+                        if bbox_info:
+                            yield emit({
+                                "type": "bbox",
+                                "field_id": field_id,
+                                "bbox": bbox_info["bbox"],
+                                "page": bbox_info["page"],
+                                "value": str(val)[:80]
+                            })
+                    except:
+                        pass
 
                 await asyncio.sleep(0.08)
 
