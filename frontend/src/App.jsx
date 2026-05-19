@@ -278,14 +278,14 @@ function App() {
       gap: '0',
       flexShrink: 0,
     }}>
-      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginRight:'32px' }}>
-        <div style={{
-          background: '#4f46e5', color: 'white',
-          fontSize: '10px', fontWeight: '600',
-          padding: '3px 7px', borderRadius: '4px',
-          letterSpacing: '.02em', fontFamily: 'var(--mono-font)',
-        }}>EN</div>
-        <span style={{ color:'#e2e8f0', fontSize:'14px', fontWeight:'500' }}>Doc Intel</span>
+      <div style={{ display:'flex', alignItems:'center', gap:'10px', marginRight:'32px' }}>
+        <svg width="22" height="22" viewBox="0 0 153 153" fill="#57CBFF" aria-label="Elevatenow">
+          <rect x="0" y="32" width="90" height="45"/>
+          <rect x="77" y="63" width="45" height="90"/>
+          <rect x="0" y="108" width="45" height="45"/>
+          <rect x="100.3" y="10.3" width="43.4" height="43.4" transform="rotate(45 122 32)"/>
+        </svg>
+        <span style={{ color:'#F5F7FB', fontSize:'14px', fontWeight:'600', fontFamily:'Onest, system-ui, sans-serif', letterSpacing:'-0.01em' }}>Doc Intel</span>
       </div>
 
       {[
@@ -435,7 +435,8 @@ function App() {
             onClick={() => {
               if (stagedFiles.length === 0) return;
               const f = stagedFiles[0];
-              console.log('stream button clicked, streamFile:', stagedFiles[0]);
+              setStreamBboxMap({});
+              setStreamSelectedField(null);
               setStreamFile(f.file);
               setStreamDocType(
                 f.type === 'ia' ? 'ia_report'
