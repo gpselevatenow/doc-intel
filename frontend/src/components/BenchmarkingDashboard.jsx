@@ -15,7 +15,7 @@ export default function BenchmarkingDashboard() {
   const fetchFailures = async () => {
     setFailuresLoading(true);
     try {
-      const res = await fetch('http://localhost:8004/api/benchmark/failures');
+      const res = await fetch('http://localhost:8006/api/benchmark/failures');
       if (!res.ok) throw new Error('Failed to reach backend');
       const data = await res.json();
       if (data.status === 'success') setFailures(data);
@@ -31,7 +31,7 @@ export default function BenchmarkingDashboard() {
     setError(null);
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
-      const res = await fetch('http://localhost:8004/api/benchmark/run');
+      const res = await fetch('http://localhost:8006/api/benchmark/run');
       if (!res.ok) throw new Error('Failed to reach backend');
       const data = await res.json();
       if (data.status === 'success') {

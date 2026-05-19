@@ -1,44 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
 :root {
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* === ELEVATENOW BRAND TOKENS — DARK VARIANT === */
+
+  /* Fonts */
+  --font-body: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-  --primary-bg: #0a2260;
-  --secondary-bg: #1e1547;
-  --accent: #93c5fd;
-  --accent-hover: #c4b5fd;
-  --text-main: #f8fafc;
-  --text-muted: #cbd5e1;
-  --danger: #ef4444;
-  --success: #6ee7b7;
-  --warning: #f59e0b;
-  --warning-bg: rgba(245, 158, 11, 0.10);
-  --warning-border: rgba(245, 158, 11, 0.35);
-  --danger-bg: rgba(239, 68, 68, 0.10);
-  --danger-border: rgba(239, 68, 68, 0.35);
-  --border-color: rgba(255, 255, 255, 0.15);
-  --card-bg: rgba(30, 21, 71, 0.6);
-  --nav-bg: #060e1d;
-  --nav-border: rgba(255,255,255,0.07);
-  --surface-1: #0a1628;
-  --surface-2: #060e1d;
-  --surface-3: rgba(255,255,255,0.04);
   --mono-font: 'JetBrains Mono', 'Fira Code', monospace;
-  --text-tertiary: #475569;
-  --text-secondary-bright: #94a3b8;
-  --success-bright: #10b981;
-  --success-bg: rgba(16,185,129,0.08);
-  --success-border: rgba(16,185,129,0.25);
-  --accent-bg: rgba(147,197,253,0.08);
-  --accent-border: rgba(147,197,253,0.2);
+
+  /* Brand palette */
+  --en-sky:        #57CBFF;
+  --en-azure:      #4285F4;
+  --en-ink:        #1C1C46;
+  --en-royal:      #2145EA;
+  --en-cobalt:     #112CA9;
+  --en-periwinkle: #6E71FF;
+  --en-orange:     #F27629;
+
+  /* Surfaces — dark variant of EN ink */
+  --primary-bg:    #0F0F2E;
+  --secondary-bg:  #1C1C46;
+  --nav-bg:        #0A0A20;
+  --surface-1:     #0F0F2E;
+  --surface-2:     #0A0A20;
+  --surface-3:     rgba(255,255,255,0.04);
+  --card-bg:       rgba(28,28,70,0.8);
+
+  /* Accent — EN sky on dark */
+  --accent:        #57CBFF;
+  --accent-hover:  #2145EA;
+  --accent-bg:     rgba(87,203,255,0.08);
+  --accent-border: rgba(87,203,255,0.2);
+
+  /* Text */
+  --text-main:             #F5F7FB;
+  --text-muted:            rgba(255,255,255,0.72);
+  --text-tertiary:         #4A4F70;
+  --text-secondary-bright: #7C82A1;
+
+  /* Borders */
+  --border-color: rgba(255,255,255,0.12);
+  --nav-border:   rgba(255,255,255,0.08);
+
+  /* Semantic */
+  --success:        #1F8A5B;
+  --success-bright: #22C55E;
+  --success-bg:     rgba(31,138,91,0.10);
+  --success-border: rgba(31,138,91,0.25);
+  --warning:        #F27629;
+  --warning-bg:     rgba(242,118,41,0.10);
+  --warning-border: rgba(242,118,41,0.30);
+  --danger:         #D03A3A;
+  --danger-bg:      rgba(208,58,58,0.10);
+  --danger-border:  rgba(208,58,58,0.30);
+  --info:           #4285F4;
+
+  /* Motion — EN standard (no bounce) */
+  --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-emph:     cubic-bezier(0.16, 1, 0.3, 1);
+  --d-fast:  120ms;
+  --d-med:   220ms;
+  --d-slow:  360ms;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(28,28,70,0.20);
+  --shadow-sm: 0 2px 6px rgba(28,28,70,0.24), 0 1px 2px rgba(28,28,70,0.12);
+  --shadow-md: 0 8px 24px rgba(28,28,70,0.30), 0 2px 6px rgba(28,28,70,0.16);
 }
 
 body {
   margin: 0;
   font-family: var(--font-body);
-  background-color: var(--primary-bg);
+  background: var(--primary-bg);
   color: var(--text-main);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app-container {
@@ -87,7 +124,7 @@ body {
   padding: 0 1.5rem;
   height: 100%;
   border-bottom: 3px solid transparent;
-  transition: all 0.2s ease;
+  transition: all var(--d-med) var(--ease-standard);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -131,7 +168,7 @@ body {
   border-radius: 12px;
   color: var(--text-muted);
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--d-slow) var(--ease-standard);
   background: rgba(30, 41, 59, 0.3);
 }
 
@@ -202,7 +239,7 @@ body {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background var(--d-med) var(--ease-standard);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -226,7 +263,7 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--d-med) var(--ease-standard);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -264,7 +301,7 @@ body {
   padding: 1rem;
   border-bottom: 1px solid var(--border-color);
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background var(--d-med) var(--ease-standard);
 }
 
 .doc-item:hover {
@@ -341,7 +378,7 @@ body {
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: border-color var(--d-med) var(--ease-standard), box-shadow var(--d-med) var(--ease-standard), background var(--d-med) var(--ease-standard);
 }
 
 .glass-card:hover {
@@ -433,7 +470,7 @@ body {
   padding: 0.2rem 0.4rem;
   margin: -0.2rem -0.4rem;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: all var(--d-med) var(--ease-standard);
   display: inline-block;
 }
 
@@ -456,14 +493,12 @@ body {
 
 .insight-card {
   background: rgba(16, 185, 129, 0.1); /* Subtle green */
-  border-left: 4px solid var(--success);
   padding: 1rem;
   border-radius: 4px;
 }
 
 .action-card {
   background: rgba(239, 68, 68, 0.1); /* Subtle red */
-  border-left: 4px solid var(--danger);
   padding: 1rem;
   border-radius: 4px;
 }
@@ -483,17 +518,6 @@ body {
   0%   { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.6); }
   50%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.2); }
   100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
-}
-
-@keyframes heartbeatPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(147,197,253,0.4);
-    border-color: rgba(147,197,253,0.9);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(147,197,253,0);
-    border-color: rgba(147,197,253,0.4);
-  }
 }
 
 @keyframes blink {
