@@ -1,5 +1,8 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
+import pdfplumber
 import os
 import re
 import shutil
@@ -537,6 +540,222 @@ async def extract_police(file: UploadFile = File(...)):
                 pass
 
 
+@app.post("/api/extract/stream")
+async def extract_stream(
+    file: UploadFile = File(...),
+    doc_type: str = Form("police_report")
+):
+    import tempfile, os, json as _json
+
+    suffix = Path(file.filename).suffix
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=suffix) as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    async def generate():
+        try:
+            def emit(event: dict) -> str:
+                return f"data: {_json.dumps(event)}\n\n"
+
+            yield emit({"type": "step",
+                "msg": "Reading document..."})
+            await asyncio.sleep(0.05)
+
+            text = ""
+            with pdfplumber.open(tmp_path) as pdf:
+                text = "\n".join(
+                    p.extract_text() or ""
+                    for p in pdf.pages)
+
+            yield emit({"type": "step",
+                "msg": "Classifying form..."})
+            await asyncio.sleep(0.05)
+
+            form_id, confidence = classify_form(text)
+            yield emit({
+                "type": "classified",
+                "form_id": form_id,
+                "confidence": round(confidence, 3),
+                "msg": f"Classified as {form_id} ({round(confidence*100)}%)"
+            })
+            await asyncio.sleep(0.05)
+
+            yield emit({"type": "step",
+                "msg": "Extracting fields..."})
+            await asyncio.sleep(0.05)
+
+            markdown_text, canonical_doc = \
+                parse_document(tmp_path)
+            canonical_doc.markdown = text
+
+            orchestrator_output = run_orchestrator(
+                canonical_doc, file.filename,
+                doc_type, form_id=form_id)
+            record = orchestrator_output["record"]
+
+            scalar_fields = [
+                "date_time", "location", "weather",
+                "road_surface", "light_condition",
+                "accident_type", "agency", "officer",
+                "report_number", "ems_agency",
+                "contributing_factors",
+                "property_damage", "cause_of_loss",
+                "settlement", "subrogation",
+                "coverage_a", "coverage_b",
+                "coverage_c", "coverage_d",
+                "inspection_date", "inspection_firm",
+                "officials", "recommendations",
+                "payment_summary"
+            ]
+
+            accuracy_scores = {}
+            try:
+                from backend.core.scoring import \
+                    compute_accuracy_score
+                accuracy_scores = \
+                    compute_accuracy_score(record) or {}
+            except:
+                pass
+
+            for field_id in scalar_fields:
+                val = record.get(field_id)
+                if val is None:
+                    continue
+                try:
+                    parsed = _json.loads(val) \
+                        if isinstance(val, str) \
+                        and val.startswith('[') \
+                        else val
+                except:
+                    parsed = val
+
+                conf = accuracy_scores.get(
+                    field_id, 0.85)
+
+                yield emit({
+                    "type": "field",
+                    "field_id": field_id,
+                    "value": str(parsed)[:120],
+                    "confidence": round(
+                        float(conf), 3),
+                    "schema": {
+                        "type": "currency"
+                            if field_id in [
+                                "settlement",
+                                "coverage_a",
+                                "coverage_b",
+                                "coverage_c",
+                                "coverage_d"]
+                            else "date"
+                            if "date" in field_id
+                            else "text",
+                        "label": field_id.replace(
+                            "_", " ").title()
+                    }
+                })
+                if canonical_doc and isinstance(val, str):
+                    try:
+                        bbox_info = find_bbox_for_text(
+                            canonical_doc, str(parsed)[:80])
+                        if bbox_info:
+                            yield emit({
+                                "type": "bbox",
+                                "field_id": field_id,
+                                "bbox": bbox_info["bbox"],
+                                "page": bbox_info["page"],
+                                "value": str(parsed)[:80]
+                            })
+                    except:
+                        pass
+                await asyncio.sleep(0.08)
+
+            reserve_warning = bool(
+                record.get("reserve_warning") or
+                (record.get("settlement") and
+                 "reserve" in str(
+                    record.get("settlement", "")
+                 ).lower()))
+
+            if reserve_warning:
+                yield emit({
+                    "type": "flag",
+                    "flag": "reserve",
+                    "msg": "Reserve language detected"
+                })
+                await asyncio.sleep(0.05)
+
+            vehicles = []
+            try:
+                v = record.get("vehicles")
+                if v:
+                    vehicles = _json.loads(v) \
+                        if isinstance(v, str) else v
+            except:
+                pass
+
+            if vehicles:
+                yield emit({
+                    "type": "vehicles",
+                    "data": vehicles[:5]
+                })
+                await asyncio.sleep(0.05)
+
+            parties = []
+            for key in ["operators", "passengers",
+                        "pedestrians"]:
+                try:
+                    p = record.get(key)
+                    if p:
+                        parsed_p = _json.loads(p) \
+                            if isinstance(p, str) \
+                            else p
+                        parties.extend(parsed_p)
+                except:
+                    pass
+
+            if parties:
+                yield emit({
+                    "type": "parties",
+                    "data": parties[:10]
+                })
+                await asyncio.sleep(0.05)
+
+            risk_score = 0
+            if reserve_warning: risk_score += 3
+            if "investig" in str(
+                record.get("subrogation", "")
+            ).lower(): risk_score += 2
+            if len(vehicles) >= 3: risk_score += 1
+            if len(parties) >= 3: risk_score += 1
+            risk_level = "high" if risk_score >= 5 \
+                else "medium" if risk_score >= 2 \
+                else "low"
+
+            yield emit({
+                "type": "done",
+                "risk_level": risk_level,
+                "form_id": form_id,
+                "field_count": len(scalar_fields),
+                "msg": "Extraction complete"
+            })
+
+        except Exception as e:
+            yield f"data: {_json.dumps({'type': 'error', 'msg': str(e)})}\n\n"
+        finally:
+            try: os.unlink(tmp_path)
+            except: pass
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        }
+    )
+
+
 @app.post("/api/extract/acord-report")
 async def extract_acord(file: UploadFile = File(...)):
     file_path = f"temp_{file.filename}"
@@ -845,4 +1064,4 @@ async def run_benchmark():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8006)
