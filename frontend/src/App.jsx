@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Upload, ShieldCheck, Play, Trash2, ArrowLeft, Clock, PlusSquare, RefreshCw, Activity, Search, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import ExtractionResults from './components/ExtractionResults';
+import StreamShell from './components/StreamShell';
 import DiscrepancyDashboard from './components/DiscrepancyDashboard';
 import BenchmarkingDashboard from './components/BenchmarkingDashboard';
 import logo from './assets/logo.jpg';
@@ -114,6 +115,10 @@ function App() {
   const [pdfSearchText, setPdfSearchText] = useState('');
   const [isReprocessingId, setIsReprocessingId] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [streamFile, setStreamFile] = useState(null);
+  const [streamDocType, setStreamDocType] = useState('police_report');
+  const [streamBboxMap, setStreamBboxMap] = useState({});
+  const [streamSelectedField, setStreamSelectedField] = useState(null);
 
   // --- Upload Handlers ---
   const handleFileSelect = (event) => {
@@ -269,20 +274,21 @@ function App() {
       gap: '0',
       flexShrink: 0,
     }}>
-      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginRight:'32px' }}>
-        <div style={{
-          background: '#4f46e5', color: 'white',
-          fontSize: '10px', fontWeight: '600',
-          padding: '3px 7px', borderRadius: '4px',
-          letterSpacing: '.02em', fontFamily: 'var(--mono-font)',
-        }}>EN</div>
-        <span style={{ color:'#e2e8f0', fontSize:'14px', fontWeight:'500' }}>Doc Intel</span>
+      <div style={{ display:'flex', alignItems:'center', gap:'10px', marginRight:'32px' }}>
+        <svg width="22" height="22" viewBox="0 0 153 153" fill="#57CBFF" aria-label="Elevatenow">
+          <rect x="0" y="32" width="90" height="45"/>
+          <rect x="77" y="63" width="45" height="90"/>
+          <rect x="0" y="108" width="45" height="45"/>
+          <rect x="100.3" y="10.3" width="43.4" height="43.4" transform="rotate(45 122 32)"/>
+        </svg>
+        <span style={{ color:'#F5F7FB', fontSize:'14px', fontWeight:'600', fontFamily:'Onest, system-ui, sans-serif', letterSpacing:'-0.01em' }}>Doc Intel</span>
       </div>
 
       {[
         { id:'upload', icon:<PlusSquare size={13}/>, label:'New extraction' },
         { id:'history', icon:<Clock size={13}/>, label:'History' },
         { id:'benchmarks', icon:<Activity size={13}/>, label:'Benchmarks' },
+        { id:'stream', icon:<Activity size={13}/>, label:'Stream' },
       ].map(item => (
         <div key={item.id} onClick={() => setActiveView(item.id)}
           style={{
@@ -419,6 +425,40 @@ function App() {
             ) : (
               <><Play size={12} /> Run Extraction ({stagedFiles.length})</>
             )}
+          </button>
+
+          <button
+            onClick={() => {
+              if (stagedFiles.length === 0) return;
+              const f = stagedFiles[0];
+              setStreamBboxMap({});
+              setStreamSelectedField(null);
+              setStreamFile(f.file);
+              setStreamDocType(
+                f.type === 'ia' ? 'ia_report'
+                : f.type === 'acord' ? 'acord_report'
+                : f.type === 'hsmv' ? 'hsmv_report'
+                : 'police_report'
+              );
+              setActiveView('stream');
+            }}
+            disabled={isProcessing}
+            style={{
+              background: 'transparent',
+              border: '0.5px solid var(--accent-border)',
+              borderRadius: '6px',
+              color: 'var(--accent)',
+              fontSize: '11px',
+              padding: '8px 14px',
+              cursor: isProcessing ? 'not-allowed' : 'pointer',
+              fontFamily: 'var(--mono-font)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              width: '100%',
+              marginTop: '2px',
+            }}>
+            ∿ Stream extraction
           </button>
 
           <div style={{ flex: 1, overflowY: 'auto', marginTop: '4px' }}>
@@ -582,12 +622,77 @@ function App() {
     );
   };
 
+  const streamPdfUrl = streamFile ? URL.createObjectURL(streamFile) : null;
+
   return (
     <div className="app-container">
       {renderHeader()}
       <main className="main-content">
         {activeView === 'benchmarks' ? (
           <BenchmarkingDashboard />
+        ) : activeView === 'stream' ? (
+          <div style={{ display: 'flex', height: '100%', background: 'var(--surface-1)' }}>
+            <div style={{
+              width: '240px', flexShrink: 0,
+              background: 'var(--surface-2)',
+              borderRight: '0.5px solid var(--nav-border)',
+              padding: '14px 12px',
+              display: 'flex', flexDirection: 'column', gap: '10px',
+            }}>
+              <button
+                onClick={() => setActiveView('upload')}
+                style={{
+                  background: 'transparent',
+                  border: '0.5px solid var(--nav-border)',
+                  borderRadius: '6px',
+                  color: 'var(--text-muted)', fontSize: '11px',
+                  padding: '7px 12px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '6px', width: '100%',
+                }}>
+                ← New extraction
+              </button>
+              {streamFile && (
+                <div style={{
+                  fontSize: '10px', color: 'var(--accent)',
+                  fontFamily: 'var(--mono-font)',
+                  padding: '8px 0',
+                  borderBottom: '0.5px solid var(--nav-border)',
+                  wordBreak: 'break-all',
+                }}>
+                  {streamFile.name}
+                </div>
+              )}
+              <div style={{
+                fontSize: '10px', color: 'var(--text-tertiary)',
+                fontFamily: 'var(--mono-font)', lineHeight: '1.6',
+              }}>
+                Live SSE extraction stream.<br />
+                Fields appear as extracted.
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+              <div style={{ borderRight: '0.5px solid var(--nav-border)', overflow: 'hidden' }}>
+                {streamPdfUrl && (
+                  <ErrorBoundary>
+                    <PDFViewer
+                      pdfUrl={streamPdfUrl}
+                      bboxMap={streamBboxMap}
+                      selectedField={streamSelectedField}
+                      hoveredField={null} />
+                  </ErrorBoundary>
+                )}
+              </div>
+              <StreamShell
+                file={streamFile}
+                docType={streamDocType}
+                onFieldClick={(fid) => setStreamSelectedField(fid)}
+                onFieldHover={() => {}}
+                onFieldHoverEnd={() => {}}
+                onBboxEntry={(fieldId, info) =>
+                  setStreamBboxMap(prev => ({ ...prev, [fieldId]: info }))
+                } />
+            </div>
+          </div>
         ) : activeView === 'upload' ? (
           renderUploadView()
         ) : (

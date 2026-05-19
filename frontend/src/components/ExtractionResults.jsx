@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle } from 'lucide-react';
-import InsightsPanel from './InsightsPanel';
+import { Lightbulb, ArrowRightCircle, CheckCircle, AlertTriangle, Info, Plus, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Search, X, Car, User, Eye, FileText, MapPin, Shield, AlertCircle, ShieldCheck } from 'lucide-react';
 import EditableField from './EditableField';
 import TypewriterValue from './TypewriterValue';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -251,7 +250,7 @@ function ReserveWarningBanner({ reserveWarning, reserveText }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFieldHoverEnd, isReprocessing, onReprocess, selectedField }) => {
+const ExtractionResults = ({ type, data, docId, onFieldClick, isReprocessing, onReprocess, selectedField }) => {
   const [recommendations, setRecommendations] = useState('');
   const [customFields, setCustomFields] = useState([]);
   const [newField, setNewField] = useState('');
@@ -371,7 +370,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
 
   const fetchCustomFields = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8003/api/settings/fields/${encodeURIComponent(docId)}`);
+      const res = await fetch(`http://127.0.0.1:8006/api/settings/fields/${encodeURIComponent(docId)}`);
       const json = await res.json();
       if (json.status === 'success') setCustomFields(json.fields);
     } catch (e) { console.error("Failed to fetch custom fields", e); }
@@ -381,7 +380,7 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
     e.preventDefault();
     if (!newField.trim() || !docId) return;
     try {
-      await fetch('http://127.0.0.1:8003/api/settings/fields', {
+      await fetch('http://127.0.0.1:8006/api/settings/fields', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId, field_name: newField.trim() })
       });
@@ -391,14 +390,14 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
 
   const deleteField = async (fieldName) => {
     try {
-      await fetch(`http://127.0.0.1:8003/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, { method: 'DELETE' });
+      await fetch(`http://127.0.0.1:8006/api/settings/fields/${encodeURIComponent(docId)}/${encodeURIComponent(fieldName)}`, { method: 'DELETE' });
       fetchCustomFields();
     } catch (e) { console.error(e); }
   };
 
   const submitFeedback = async (action) => {
     try {
-      await fetch('http://127.0.0.1:8003/api/feedback/rate', {
+      await fetch('http://127.0.0.1:8006/api/feedback/rate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doc_id: docId || 'unknown_doc', action })
       });
@@ -406,13 +405,90 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
     } catch (e) { console.error("Failed to submit feedback", e); }
   };
 
+  const renderAccuracyBadge = () => {
+    const score = data.accuracy_score || 0;
+    const isHigh = score >= 90;
+    const isMid = score >= 70 && score < 90;
+    const color = isHigh ? 'var(--success-bright)' : isMid ? 'var(--warning)' : 'var(--danger)';
+    const label = isHigh ? 'High confidence' : isMid ? 'Review recommended' : 'Escalation required';
+
+    return (
+      <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '28px', fontWeight: '500', color, fontFamily: 'var(--mono-font)', lineHeight: 1 }}>
+            {score.toFixed(1)}%
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em', marginTop: '4px', fontFamily: 'var(--mono-font)' }}>
+            Avg extraction confidence
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color, background: isHigh ? 'var(--success-bg)' : 'rgba(245,158,11,0.08)', padding: '6px 12px', borderRadius: '6px', fontFamily: 'var(--mono-font)', border: `0.5px solid ${isHigh ? 'var(--success-border)' : 'rgba(245,158,11,0.25)'}` }}>
+          <ShieldCheck size={13} />
+          {label}
+        </div>
+      </div>
+    );
+  };
+
+  const renderInsights = () => {
+    const chips = [];
+    const actions = [];
+
+    if (data.reserve_warning) chips.push({ label: 'Reserve language detected', color: 'var(--danger)', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)', icon: '⚠' });
+    if (data.subrogation && data.subrogation.toLowerCase().includes('investig')) chips.push({ label: 'Subrogation opportunity', color: 'var(--warning)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', icon: '⚖' });
+    const opCount = (data.operators || []).length + (data.passengers || []).length + (data.pedestrians || []).length;
+    if (opCount > 0) chips.push({ label: `${opCount} parties identified`, color: 'var(--accent)', bg: 'var(--accent-bg)', border: 'var(--accent-border)', icon: '◎' });
+    const vCount = (data.vehicles || []).length;
+    if (vCount > 0) chips.push({ label: `${vCount} vehicles`, color: 'var(--accent)', bg: 'var(--accent-bg)', border: 'var(--accent-border)', icon: '⬡' });
+    if (data.coverage_a) chips.push({ label: 'Coverage A confirmed', color: 'var(--success-bright)', bg: 'var(--success-bg)', border: 'var(--success-border)', icon: '✓' });
+
+    if (data.reserve_warning) actions.push(`Set reserve — ${data.settlement || 'amount TBD'}`);
+    if (data.subrogation && data.subrogation.toLowerCase().includes('investig')) actions.push('File subrogation preservation letter');
+    if (!data.agency || data.agency === 'Unknown') actions.push('Request agency supplement');
+    if (opCount > 3) actions.push('Review liability across all parties');
+    if (actions.length === 0) actions.push('Review extracted fields and submit to ClaimCenter');
+
+    if (chips.length === 0 && actions.length === 0) return null;
+
+    return (
+      <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--nav-border)' }}>
+        {chips.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)', marginBottom: '8px' }}>Signals detected</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {chips.map((chip, i) => (
+                <div key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', color: chip.color, background: chip.bg, border: `0.5px solid ${chip.border}` }}>
+                  <span style={{ fontSize: '10px' }}>{chip.icon}</span>
+                  {chip.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {actions.length > 0 && (
+          <div>
+            <div style={{ fontSize: '9px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: 'var(--mono-font)', marginBottom: '8px' }}>Next actions</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {actions.map((action, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px 12px', background: 'var(--surface-3)', borderRadius: '6px', fontSize: '12px', color: '#e2e8f0' }}>
+                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent-bg)', border: '0.5px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'var(--accent)', fontFamily: 'var(--mono-font)', flexShrink: 0, marginTop: '1px' }}>{i + 1}</div>
+                  <span style={{ lineHeight: '1.4' }}>{action}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // ── ACORD render ─────────────────────────────────────────────────────────
   if (type === 'acord') {
     return (
       <div className="fade-in">
         {renderAuditModal()}
-        <InsightsPanel data={data} type={type} />
+        {renderAccuracyBadge()}
+        {renderInsights()}
         <div className="glass-card">
           <SectionHeader icon={FileText} title="Extracted ACORD Data" />
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Click any value below to edit and train the NLP engine.</p>
@@ -450,7 +526,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
       <div className="fade-in">
         {renderAuditModal()}
         <ReserveWarningBanner reserveWarning={data.reserve_warning} reserveText={reserveText} />
-        <InsightsPanel data={data} type={type} />
+        {renderAccuracyBadge()}
+        {renderInsights()}
         <div className="glass-card">
           <SectionHeader icon={FileText} title="Extracted Coverages & Estimates" />
           <div className="grid-2">
@@ -458,8 +535,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
               <div key={fid} style={{ animation: `fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) ${index * 400}ms both` }}>
                 <motion.div
                   onClick={() => onFieldClick(fid)}
-                  onMouseEnter={() => onFieldHover?.(fid)}
-                  onMouseLeave={() => onFieldHoverEnd?.()}
                   style={{ cursor: 'pointer', ...confStyle(fid) }}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
@@ -507,7 +582,8 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
   return (
     <div className="fade-in">
       {renderAuditModal()}
-      <InsightsPanel data={data} type={type} />
+      {renderAccuracyBadge()}
+      {renderInsights()}
 
       {/* ── Incident Summary ─────────────────────────────────────────── */}
       <div className="glass-card">
@@ -516,8 +592,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 0ms both' }}>
             <motion.div
               onClick={() => onFieldClick('date_time')}
-              onMouseEnter={() => onFieldHover?.('date_time')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('date_time') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -529,8 +603,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 400ms both' }}>
             <motion.div
               onClick={() => onFieldClick('location')}
-              onMouseEnter={() => onFieldHover?.('location')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('location') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -542,8 +614,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 800ms both' }}>
             <motion.div
               onClick={() => onFieldClick('weather')}
-              onMouseEnter={() => onFieldHover?.('weather')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('weather') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -555,8 +625,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2000ms both' }}>
             <motion.div
               onClick={() => onFieldClick('accident_type')}
-              onMouseEnter={() => onFieldHover?.('accident_type')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('accident_type') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -568,8 +636,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 3600ms both' }}>
             <motion.div
               onClick={() => onFieldClick('ems_agency')}
-              onMouseEnter={() => onFieldHover?.('ems_agency')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('ems_agency') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -581,8 +647,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 1600ms both' }}>
             <motion.div
               onClick={() => onFieldClick('light_condition')}
-              onMouseEnter={() => onFieldHover?.('light_condition')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('light_condition') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -594,8 +658,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 1200ms both' }}>
             <motion.div
               onClick={() => onFieldClick('road_surface')}
-              onMouseEnter={() => onFieldHover?.('road_surface')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('road_surface') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -614,8 +676,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2400ms both' }}>
             <motion.div
               onClick={() => onFieldClick('agency')}
-              onMouseEnter={() => onFieldHover?.('agency')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('agency') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -627,8 +687,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 2800ms both' }}>
             <motion.div
               onClick={() => onFieldClick('officer')}
-              onMouseEnter={() => onFieldHover?.('officer')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('officer') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -640,8 +698,6 @@ const ExtractionResults = ({ type, data, docId, onFieldClick, onFieldHover, onFi
           <div style={{ animation: 'fieldLand 0.4s cubic-bezier(0.22,1,0.36,1) 3200ms both' }}>
             <motion.div
               onClick={() => onFieldClick('report_number')}
-              onMouseEnter={() => onFieldHover?.('report_number')}
-              onMouseLeave={() => onFieldHoverEnd?.()}
               style={{ cursor: 'pointer', ...confStyle('report_number') }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}

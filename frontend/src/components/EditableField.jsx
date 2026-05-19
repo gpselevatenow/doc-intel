@@ -17,7 +17,7 @@ const EditableField = ({ value, delay = 0, speed = 80, resetKey = '', fieldName,
     setIsEditing(false);
     if (currentValue !== originalValue) {
       try {
-        const response = await fetch('http://localhost:8003/api/feedback/correction', {
+        const response = await fetch('http://localhost:8006/api/feedback/correction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
